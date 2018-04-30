@@ -22,3 +22,8 @@ Example: bitmask `001` describes that an account has normal user rights
 This contract can then be called by other contracts prior to executing their scripts, in order to check if the sender has the needed access rights.
 
 See `bitmask.sol` files for implementation.
+
+#### Colored Coins / Tokens
+
+
+#### Hierarchical Wallets
