@@ -2,6 +2,8 @@
 
 ## On-Chain Access Rights
 
+### Requirements
+
 ### Approaches
 
 #### Address-to-Bitmask Mapping
