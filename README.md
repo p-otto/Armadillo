@@ -11,6 +11,8 @@ To enable the management of users with specific access rights, we need to introd
 Depending on the application, the role-to-function mapping should be __generated automatically__. In a BPM engine, for example, it should be possible to generate the mapping from a BPMN model containing lanes with specific tasks.
 The user-to-role-mapping should be __modifyable at run time__, i.e. by an admin user adding another user to a specific role.
 
+It should be possible to have access rights management for processes shared between multiple organizations (multiple pools), i.e., enabling trusted access rights management between untrusted partners.
+
 The implementation should be __benchmarkable__ in terms of transaction and execution costs in ether, as well as number of needed transactions.
 
 #### Non-Functional
