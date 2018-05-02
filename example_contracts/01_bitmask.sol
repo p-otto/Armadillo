@@ -1,11 +1,23 @@
-pragma solidity ^0.4.0;
+pragma solidity ^0.4.23;
 
-contract Process {
+contract Ownable {
+    address owner;
+    
+    constructor() public {
+        owner = msg.sender;
+    }
+    
+    modifier only_owner() {
+        require(owner == msg.sender);
+        _;
+    }
+    
+    function changeOwner(address new_owner) only_owner public {
+        owner = new_owner;
+    }
+}
 
-    uint USER_BIT = 0x01;
-    uint ADMIN_BIT = 0x02;
-    uint SUPERADMIN_BIT = 0x04;
-
+contract Process is Ownable {
     struct Voter {
         uint weight;
         bool voted;
@@ -16,21 +28,27 @@ contract Process {
         uint voteCount;
     }
 
-    address process_owner;
+    mapping(string => uint) role_bit;
     mapping(address => uint) access_rights;
 
     event AccessRights(uint bitmask);
 
-    constructor() {
-        process_owner = msg.sender;
-        access_rights[process_owner] = access_rights[process_owner] | SUPERADMIN_BIT;
+    constructor() public {
+        role_bit["user"] = 0x01;
+        role_bit["admin"] = 0x02;
+        role_bit["superadmin"] = 0x04;
+        access_rights[owner] = access_rights[owner] | role_bit["superadmin"];
     }
 
-    function giveRights(address _receiver, uint _bit) {
-        access_rights[_receiver] = access_rights[_receiver] | _bit;
+    function giveRights(address _receiver, string _role) public only_owner {
+        access_rights[_receiver] = access_rights[_receiver] | role_bit[_role];
     }
 
-    function checkAccessRights(uint bit) returns (bool) {
+    function removeRights(address _receiver, string _role) public only_owner {
+        access_rights[_receiver] = access_rights[_receiver] ^ role_bit[_role];
+    }
+
+    function checkAccessRights(uint bit) public view returns (bool) {
         return (access_rights[msg.sender] & bit) != 0;
     }
 }
