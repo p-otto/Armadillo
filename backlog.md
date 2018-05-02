@@ -1,7 +1,7 @@
 # Backlog
 - [] Prepare conceptual presentation (14.05.)
 
-- [] Document formal requirements for on-chain access control
+- [x] Document formal requirements for on-chain access control
 	- role management vs. access management
 
 - [x] Prepare simple BPMN Diagram
