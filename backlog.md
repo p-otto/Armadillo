@@ -15,8 +15,8 @@
 	- [] Mixing Services
 
 - Implement/Prototype:
-	- [] bitmask approach for bpmn role / access management
+	- [x] bitmask approach for bpmn role / access management
 	- [] token approach for bpmn access management
 	- [] lightwallet seeds for bpmn role management
 
-
+- [] Create simple webapp using bpmn.io
