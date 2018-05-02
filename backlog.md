@@ -4,7 +4,7 @@
 - [] Document formal requirements for on-chain access control
 	- role management vs. access management
 
-- [] Prepare simple BPMN Diagram
+- [x] Prepare simple BPMN Diagram
 
 - [] Research Caterpillar alternatives
 
