@@ -18,5 +18,9 @@
 	- [x] bitmask approach for bpmn role / access management
 	- [] token approach for bpmn access management
 	- [] lightwallet seeds for bpmn role management
+	- [] meta-contract approach for discerning state and execution
 
-- [] Create simple webapp using bpmn.io
+- [] Create simple webapp using bpmn.io to test different approaches
+	- [] Find out how to provide users EOA addresses to the tool
+
+- [] Provide rules for generating solidity from BPMN pools / lanes

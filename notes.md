@@ -1,0 +1,5 @@
+- only choreography tasks are handled on chain
+- state and behavior are often encapsulated into different contracts
+- on-chain, control/validate accesses that happen off-chain
+- deploying a contract = creating a new contract instance; on the blockchain, there are only objects, not classes
+- process control flow contracts should selfdestruct at the end
