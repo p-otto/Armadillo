@@ -40,6 +40,12 @@
             <groupId>org.web3j</groupId>
             <artifactId>core</artifactId>
             <version>3.4.0</version>
+            <exclusions>
+                <exclusion>
+                    <groupId>org.slf4j</groupId>
+                    <artifactId>slf4j-api</artifactId>
+                </exclusion>
+            </exclusions>
         </dependency>
     </dependencies>
 
@@ -51,6 +57,7 @@
                 <version>2.3</version>
                 <configuration>
                     <failOnMissingWebXml>false</failOnMissingWebXml>
+                    <packagingExcludes>WEB-INF/lib/slf4j-api-*.jar</packagingExcludes>
                 </configuration>
             </plugin>
             <plugin>
