@@ -6,16 +6,8 @@ import { default as Web3 } from 'web3';
 import { default as contract } from 'truffle-contract'
 
 // Import our contract artifacts and turn them into usable abstractions.
-//import metacoin_artifacts from '../../build/contracts/MetaCoin.json'
-
-// MetaCoin is our usable abstraction, which we'll use through the code below.
-//var MetaCoin = contract(metacoin_artifacts);
-
-// The following code is simple to show off interacting with your contracts.
-// As your needs grow you will likely need to change its form and structure.
-// For application bootstrapping, check out window.addEventListener below.
-var accounts;
-var account;
+import orchestration_artifacts from '../../build/contracts/OrchestrationContract.json'
+var OrchestrationContract = contract(orchestration_artifacts);
 
 window.App = {
   start: function() {
@@ -47,7 +39,13 @@ window.App = {
     var provider = document.getElementById("provider").value;
 
     var web3 = new Web3(new Web3.providers.HttpProvider(provider));
-    console.log(web3.eth.accounts);
+
+    OrchestrationContract.setProvider(web3.currentProvider);
+
+    // TODO: listen to contract events
+    //OrchestrationContract.deployed().then(instance => {
+    //  instance.triggerOrder().call();
+    //});
   }
 
   // setStatus: function(message) {
