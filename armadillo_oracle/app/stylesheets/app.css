@@ -7,7 +7,7 @@ body {
 
 label {
   display: inline-block;
-  width: 100px;
+  width: 150px;
 }
 
 input {
@@ -41,12 +41,4 @@ h3 {
 
 .black {
   color: black;
-}
-
-#balance {
-  color: black;
-}
-
-.hint {
-  color: #666;
 }
