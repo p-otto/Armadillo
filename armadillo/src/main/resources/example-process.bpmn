@@ -1,7 +1,7 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <bpmn:definitions xmlns:bpmn="http://www.omg.org/spec/BPMN/20100524/MODEL" xmlns:bpmndi="http://www.omg.org/spec/BPMN/20100524/DI" xmlns:di="http://www.omg.org/spec/DD/20100524/DI" xmlns:dc="http://www.omg.org/spec/DD/20100524/DC" xmlns:camunda="http://camunda.org/schema/1.0/bpmn" id="Definitions_0k8zary" targetNamespace="http://bpmn.io/schema/bpmn" exporter="Camunda Modeler" exporterVersion="1.14.0">
   <bpmn:process id="example-process" name="Example Process" isExecutable="true">
-    <bpmn:startEvent id="StartEvent_1" name="Example Request Received">
+    <bpmn:startEvent id="StartEvent_1" name="Example Request Received" camunda:formKey="embedded:app:forms/example-process.html">
       <bpmn:outgoing>SequenceFlow_1el19o9</bpmn:outgoing>
     </bpmn:startEvent>
     <bpmn:sequenceFlow id="SequenceFlow_1el19o9" sourceRef="StartEvent_1" targetRef="Task_16y6c5e" />
