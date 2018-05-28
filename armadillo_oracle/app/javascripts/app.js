@@ -15,13 +15,17 @@ window.App = {
   initializeOracle: function() {
     var provider = document.getElementById("provider").value;
 
+    // TODO: use standard address: http://127.0.0.1:9545/
     var web3 = new Web3(new Web3.providers.HttpProvider(provider));
 
     OrchestrationContract.setProvider(web3.currentProvider);
 
     OrchestrationContract.deployed().then((orchestrationInstance) => {
-      orchestrationInstance.Order().watch((err, event) => {
-        console.log("Order sent");
+      orchestrationInstance.allEvents().watch((err, event) => {
+        if (!err) {
+          console.log("Event observed: " + event.event);
+          console.log("Address: " + event.address);
+        }
       })
     });
   }
