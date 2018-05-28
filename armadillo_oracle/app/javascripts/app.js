@@ -42,10 +42,11 @@ window.App = {
 
     OrchestrationContract.setProvider(web3.currentProvider);
 
-    // TODO: listen to contract events
-    //OrchestrationContract.deployed().then(instance => {
-    //  instance.triggerOrder().call();
-    //});
+    OrchestrationContract.deployed().then((orchestrationInstance) => {
+      orchestrationInstance.Order().watch((err, event) => {
+        console.log("Order sent");
+      })
+    });
   }
 
   // setStatus: function(message) {
