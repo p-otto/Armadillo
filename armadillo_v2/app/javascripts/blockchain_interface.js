@@ -12,7 +12,7 @@ var BuyerContract = contract(buyer_artifacts);
 import seller_artifacts from '../../build/contracts/SellerContract.json'
 var SellerContract = contract(seller_artifacts);
 
-window.App = {
+window.BlockchainInterface = {
   start: function() {
     //var provider = document.getElementById("provider").value;
 
@@ -30,9 +30,27 @@ window.App = {
         }
       })
     });
+  },
+
+  handleFileChanged: function(event) {
+    var file = event.target.files.item(0);
+    if (file === null) {
+      return;
+    }
+
+    var blob = file.slice();
+
+    var reader = new FileReader();
+    reader.readAsText(file.slice());
+    var contract_code = reader.result;
+
+    // TODO: compile and deploy contract
+    console.log(contract_code);
   }
 };
 
 window.addEventListener('load', function() {
-  App.start();
+  BlockchainInterface.start();
+
+  document.getElementById('contract_select').addEventListener('change', BlockchainInterface.handleFileChanged, false);
 });
