@@ -36,7 +36,7 @@ public class EthereumDelegate implements JavaDelegate {
 		LOGGER.info("Contract address:\t\t" + contractAddress);
 		LOGGER.info("Private key:\t\t" + privateKey);
 		
-		Web3j web3j = Web3j.build(new HttpService(contractAddress));
+		Web3j web3j = Web3j.build(new HttpService(ethereumAddress));
 		
 		Credentials credentials = Credentials.create(privateKey);
 		
