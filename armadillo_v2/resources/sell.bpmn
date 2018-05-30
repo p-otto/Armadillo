@@ -1,0 +1,70 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<bpmn:definitions xmlns:bpmn="http://www.omg.org/spec/BPMN/20100524/MODEL" xmlns:bpmndi="http://www.omg.org/spec/BPMN/20100524/DI" xmlns:di="http://www.omg.org/spec/DD/20100524/DI" xmlns:dc="http://www.omg.org/spec/DD/20100524/DC" id="Definitions_0f5vb2c" targetNamespace="http://bpmn.io/schema/bpmn" exporter="Camunda Modeler" exporterVersion="1.13.1">
+  <bpmn:process id="Process_1" isExecutable="true">
+    <bpmn:startEvent id="StartEvent_1">
+      <bpmn:outgoing>SequenceFlow_1o99tpg</bpmn:outgoing>
+    </bpmn:startEvent>
+    <bpmn:sequenceFlow id="SequenceFlow_1o99tpg" sourceRef="StartEvent_1" targetRef="IntermediateThrowEvent_0xnh3vu" />
+    <bpmn:intermediateCatchEvent id="IntermediateThrowEvent_0xnh3vu" name="Receive buy order">
+      <bpmn:incoming>SequenceFlow_1o99tpg</bpmn:incoming>
+      <bpmn:outgoing>SequenceFlow_1ehalfw</bpmn:outgoing>
+      <bpmn:messageEventDefinition />
+    </bpmn:intermediateCatchEvent>
+    <bpmn:task id="Task_144jirx" name="Prepare shipping of product">
+      <bpmn:incoming>SequenceFlow_1ehalfw</bpmn:incoming>
+      <bpmn:outgoing>SequenceFlow_0ntyruh</bpmn:outgoing>
+    </bpmn:task>
+    <bpmn:sequenceFlow id="SequenceFlow_1ehalfw" sourceRef="IntermediateThrowEvent_0xnh3vu" targetRef="Task_144jirx" />
+    <bpmn:sequenceFlow id="SequenceFlow_0ntyruh" sourceRef="Task_144jirx" targetRef="EndEvent_0h5yo89" />
+    <bpmn:endEvent id="EndEvent_0h5yo89" name="Send product">
+      <bpmn:incoming>SequenceFlow_0ntyruh</bpmn:incoming>
+      <bpmn:messageEventDefinition />
+    </bpmn:endEvent>
+  </bpmn:process>
+  <bpmndi:BPMNDiagram id="BPMNDiagram_1">
+    <bpmndi:BPMNPlane id="BPMNPlane_1" bpmnElement="Process_1">
+      <bpmndi:BPMNShape id="_BPMNShape_StartEvent_2" bpmnElement="StartEvent_1">
+        <dc:Bounds x="173" y="164" width="36" height="36" />
+        <bpmndi:BPMNLabel>
+          <dc:Bounds x="146" y="200" width="90" height="20" />
+        </bpmndi:BPMNLabel>
+      </bpmndi:BPMNShape>
+      <bpmndi:BPMNEdge id="SequenceFlow_1o99tpg_di" bpmnElement="SequenceFlow_1o99tpg">
+        <di:waypoint x="209" y="182" />
+        <di:waypoint x="259" y="182" />
+        <bpmndi:BPMNLabel>
+          <dc:Bounds x="234" y="160.5" width="0" height="13" />
+        </bpmndi:BPMNLabel>
+      </bpmndi:BPMNEdge>
+      <bpmndi:BPMNShape id="IntermediateCatchEvent_0dm9iqv_di" bpmnElement="IntermediateThrowEvent_0xnh3vu">
+        <dc:Bounds x="259" y="164" width="36" height="36" />
+        <bpmndi:BPMNLabel>
+          <dc:Bounds x="233" y="203" width="90" height="13" />
+        </bpmndi:BPMNLabel>
+      </bpmndi:BPMNShape>
+      <bpmndi:BPMNShape id="Task_144jirx_di" bpmnElement="Task_144jirx">
+        <dc:Bounds x="345" y="142" width="100" height="80" />
+      </bpmndi:BPMNShape>
+      <bpmndi:BPMNEdge id="SequenceFlow_1ehalfw_di" bpmnElement="SequenceFlow_1ehalfw">
+        <di:waypoint x="295" y="182" />
+        <di:waypoint x="345" y="182" />
+        <bpmndi:BPMNLabel>
+          <dc:Bounds x="320" y="160" width="0" height="13" />
+        </bpmndi:BPMNLabel>
+      </bpmndi:BPMNEdge>
+      <bpmndi:BPMNEdge id="SequenceFlow_0ntyruh_di" bpmnElement="SequenceFlow_0ntyruh">
+        <di:waypoint x="445" y="182" />
+        <di:waypoint x="495" y="182" />
+        <bpmndi:BPMNLabel>
+          <dc:Bounds x="470" y="160.5" width="0" height="13" />
+        </bpmndi:BPMNLabel>
+      </bpmndi:BPMNEdge>
+      <bpmndi:BPMNShape id="EndEvent_0skbhdb_di" bpmnElement="EndEvent_0h5yo89">
+        <dc:Bounds x="495" y="164" width="36" height="36" />
+        <bpmndi:BPMNLabel>
+          <dc:Bounds x="481" y="203" width="66" height="13" />
+        </bpmndi:BPMNLabel>
+      </bpmndi:BPMNShape>
+    </bpmndi:BPMNPlane>
+  </bpmndi:BPMNDiagram>
+</bpmn:definitions>
