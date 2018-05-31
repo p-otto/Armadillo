@@ -7,7 +7,7 @@ body {
 
 label {
   display: inline-block;
-  width: 100px;
+  width: 300px;
 }
 
 input {
@@ -49,4 +49,9 @@ h3 {
 
 .hint {
   color: #666;
+}
+
+/* used for highlighting tasks on click */
+.highlight:not(.djs-connection) .djs-visual > :nth-child(1) {
+  fill: green !important;
 }
