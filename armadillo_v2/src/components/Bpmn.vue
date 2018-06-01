@@ -1,5 +1,5 @@
 <template>
-  <div id="bpmn">
+  <div class="bpmn">
     <!-- BPMN diagram container -->
     <div id="canvas"></div>
 
@@ -16,17 +16,17 @@ import diagramXml from '../../resources/two_lanes.bpmn'
 
 export default {
   name: 'Bpmn',
-  mounted() {
+  mounted: function() {
     this.diagramXml = diagramXml
     this.viewer = new Viewer({
-        container: '#bpmn',
+        container: '#canvas',
         height: 400
       })
     this.setUpViewer()
     
   },
   methods: {
-    setUpViewer() {
+    setUpViewer: function() {
       const canvas = this.viewer.get('canvas')
       this.viewer.importXML(this.diagramXml, err => {
         if (err) {
@@ -42,7 +42,8 @@ export default {
 
       eventBus.on(clickEvent, e => this.toggleElementHighlight(e, canvas))
     },
-    toggleElementHighlight(e, canvas) {
+
+    toggleElementHighlight: function(e, canvas) {
       // TODO what about service tasks etc.
       if (e.element.type === 'bpmn:Task') {
         if (e.element.isSelected) {
@@ -54,7 +55,8 @@ export default {
         }
       }
     },
-    loadDiagram(event) {
+
+    loadDiagram: function(event) {
       const file = event.target.files.item(0)
       if (file === null) {
         return
@@ -66,7 +68,8 @@ export default {
         this.diagramXml = event.target.result
       }
     },
-    submitDiagram() {
+
+    submitDiagram: function() {
       this.viewer.importXML(this.diagramXml, err => {
         if (err) {
           alert('upload failed')
@@ -78,6 +81,11 @@ export default {
       })
     }
   }
-  
 }
 </script>
+
+<style scoped>
+.bpmn {
+  padding-top: 10px;
+}
+</style>
