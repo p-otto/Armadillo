@@ -5,10 +5,9 @@
   "scripts": {
     "lint": "eslint ./",
     "build": "webpack",
-    "dev": "webpack-dev-server"
+    "dev": "webpack-dev-server",
+    "watch": "watch 'npm run build' src"
   },
-  "author": "Douglas von Kohorn",
-  "license": "MIT",
   "devDependencies": {
     "babel-cli": "^6.22.2",
     "babel-core": "^6.22.1",
@@ -42,6 +41,7 @@
     "vue-html-loader": "^1.2.4",
     "vue-loader": "^15.2.2",
     "vue-style-loader": "^4.1.0",
-    "vue-template-compiler": "^2.5.16"
+    "vue-template-compiler": "^2.5.16",
+    "watch": "^1.0.2"
   }
 }
