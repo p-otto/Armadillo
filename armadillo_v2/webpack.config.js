@@ -8,6 +8,7 @@ module.exports = {
     path: path.resolve(__dirname, './build'),
     filename: 'bundle.js'
   },
+  devtool: 'cheap-module-eval-source-map',
   plugins: [
     // Copy our app's index.html to the build folder.
     new CopyWebpackPlugin([{ from: './index.html', to: 'index.html' }]),
