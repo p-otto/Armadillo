@@ -83,11 +83,16 @@ export default {
 </script>
 
 <style scoped>
-.connect-to-node {
-  padding-top: 10px;
+.ethereum {
+  flex-grow: 1;
+  padding-top: 150px;
+}
+
+label {
+  padding-bottom: 10px;
 }
 
 .contract {
-  padding-top: 10px;
+  padding-top: 40px;
 }
 </style>

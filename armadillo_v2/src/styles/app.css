@@ -1,30 +1,28 @@
 body {
-  margin-left: 25%;
-  margin-right: 25%;
-  margin-top: 10%;
+  margin-left: 5%;
+  margin-right: 5%;
+  margin-top: 5%;
   font-family: "Open Sans", sans-serif;
 }
 
 label {
-  display: inline-block;
-  width: 300px;
+  display: block;
 }
 
 input {
-  width: 500px;
+  flex-grow: 1;
   padding: 5px;
   font-size: 16px;
 }
 
 button {
+  flex-grow: 1;
   font-size: 16px;
   padding: 5px;
 }
 
 h1, h2 {
-  display: inline-block;
-  vertical-align: middle;
-  margin-top: 0px;
+  display: block;
   margin-bottom: 10px;
 }
 
@@ -37,6 +35,10 @@ h3 {
   font-weight: normal;
   color: #AAA;
   font-size: 24px;
+}
+
+.container {
+  display: flex;
 }
 
 .black {

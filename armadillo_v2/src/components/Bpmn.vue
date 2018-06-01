@@ -1,11 +1,12 @@
 <template>
   <div class="bpmn">
-    <!-- BPMN diagram container -->
-    <div id="canvas"></div>
 
     <label for="bpmn-select">Upload BPMN diagram:</label>
     <input type="file" id="bpmn-select" @change="loadDiagram($event)">
     <button v-on:click="submitDiagram">Submit</button>
+
+    <!-- BPMN diagram container -->
+    <div id="canvas"></div>
   </div>
 </template>
 
@@ -86,6 +87,15 @@ export default {
 
 <style scoped>
 .bpmn {
+  width: 55%;
+  padding-top: 50px;
+}
+
+#canvas {
   padding-top: 10px;
+}
+
+label {
+  padding-bottom: 10px;
 }
 </style>

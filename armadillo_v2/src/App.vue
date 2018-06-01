@@ -2,9 +2,10 @@
   <div class="main">
     <h1>Armadillo</h1>
     <h2>BPMN processes on the blockchain</h2>
-    
-    <bpmn></bpmn>
-    <ethereum></ethereum>
+    <div class="container">
+      <ethereum></ethereum>
+      <bpmn></bpmn>
+    </div>
   </div>
 </template>
 
