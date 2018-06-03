@@ -84,6 +84,12 @@ export default {
         newContract.deployed().then(instance => this.contractInstance = instance)
       }
 
+      const contractFunctionNames = this.contractInstance.abi
+        .filter(entry => entry.type === 'function')
+        .map(entry => entry.name)
+
+      console.log(contractFunctionNames)
+
       this.contractInstance.allEvents().watch((err, event) => {
         if (!err) {
             console.log('Event observed: ' + event.event)
