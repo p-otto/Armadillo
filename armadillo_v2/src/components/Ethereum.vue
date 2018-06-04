@@ -32,6 +32,14 @@
         <p>Contract deployed at: {{ contractAddress }}</p>
       </div>
     </div>
+
+    <div v-if="paramsNeeded" class="inputs">
+        <label v-for="(functionInput, index) in contractFunction.inputs">
+          {{ functionInput.name }} ({{ functionInput.type }}):
+          <input type="text" v-model="contractFunction.inputs[index].value">
+        </label>
+      <button v-on:click="submitParams">Submit</button>
+    </div>
   </div>
 </template>
 
@@ -48,6 +56,8 @@ export default {
       nodeAddress: '',
       contractSubmitted: false,
       contractAddress: '',
+      contractFunction: { inputs: [] },
+      paramsNeeded: false
     }
   },
   mounted: function() {
@@ -126,18 +136,32 @@ export default {
         return
       }
 
-      const contractFunctionNames = this.contractInstance.abi
+      const contractFunctions = this.contractInstance.abi
         .filter(entry => entry.type === 'function')
-        .map(entry => entry.name)
+        
+      const contractFunctionNames = contractFunctions.map(entry => entry.name)
 
       const taskName = task.businessObject.name
 
       if (!contractFunctionNames.includes(taskName)) {
         alert('No contract method to call found')
       } else {
-        // call contract method corresponding to task name
-        this.contractInstance[taskName]()
+        const contractFunction = contractFunctions.filter(func => func.name === taskName)[0]
+        if (contractFunction.inputs.length > 0) {
+          // collect input parameters from user
+          this.contractFunction = contractFunction
+          this.paramsNeeded = true
+        } else {
+          // call directly
+          this.contractInstance[taskName]()
+        }
       }
+    },
+
+    submitParams: function() {
+      const paramValues = this.contractFunction.inputs.map(input => input.value)
+      this.paramsNeeded = false
+      this.contractInstance[this.contractFunction.name](...paramValues).then(receipt => console.log(receipt))
     }
   }
 }
@@ -155,5 +179,9 @@ label {
 
 .contract {
   padding-top: 40px;
+}
+
+.inputs {
+  padding-top: 40px
 }
 </style>
