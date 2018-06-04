@@ -30,20 +30,11 @@ export default {
   },
   methods: {
     setUpViewer: function() {
-      const canvas = this.viewer.get('canvas')
-      this.viewer.importXML(this.diagramXml, err => {
-        if (err) {
-          alert('upload failed')
-          console.log(err)
-        } else {
-          canvas.zoom('fit-viewport')
-        }
-      })
 
       const eventBus = this.viewer.get('eventBus')
       const clickEvent = 'element.click'
 
-      eventBus.on(clickEvent, e => this.triggerTask(e.element, canvas))
+      eventBus.on(clickEvent, e => this.triggerTask(e.element))
     },
 
     triggerTask: function(el) {
