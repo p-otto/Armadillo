@@ -5,6 +5,9 @@
         <label for="node-address">Ethereum node address:</label>
         <input type="text" id="node-address" v-model="nodeAddress">
         <button v-on:click="submitAddress">Submit</button>
+
+        <label for="connect-local">or,</label>
+        <button v-on:click="connectToLocal" id="connect-local">Connect to your local ethereum node</button>
       </div>
       <p v-if="connected">Ethereum node address: {{ nodeAddress }}</p>
     </div>
@@ -16,12 +19,18 @@
     </div>-->
 
     <div class="contract">
-      <label for="abi-select">Upload contract ABI:</label>
-      <input type="file" id="abi-select" @change="loadContract('abi', $event)" />
+      <div v-if="!contractSubmitted">
+        <label for="abi-select">Upload contract ABI:</label>
+        <input type="file" id="abi-select" @change="loadContract('abi', $event)" />
 
-      <label for="bin-select">Upload contract binary:</label>
-      <input type="file" id="bin-select" @change="loadContract('bin', $event)" />
-      <button v-on:click="submitContract">Submit</button>
+        <label for="bin-select">Upload contract binary:</label>
+        <input type="file" id="bin-select" @change="loadContract('bin', $event)" />
+
+        <button v-on:click="submitContract">Submit</button>
+      </div>
+      <div v-else>
+        <p>Contract deployed at: {{ contractAddress }}</p>
+      </div>
     </div>
   </div>
 </template>
@@ -35,7 +44,9 @@ export default {
   data: () => {
     return {
       connected: false,
-      nodeAddress: ''
+      nodeAddress: '',
+      contractSubmitted: false,
+      contractAddress: '',
     }
   },
   methods: {
@@ -47,6 +58,11 @@ export default {
       } else {
         alert('Connection failed!')
       }
+    },
+
+    connectToLocal: function() {
+      this.nodeAddress = 'http://127.0.0.1:9545'
+      this.submitAddress()
     },
 
     loadContract: function(type, changeEvent) {
@@ -78,17 +94,18 @@ export default {
 
       if (!newContract.isDeployed()) {
         // contract was not yet deployed, deploy it here
-        newContract.new().then(instance => this.contractInstance = instance)
+        newContract.new().then(instance => this.handleContractDeployed(instance))
       } else {
         // get the deployed contract
-        newContract.deployed().then(instance => this.contractInstance = instance)
+        newContract.deployed().then(instance => this.handleContractDeployed(instance))
       }
+    },
 
-      const contractFunctionNames = this.contractInstance.abi
-        .filter(entry => entry.type === 'function')
-        .map(entry => entry.name)
+    handleContractDeployed: function(instance) {
+      this.contractInstance = instance
 
-      console.log(contractFunctionNames)
+      this.contractSubmitted = true
+      this.contractAddress = instance.address
 
       this.contractInstance.allEvents().watch((err, event) => {
         if (!err) {
