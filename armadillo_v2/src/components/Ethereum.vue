@@ -29,6 +29,8 @@
 <script>
 import Web3 from 'web3'
 import contract from 'truffle-contract'
+import browserSolc from 'browser-solc';
+
 
 export default {
   name: 'Ethereum',
@@ -38,7 +40,17 @@ export default {
       nodeAddress: ''
     }
   },
+  mounted: function() {
+    this.solcReady = false;
+  },
   methods: {
+    initSolc: function() {
+      BrowserSolc.loadVersion("soljson-v0.4.24+commit.e67f0147.js", function(compiler) {
+        this.compiler = compiler
+        this.solcReady = true;
+      }.bind(this))
+    },
+
     submitAddress: function() {
       const web3 = new Web3(new Web3.providers.HttpProvider(this.nodeAddress))
       if (web3.isConnected()) {
@@ -58,19 +70,28 @@ export default {
       const reader = new FileReader()
       reader.readAsText(file.slice())
       reader.onload = loadEvent => {
-        if (type === 'abi') {
-          this.abi = loadEvent.target.result
-        } else if (type === 'bin') {
-          this.bin = loadEvent.target.result
-        }
+        this.contractCode = loadEvent.target.result
+      }
+
+      if (!this.solcReady) {
+        this.initSolc()
       }
     },
-    
+
     submitContract: function() {
-      
+      if (!this.solcReady) {
+        alert("Solc is not initialized yet.")
+        return
+      }
+
+      var compiledContract = this.compiler.compile(this.contractCode, 0)
+      if (!compiledContract) {
+        alert('Contract could not be compiled.')
+      }
+
       const newContract = contract({
-        abi: JSON.parse(this.abi),
-        unlinked_binary: '0x' + this.bin
+        abi: JSON.parse(compiledContract.interface),
+        unlinked_binary: '0x' + this.bytecode
       })
 
       newContract.setProvider(this.web3.currentProvider)
