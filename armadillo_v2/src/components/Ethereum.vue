@@ -41,6 +41,7 @@ import contract from 'truffle-contract'
 
 export default {
   name: 'Ethereum',
+  props: ['bus'],
   data: () => {
     return {
       connected: false,
@@ -48,6 +49,9 @@ export default {
       contractSubmitted: false,
       contractAddress: '',
     }
+  },
+  mounted: function() {
+    this.bus.$on('task-triggered', (task) => this.callContract(task))
   },
   methods: {
     submitAddress: function() {
@@ -114,6 +118,26 @@ export default {
             alert('ethereum event watched! check the console')
           }
       })
+    },
+
+    callContract: function(task) {
+      if (!this.contractInstance) {
+        alert('No contract instance found!')
+        return
+      }
+
+      const contractFunctionNames = this.contractInstance.abi
+        .filter(entry => entry.type === 'function')
+        .map(entry => entry.name)
+
+      const taskName = task.name
+
+      if (!contractFunctionNames.includes(taskName)) {
+        alert('No contract method to call found')
+      } else {
+        // call contract method corresponding to task name
+        this.contractInstance[taskName]()
+      }
     }
   }
 }

@@ -17,6 +17,7 @@ import diagramXml from '../../resources/two_lanes.bpmn'
 
 export default {
   name: 'Bpmn',
+  props: ['bus'],
   mounted: function() {
     this.diagramXml = diagramXml
     this.viewer = new Viewer({
@@ -41,12 +42,23 @@ export default {
       const eventBus = this.viewer.get('eventBus')
       const clickEvent = 'element.click'
 
-      eventBus.on(clickEvent, e => this.toggleElementHighlight(e, canvas))
+      eventBus.on(clickEvent, e => this.triggerTask(e, canvas))
     },
 
+    triggerTask: function(e, canvas) {
+      this.toggleElementHighlight(e, canvas)
+
+      this.bus.$emit('task-triggered', e.element)
+    },
+    
     toggleElementHighlight: function(e, canvas) {
+      const hightlightableElements = [
+        'bpmn:Task',
+        'bpmn:serviceTask'
+      ]
+
       // TODO what about service tasks etc.
-      if (e.element.type === 'bpmn:Task') {
+      if (hightlightableElements.includes(e.element.type)) {
         if (e.element.isSelected) {
           e.element.isSelected = false
           canvas.removeMarker(e.element.id, 'highlight')
