@@ -115,7 +115,7 @@ export default {
         if (!err) {
             console.log('Event observed: ' + event.event)
             console.log('Address: ' + event.address)
-            alert('ethereum event watched! check the console')
+            this.bus.$emit('eth-event-triggered', event.event)
           }
       })
     },

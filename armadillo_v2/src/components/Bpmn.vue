@@ -26,6 +26,7 @@ export default {
       })
     this.setUpViewer()
     
+    this.bus.$on('eth-event-triggered', event => this.highlightEvent(event))
   },
   methods: {
     setUpViewer: function() {
@@ -42,30 +43,33 @@ export default {
       const eventBus = this.viewer.get('eventBus')
       const clickEvent = 'element.click'
 
-      eventBus.on(clickEvent, e => this.triggerTask(e, canvas))
+      eventBus.on(clickEvent, e => this.triggerTask(e.element, canvas))
     },
 
-    triggerTask: function(e, canvas) {
-      this.toggleElementHighlight(e, canvas)
+    triggerTask: function(el) {
+      this.toggleElementHighlight(el)
 
-      this.bus.$emit('task-triggered', e.element)
+      this.bus.$emit('task-triggered', el)
     },
-    
-    toggleElementHighlight: function(e, canvas) {
-      const hightlightableElements = [
+
+    toggleElementHighlight: function(el) {
+      const highlightableElements = [
         'bpmn:Task',
-        'bpmn:serviceTask'
+        'bpmn:ServiceTask'
       ]
 
-      // TODO what about service tasks etc.
-      if (hightlightableElements.includes(e.element.type)) {
-        if (e.element.isSelected) {
-          e.element.isSelected = false
-          canvas.removeMarker(e.element.id, 'highlight')
-        } else {
-          e.element.isSelected = true
-          canvas.addMarker(e.element.id, 'highlight')
-        }
+      const canvas = this.viewer.get('canvas')
+
+      // if (!hightlightableElements.includes(e.element.type)) {
+      //   return
+      // }
+
+      if (el.isSelected) {
+        el.isSelected = false
+        canvas.removeMarker(el.id, 'highlight')
+      } else {
+        el.isSelected = true
+        canvas.addMarker(el.id, 'highlight')
       }
     },
 
@@ -92,6 +96,12 @@ export default {
           canvas.zoom('fit-viewport')
         }
       })
+    },
+
+    highlightEvent: function(eventName) {
+      this.viewer.get('elementRegistry').getAll()
+        .filter(el => el.businessObject.name === eventName)
+        .forEach(el => this.toggleElementHighlight(el))
     }
   }
 }
