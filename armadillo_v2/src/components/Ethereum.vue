@@ -130,7 +130,7 @@ export default {
         .filter(entry => entry.type === 'function')
         .map(entry => entry.name)
 
-      const taskName = task.name
+      const taskName = task.businessObject.name
 
       if (!contractFunctionNames.includes(taskName)) {
         alert('No contract method to call found')
