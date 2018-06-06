@@ -33,7 +33,14 @@ export default {
       const eventBus = this.viewer.get('eventBus')
       const clickEvent = 'element.click'
 
-      eventBus.on(clickEvent, e => this.triggerTask(e.element))
+      eventBus.on(clickEvent, e => {
+        if (e.element.type === 'bpmn:ServiceTask') {
+          this.triggerTask(e.element)
+        }
+        else {
+          console.log('[BPMN] click on ' + e.element + ' ignored')
+        }
+      })
     },
 
     triggerTask: function(el) {
