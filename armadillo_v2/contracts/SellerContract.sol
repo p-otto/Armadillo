@@ -9,7 +9,7 @@ contract SellerContract {
 
     BuyerContract _buyerContract;
 
-    constructor() {}
+    constructor() public {}
 
     function receiveBuyOrder() public {
         _buyerContract = BuyerContract(msg.sender);
@@ -18,6 +18,5 @@ contract SellerContract {
 
     function sendProduct() public {
         _buyerContract.receiveProduct();
-        //_buyerContractAddress.call(bytes4(keccak256("receiveProduct()")));
     }
 }
