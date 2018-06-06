@@ -9,18 +9,10 @@
       <p v-if="connected">Ethereum node address: {{ nodeAddress }}</p>
     </div>
 
-    <!--<div class="contract">
-      <label for="contract-select">Upload Solidity contract:</label>
-      <input type="file" id="contract-select" @change="loadContract($event)">
-      <button v-bind:disabled="!connected" v-on:click="submitContract">Submit</button>
-    </div>-->
-
     <div class="contract">
-      <label for="abi-select">Upload contract ABI:</label>
-      <input type="file" id="abi-select" @change="loadContract('abi', $event)" />
+      <label for="contract-select">Upload contract code:</label>
+      <input type="file" id="contract-select" @change="loadContract($event)" />
 
-      <label for="bin-select">Upload contract binary:</label>
-      <input type="file" id="bin-select" @change="loadContract('bin', $event)" />
       <button v-on:click="submitContract">Submit</button>
     </div>
   </div>
@@ -61,11 +53,13 @@ export default {
       }
     },
 
-    loadContract: function(type, changeEvent) {
+    loadContract: function(changeEvent) {
       const file = changeEvent.target.files.item(0)
       if (file === null) {
         return
       }
+
+      this.contractName = file.name.split(".")[0]
 
       const reader = new FileReader()
       reader.readAsText(file.slice())
@@ -78,45 +72,55 @@ export default {
       }
     },
 
+    deployContract: function(contract) {
+      if (!contract.isDeployed()) {
+        // contract was not yet deployed, deploy it here
+        return contract.new().then(instance => this.contractInstance = instance)
+      } else {
+        // get the deployed contract
+        return contract.deployed().then(instance => this.contractInstance = instance)
+      }
+    },
+
     submitContract: function() {
       if (!this.solcReady) {
         alert("Solc is not initialized yet.")
         return
       }
 
-      var compiledContract = this.compiler.compile(this.contractCode, 0)
-      if (!compiledContract) {
+      var contractObject = this.compiler.compile(this.contractCode, 0)
+      if (!contractObject) {
         alert('Contract could not be compiled.')
+        return
+      }
+      if (contractObject.errors.length > 0) {
+        console.log('Contract errors: ' + contractObject.errors)
       }
 
-      const newContract = contract({
-        abi: JSON.parse(compiledContract.interface),
-        unlinked_binary: '0x' + compiledContract.bytecode
+      var rawContract = contractObject.contracts[":" + this.contractName]
+
+      const wrappedContract = contract({
+        abi: JSON.parse(rawContract.interface),
+        unlinked_binary: '0x' + rawContract.bytecode
       })
 
-      newContract.setProvider(this.web3.currentProvider)
-      newContract.defaults({from: this.web3.eth.coinbase, gas: 1000000})
+      wrappedContract.setProvider(this.web3.currentProvider)
+      wrappedContract.defaults({from: this.web3.eth.coinbase, gas: 1000000})
 
-      if (!newContract.isDeployed()) {
-        // contract was not yet deployed, deploy it here
-        newContract.new().then(instance => this.contractInstance = instance)
-      } else {
-        // get the deployed contract
-        newContract.deployed().then(instance => this.contractInstance = instance)
-      }
-
-      const contractFunctionNames = this.contractInstance.abi
+      this.deployContract(wrappedContract).then(instance => {
+        const contractFunctionNames = this.contractInstance.abi
         .filter(entry => entry.type === 'function')
         .map(entry => entry.name)
 
-      console.log(contractFunctionNames)
+        console.log(contractFunctionNames)
 
-      this.contractInstance.allEvents().watch((err, event) => {
-        if (!err) {
-            console.log('Event observed: ' + event.event)
-            console.log('Address: ' + event.address)
-            alert('ethereum event watched! check the console')
-          }
+        this.contractInstance.allEvents().watch((err, event) => {
+          if (!err) {
+              console.log('Event observed: ' + event.event)
+              console.log('Address: ' + event.address)
+              alert('ethereum event watched! check the console')
+            }
+        })
       })
     }
   }
