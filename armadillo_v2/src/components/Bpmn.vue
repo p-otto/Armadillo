@@ -17,6 +17,7 @@ import diagramXml from '../../resources/two_lanes.bpmn'
 
 export default {
   name: 'Bpmn',
+  props: ['bus'],
   mounted: function() {
     this.diagramXml = diagramXml
     this.viewer = new Viewer({
@@ -25,35 +26,41 @@ export default {
       })
     this.setUpViewer()
     
+    this.bus.$on('eth-event-triggered', event => this.highlightEvent(event))
   },
   methods: {
     setUpViewer: function() {
-      const canvas = this.viewer.get('canvas')
-      this.viewer.importXML(this.diagramXml, err => {
-        if (err) {
-          alert('upload failed')
-          console.log(err)
-        } else {
-          canvas.zoom('fit-viewport')
-        }
-      })
 
       const eventBus = this.viewer.get('eventBus')
       const clickEvent = 'element.click'
 
-      eventBus.on(clickEvent, e => this.toggleElementHighlight(e, canvas))
+      eventBus.on(clickEvent, e => this.triggerTask(e.element))
     },
 
-    toggleElementHighlight: function(e, canvas) {
-      // TODO what about service tasks etc.
-      if (e.element.type === 'bpmn:Task') {
-        if (e.element.isSelected) {
-          e.element.isSelected = false
-          canvas.removeMarker(e.element.id, 'highlight')
-        } else {
-          e.element.isSelected = true
-          canvas.addMarker(e.element.id, 'highlight')
-        }
+    triggerTask: function(el) {
+      this.toggleElementHighlight(el)
+
+      this.bus.$emit('task-triggered', el)
+    },
+
+    toggleElementHighlight: function(el) {
+      const highlightableElements = [
+        'bpmn:Task',
+        'bpmn:ServiceTask'
+      ]
+
+      const canvas = this.viewer.get('canvas')
+
+      // if (!hightlightableElements.includes(e.element.type)) {
+      //   return
+      // }
+
+      if (el.isSelected) {
+        el.isSelected = false
+        canvas.removeMarker(el.id, 'highlight')
+      } else {
+        el.isSelected = true
+        canvas.addMarker(el.id, 'highlight')
       }
     },
 
@@ -80,6 +87,12 @@ export default {
           canvas.zoom('fit-viewport')
         }
       })
+    },
+
+    highlightEvent: function(eventName) {
+      this.viewer.get('elementRegistry').getAll()
+        .filter(el => el.businessObject.name === eventName)
+        .forEach(el => this.toggleElementHighlight(el))
     }
   }
 }
