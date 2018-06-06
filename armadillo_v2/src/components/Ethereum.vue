@@ -13,13 +13,12 @@
     </div>
 
     <div class="contract">
-      <div v-if="!contractSubmitted">
+      <div v-if="!contractSelected">
         <label for="contract-select">Upload contract code:</label>
         <input type="file" id="contract-select" @change="loadContract($event)" />
-
-        <div v-if="solcReady">
-          <button v-on:click="submitContract">Submit</button>
-        </div>
+      </div>
+      <div v-else-if="contractSelected && !solcReady" class="cssload-container">
+        <div class="cssload-speeding-wheel" />
       </div>
       <div v-else>
         <span>Contract deployed at: {{ contractAddress }}</span>
@@ -50,7 +49,7 @@ export default {
       connected: false,
       solcReady: false,
       nodeAddress: '',
-      contractSubmitted: false,
+      contractSelected: false,
       contractAddress: '',
       contractFunction: { inputs: [] },
       paramsNeeded: false
@@ -63,7 +62,8 @@ export default {
     initSolc: function() {
       BrowserSolc.loadVersion("soljson-v0.4.24+commit.e67f0147.js", function(compiler) {
         this.compiler = compiler
-        this.solcReady = true;
+        this.solcReady = true
+        this.submitContract()
       }.bind(this))
     },
 
@@ -87,6 +87,8 @@ export default {
       if (file === null) {
         return
       }
+
+      this.contractSelected = true
 
       this.contractName = file.name.split(".")[0]
 
@@ -113,8 +115,6 @@ export default {
 
     handleContractDeployed: function(instance) {
       this.contractInstance = instance
-
-      this.contractSubmitted = true
       this.contractAddress = instance.address
 
       this.contractInstance.allEvents().watch((err, event) => {
@@ -202,25 +202,5 @@ export default {
 }
 </script>
 
-<style scoped>
-.ethereum {
-  flex-grow: 1;
-  width: 40%;
-  padding-top: 50px;
-  padding-right: 50px;
-  border-right: 2px solid;
-  border-right-color: #AAA;
-}
-
-label {
-  padding-bottom: 10px;
-}
-
-.contract {
-  padding-top: 20px;
-}
-
-.inputs {
-  padding-top: 20px;
-}
+<style scoped src="../styles/ethereum.css">
 </style>
