@@ -12,20 +12,19 @@
 
 <script>
 import Viewer from 'bpmn-js/lib/Viewer'
-import diagramXml from '../../resources/two_lanes.bpmn'
 
 
 export default {
   name: 'Bpmn',
   props: ['bus'],
   mounted: function() {
-    this.diagramXml = diagramXml
+    this.diagramXml = null
     this.viewer = new Viewer({
         container: '#canvas',
         height: 400
       })
     this.setUpViewer()
-    
+
     this.bus.$on('eth-event-triggered', event => this.highlightEvent(event))
   },
   methods: {

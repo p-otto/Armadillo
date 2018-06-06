@@ -17,7 +17,9 @@
         <label for="contract-select">Upload contract code:</label>
         <input type="file" id="contract-select" @change="loadContract($event)" />
 
-        <button v-on:click="submitContract">Submit</button>
+        <div v-if="solcReady">
+          <button v-on:click="submitContract">Submit</button>
+        </div>
       </div>
       <div v-else>
         <p>Contract deployed at: {{ contractAddress }}</p>
@@ -46,6 +48,7 @@ export default {
   data: () => {
     return {
       connected: false,
+      solcReady: false,
       nodeAddress: '',
       contractSubmitted: false,
       contractAddress: '',
@@ -54,7 +57,6 @@ export default {
     }
   },
   mounted: function() {
-    this.solcReady = false;
     this.bus.$on('task-triggered', (task) => this.callContract(task))
   },
   methods: {
@@ -109,6 +111,13 @@ export default {
       }
     },
 
+    handleContractDeployed: function(instance) {
+      this.contractInstance = instance
+
+      this.contractSubmitted = true
+      this.contractAddress = instance.address
+    },
+
     submitContract: function() {
       if (!this.solcReady) {
         alert("Solc is not initialized yet.")
@@ -134,36 +143,7 @@ export default {
       wrappedContract.setProvider(this.web3.currentProvider)
       wrappedContract.defaults({from: this.web3.eth.coinbase, gas: 1000000})
 
-      this.deployContract(wrappedContract).then(instance => {
-        const contractFunctionNames = this.contractInstance.abi
-        .filter(entry => entry.type === 'function')
-        .map(entry => entry.name)
-
-        console.log(contractFunctionNames)
-
-        this.contractInstance.allEvents().watch((err, event) => {
-          if (!err) {
-              console.log('Event observed: ' + event.event)
-              console.log('Address: ' + event.address)
-              alert('ethereum event watched! check the console')
-            }
-        })
-      })
-    },
-
-    handleContractDeployed: function(instance) {
-      this.contractInstance = instance
-
-      this.contractSubmitted = true
-      this.contractAddress = instance.address
-
-      this.contractInstance.allEvents().watch((err, event) => {
-        if (!err) {
-          console.log('Event observed: ' + event.event)
-          console.log('Address: ' + event.address)
-          this.bus.$emit('eth-event-triggered', event.event)
-        }
-      })
+      this.deployContract(wrappedContract)
     },
 
     callContract: function(task) {
