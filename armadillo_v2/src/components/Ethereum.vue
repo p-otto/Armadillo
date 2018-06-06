@@ -91,7 +91,7 @@ export default {
 
       const newContract = contract({
         abi: JSON.parse(compiledContract.interface),
-        unlinked_binary: '0x' + this.bytecode
+        unlinked_binary: '0x' + compiledContract.bytecode
       })
 
       newContract.setProvider(this.web3.currentProvider)
