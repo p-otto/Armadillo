@@ -133,15 +133,20 @@ export default {
       }
 
       var contractObject = this.compiler.compile(this.contractCode, 0)
-      if (!contractObject) {
-        alert('Contract could not be compiled.')
+      var rawContract = contractObject.contracts[":" + this.contractName]
+
+      if (!rawContract) {
+        alert('Contract named ' + this.contractName + ' could not be compiled. See console for errors.')
+        console.log('Contract code:')
+        console.log(this.contractCode)
+        console.log('Errors:')
+        console.log(contractObject.errors)
         return
       }
-      if (contractObject.errors.length > 0) {
-        console.log('Contract errors: ' + contractObject.errors)
+      else if (contractObject.errors.length > 0) {
+        console.log('Warnings:')
+        console.log(contractObject.errors)
       }
-
-      var rawContract = contractObject.contracts[":" + this.contractName]
 
       const wrappedContract = contract({
         abi: JSON.parse(rawContract.interface),
