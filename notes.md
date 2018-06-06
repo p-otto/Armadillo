@@ -3,3 +3,8 @@
 - on-chain, control/validate accesses that happen off-chain
 - deploying a contract = creating a new contract instance; on the blockchain, there are only objects, not classes
 - process control flow contracts should selfdestruct at the end
+- provider-client-interaction: provider has public information about
+	- contract address
+	- own interface
+	- interface expected of clients
+
