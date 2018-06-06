@@ -22,7 +22,7 @@
         </div>
       </div>
       <div v-else>
-        <p>Contract deployed at: {{ contractAddress }}</p>
+        <span>Contract deployed at: {{ contractAddress }}</span>
       </div>
     </div>
 
