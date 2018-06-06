@@ -17,7 +17,7 @@
         <label for="contract-select">Upload contract code:</label>
         <input type="file" id="contract-select" @change="loadContract($event)" />
       </div>
-      <div v-else-if="contractSelected && !solcReady" class="cssload-container">
+      <div v-else-if="contractSelected && (!contractDeployed || !solcReady)" class="cssload-container">
         <div class="cssload-speeding-wheel" />
       </div>
       <div v-else>
@@ -48,6 +48,7 @@ export default {
     return {
       connected: false,
       solcReady: false,
+      contractDeployed: false,
       nodeAddress: '',
       contractSelected: false,
       contractAddress: '',
@@ -96,10 +97,11 @@ export default {
       reader.readAsText(file.slice())
       reader.onload = loadEvent => {
         this.contractCode = loadEvent.target.result
-      }
-
-      if (!this.solcReady) {
-        this.initSolc()
+        if (!this.solcReady) {
+          this.initSolc()
+        } else {
+          this.submitContract()
+        }
       }
     },
 
@@ -114,6 +116,7 @@ export default {
     },
 
     handleContractDeployed: function(instance) {
+      this.contractDeployed = true
       this.contractInstance = instance
       this.contractAddress = instance.address
 
@@ -141,6 +144,7 @@ export default {
         console.log(this.contractCode)
         console.log('Errors:')
         console.log(contractObject.errors)
+        this.contractSelected = false
         return
       }
       else if (contractObject.errors.length > 0) {
