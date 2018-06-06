@@ -116,6 +116,14 @@ export default {
 
       this.contractSubmitted = true
       this.contractAddress = instance.address
+
+      this.contractInstance.allEvents().watch((err, event) => {
+        if (!err) {
+          console.log('Event observed: ' + event.event)
+          console.log('Address: ' + event.address)
+          this.bus.$emit('eth-event-triggered', event.event)
+        }
+      })
     },
 
     submitContract: function() {
