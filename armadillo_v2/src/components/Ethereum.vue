@@ -9,7 +9,7 @@
         <label for="connect-local">or,</label>
         <button v-on:click="connectToLocal" id="connect-local">Connect to your local ethereum node</button>
       </div>
-      <p v-if="connected">Ethereum node address: {{ nodeAddress }}</p>
+      <span v-if="connected">Ethereum node address: {{ nodeAddress }}</span>
     </div>
 
     <div class="contract">
@@ -205,7 +205,11 @@ export default {
 <style scoped>
 .ethereum {
   flex-grow: 1;
-  padding-top: 150px;
+  width: 40%;
+  padding-top: 50px;
+  padding-right: 50px;
+  border-right: 2px solid;
+  border-right-color: #AAA;
 }
 
 label {
@@ -213,10 +217,10 @@ label {
 }
 
 .contract {
-  padding-top: 40px;
+  padding-top: 20px;
 }
 
 .inputs {
-  padding-top: 40px
+  padding-top: 20px;
 }
 </style>

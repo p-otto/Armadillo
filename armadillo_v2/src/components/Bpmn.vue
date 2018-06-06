@@ -108,6 +108,7 @@ export default {
 .bpmn {
   width: 55%;
   padding-top: 50px;
+  padding-left: 50px;
 }
 
 #canvas {

@@ -21,14 +21,17 @@ button {
   padding: 5px;
 }
 
-h1, h2 {
+h1 {
   display: block;
-  margin-bottom: 10px;
+  margin-top: 0px;
+  margin-bottom: 0px;
 }
 
 h2 {
+  display: block;
   color: #AAA;
   font-size: 32px;
+  margin-top: 10px;
 }
 
 h3 {
