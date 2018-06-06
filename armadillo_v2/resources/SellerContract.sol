@@ -1,6 +1,6 @@
 pragma solidity ^0.4.24;
 
-contract BuyerContract() {
+contract BuyerContract {
     function receiveProduct() public {}
 }
 
