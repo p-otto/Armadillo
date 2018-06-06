@@ -160,7 +160,7 @@ export default {
       const taskName = task.businessObject.name
 
       if (!contractFunctionNames.includes(taskName)) {
-        alert('No contract method to call found')
+        alert('No contract method named ' + taskName + ' was found.')
       } else {
         const contractFunction = contractFunctions.filter(func => func.name === taskName)[0]
         if (contractFunction.inputs.length > 0) {
@@ -169,7 +169,8 @@ export default {
           this.paramsNeeded = true
         } else {
           // call directly
-          this.contractInstance[taskName]()
+          this.contractInstance[taskName]().then(receipt => this.logReceipt(receipt))
+          this.logBlockchainCall(taskName)
         }
       }
     },
@@ -177,7 +178,17 @@ export default {
     submitParams: function() {
       const paramValues = this.contractFunction.inputs.map(input => input.value)
       this.paramsNeeded = false
-      this.contractInstance[this.contractFunction.name](...paramValues).then(receipt => console.log(receipt))
+      this.contractInstance[this.contractFunction.name](...paramValues).then(receipt => this.logReceipt(receipt))
+      this.logBlockchainCall(this.contractFunction.name)
+    },
+
+    logBlockchainCall: function(functionName) {
+      console.log('[Blockchain] execute ' + functionName + ' on ' + this.contractInstance.address)
+    },
+
+    logReceipt: function(receipt) {
+      console.log('[Blockchain] received receipt:')
+      console.log(receipt)
     }
   }
 }
