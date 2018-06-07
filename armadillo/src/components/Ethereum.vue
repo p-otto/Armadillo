@@ -14,15 +14,20 @@
 
     <div class="contract">
       <div v-if="!contractSelected">
-        <label for="contract-select">Upload contract code:</label>
+        <label for="contract-select">Upload factory contract code:</label>
         <input type="file" id="contract-select" @change="loadContract($event)" />
       </div>
-      <div v-else-if="contractSelected && (!contractDeployed || !solcReady)" class="cssload-container">
+
+      <div v-if="factoryDeployed">
+        <span>Factory contract deployed at: {{ factoryContract.address }}</span>
+        <span v-if="instanceRunning">Contract instance deployed at: {{ instanceContract.address }}</span>
+        <button v-else-if="!loading" v-on:click="createContractInstance">Create contract instance</button>
+      </div>
+
+      <div v-if="loading" class="cssload-container">
         <div class="cssload-speeding-wheel" />
       </div>
-      <div v-else>
-        <span>Contract deployed at: {{ contractInstance.address }}</span>
-      </div>
+      
     </div>
 
     <div v-if="paramsNeeded" class="inputs">
@@ -46,17 +51,20 @@ export default {
   props: ['bus'],
   data: () => {
     return {
+      loading: false,
       connected: false,
-      contractSelected: false,
-      contractDeployed: false,
-      solcReady: false,
       nodeAddress: '',
+      contractSelected: false,
+      factoryDeployed: false,
+      solcReady: false,
+      instanceRunning: false,
       contractFunction: { inputs: [] },
       paramsNeeded: false
     }
   },
   mounted: function() {
-    this.bus.$on('task-triggered', (task) => this.callContract(task))
+    this.bus.$on('role-validation-required', roleName => this.validateRole(roleName))
+    this.bus.$on('task-triggered', taskName => this.callContract(taskName))
   },
   methods: {
     submitAddress: function() {
@@ -87,6 +95,7 @@ export default {
       reader.readAsText(file.slice())
       reader.onload = loadEvent => {
         this.contractCode = loadEvent.target.result
+        this.loading = true
         if (!this.solcReady) {
           this.initSolc()
         } else {
@@ -105,9 +114,10 @@ export default {
 
     submitContract: function() {
       const compiledContracts = this.compiler.compile(this.contractCode, 0)
-      const compiledContract = compiledContracts.contracts[":" + this.contractName]
+      const compiledFactory = compiledContracts.contracts[":" + this.contractName]
+      const compiledInstance = compiledContracts.contracts[":" + this.contractName.replace('Factory', '')]
 
-      if (!compiledContract) {
+      if (!compiledFactory || !compiledInstance) {
         alert('Contract named ' + this.contractName + ' could not be compiled. See console for errors.')
         console.log('Contract code:')
         console.log(this.contractCode)
@@ -120,42 +130,75 @@ export default {
         console.log(compiledContracts.errors)
       }
 
-      const contractWrapper = contract({
-        abi: JSON.parse(compiledContract.interface),
-        unlinked_binary: '0x' + compiledContract.bytecode
+      const factoryWrapper = contract({
+        abi: JSON.parse(compiledFactory.interface),
+        unlinked_binary: '0x' + compiledFactory.bytecode
       })
 
-      contractWrapper.setProvider(this.web3.currentProvider)
-      contractWrapper.defaults({from: this.web3.eth.coinbase, gas: 1000000})
+      this.instanceWrapper = contract({
+        abi: JSON.parse(compiledInstance.interface),
+        unlinked_binary: '0x' + compiledInstance.bytecode
+      })
 
-      // TODO always deploy a new instance?
-      return contractWrapper.new().then(instance => this.handleContractDeployed(instance))
+      factoryWrapper.setProvider(this.web3.currentProvider)
+      factoryWrapper.defaults({from: this.web3.eth.coinbase, gas: 1000000})
+
+      this.instanceWrapper.setProvider(this.web3.currentProvider)
+      this.instanceWrapper.defaults({from: this.web3.eth.coinbase, gas: 1000000})
+
+      // TODO always deploy a new factory? What if there is already one on the blockchain
+      return factoryWrapper.new().then(factory => this.handleFactoryDeployed(factory))
     },
 
-    handleContractDeployed: function(instance) {
-      this.contractDeployed = true
-      this.contractInstance = instance
+    handleFactoryDeployed: function(factory) {
+      this.loading = false
+      this.factoryDeployed = true
+      this.factoryContract = factory
 
-      this.contractInstance.allEvents().watch((err, event) => {
+      // watch for instance creation events
+      this.factoryContract.allEvents().watch((err, event) => {
         if (!err) {
-          console.log('Event observed: ' + event.event)
-          console.log('Address: ' + event.address)
-          this.bus.$emit('eth-event-triggered', event.event)
+          this.handleInstanceDeployed(event)
         }
       })
     },
 
-    callContract: function(task) {
-      if (!this.contractInstance) {
+    handleInstanceDeployed: function(event) {
+      this.instanceWrapper.at(event.args.instanceAddress).then(instanceContract => {
+        this.instanceContract = instanceContract
+        this.instanceRunning = true
+        this.loading = false
+        // watch for actual process events
+        this.instanceContract.allEvents().watch((err, event) => {
+          if (!err) {
+            console.log('Event observed: ' + event.event)
+            console.log('Address: ' + event.address)
+            this.bus.$emit('eth-event-triggered', event.event)
+          }
+        })
+      })
+    },
+
+    createContractInstance: function(instance) {
+      this.loading = true
+      this.factoryContract.createInstance().then(_ => {
+        console.log('Contract instance created')
+      })
+    },
+
+    validateRole: function(roleName) {
+      
+    },
+
+    callContract: function(taskName) {
+      if (!this.instanceContract) {
         alert('No contract instance found!')
         return
       }
 
-      const contractFunctions = this.contractInstance.abi
+      const contractFunctions = this.instanceContract.abi
         .filter(entry => entry.type === 'function')
       const contractFunctionNames = contractFunctions.map(entry => entry.name)
-
-      const taskName = task.businessObject.name
 
       if (!contractFunctionNames.includes(taskName)) {
         alert('No contract method named ' + taskName + ' was found.')
@@ -170,19 +213,19 @@ export default {
       } else {
         // call directly
         this.logBlockchainCall(taskName)
-        this.contractInstance[taskName]().then(receipt => this.logReceipt(receipt))
+        this.instanceContract[taskName]().then(receipt => this.logReceipt(receipt))
       }
     },
 
     submitParams: function() {
       const paramValues = this.contractFunction.inputs.map(input => input.value)
       this.paramsNeeded = false
-      this.contractInstance[this.contractFunction.name](...paramValues).then(receipt => this.logReceipt(receipt))
+      this.instanceContract[this.contractFunction.name](...paramValues).then(receipt => this.logReceipt(receipt))
       this.logBlockchainCall(this.contractFunction.name)
     },
 
     logBlockchainCall: function(functionName) {
-      console.log('[Blockchain] execute ' + functionName + ' on ' + this.contractInstance.address)
+      console.log('[Blockchain] execute ' + functionName + ' on ' + this.instanceContract.address)
     },
 
     logReceipt: function(receipt) {

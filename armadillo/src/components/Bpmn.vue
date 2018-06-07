@@ -17,47 +17,66 @@ import Viewer from 'bpmn-js/lib/Viewer'
 export default {
   name: 'Bpmn',
   props: ['bus'],
+  data: () => {
+    return {
+      taskTypes: [
+        'bpmn:Task',
+        'bpmn:ServiceTask'
+      ]
+    }
+  },
   mounted: function() {
     this.diagramXml = null
     this.viewer = new Viewer({
         container: '#canvas',
         height: 400
       })
-    this.setUpViewer()
+    this.registerClickEvents()
 
     this.bus.$on('eth-event-triggered', event => this.highlightEvent(event))
   },
   methods: {
-    setUpViewer: function() {
+    registerClickEvents: function() {
 
       const eventBus = this.viewer.get('eventBus')
       const clickEvent = 'element.click'
 
       eventBus.on(clickEvent, e => {
-        if (e.element.type === 'bpmn:ServiceTask') {
+        if (this.taskTypes.includes(e.element.type)) {
           this.triggerTask(e.element)
-        }
-        else {
+        } else {
           console.log('[BPMN] click on ' + e.element + ' ignored')
         }
       })
     },
 
     triggerTask: function(el) {
+      if (el.parent.type === 'bpmn:Participant') {
+        this.validateRole(el)
+      }
       this.toggleElementHighlight(el)
+      this.bus.$emit('task-triggered', el.businessObject.name)
+    },
 
-      this.bus.$emit('task-triggered', el)
+    validateRole: function(el) {
+      const roleName = this.getRoleName(el)
+      this.bus.$emit('role-validation-required', roleName)
+    },
+
+    getRoleName: function(el) {
+      if (el.businessObject.di.bpmnElement.lanes) {
+        // if the task is contained in a lane, use the lane name
+        return el.businessObject.di.bpmnElement.lanes[0].name
+      } else {
+        // use the pool name as role name
+        return el.parent.businessObject.name
+      }
     },
 
     toggleElementHighlight: function(el) {
-      const highlightableElements = [
-        'bpmn:Task',
-        'bpmn:ServiceTask'
-      ]
-
       const canvas = this.viewer.get('canvas')
 
-      // if (!hightlightableElements.includes(e.element.type)) {
+      // if (!this.hightlightableElements.includes(e.element.type)) {
       //   return
       // }
 
