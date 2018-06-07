@@ -34,6 +34,7 @@ export default {
     this.registerClickEvents()
 
     this.bus.$on('eth-event-triggered', event => this.highlightEvent(event))
+    this.bus.$on('instance-terminated', () => this.resetHighlighting())
   },
   methods: {
     registerClickEvents: function() {
@@ -54,7 +55,7 @@ export default {
       if (el.parent.type === 'bpmn:Participant') {
         this.validateRole(el)
       }
-      this.toggleElementHighlight(el)
+      this.highlightElement(el)
       this.bus.$emit('task-triggered', el.businessObject.name)
     },
 
@@ -73,20 +74,18 @@ export default {
       }
     },
 
-    toggleElementHighlight: function(el) {
-      const canvas = this.viewer.get('canvas')
-
+    highlightElement: function(el) {
       // if (!this.hightlightableElements.includes(e.element.type)) {
       //   return
       // }
+      const canvas = this.viewer.get('canvas')
+      canvas.addMarker(el.id, 'highlight')
 
-      if (el.isSelected) {
-        el.isSelected = false
-        canvas.removeMarker(el.id, 'highlight')
-      } else {
-        el.isSelected = true
-        canvas.addMarker(el.id, 'highlight')
-      }
+    },
+
+    resetElementHighlighting: function(el) {
+      const canvas = this.viewer.get('canvas')
+      canvas.removeMarker(el.id, 'highlight')
     },
 
     loadDiagram: function(event) {
@@ -117,7 +116,12 @@ export default {
     highlightEvent: function(eventName) {
       this.viewer.get('elementRegistry').getAll()
         .filter(el => el.businessObject.name === eventName)
-        .forEach(el => this.toggleElementHighlight(el))
+        .forEach(el => this.highlightElement(el))
+    },
+
+    resetHighlighting: function() {
+      this.viewer.get('elementRegistry').getAll()
+        .forEach(el => this.resetElementHighlighting(el))
     }
   }
 }

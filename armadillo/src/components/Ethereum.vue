@@ -170,9 +170,17 @@ export default {
         this.loading = false
         // watch for actual process events
         this.instanceContract.allEvents().watch((err, event) => {
-          if (!err) {
-            console.log('Event observed: ' + event.event)
-            console.log('Address: ' + event.address)
+          if (err) {
+            console.log('Error during watching event')
+            return
+          }
+
+          console.log('Event observed: ' + event.event)
+          console.log('Address: ' + event.address)
+          if (event.event === 'Selfdestructed') {
+            this.instanceRunning = false
+            this.bus.$emit('instance-terminated')
+          } else {
             this.bus.$emit('eth-event-triggered', event.event)
           }
         })

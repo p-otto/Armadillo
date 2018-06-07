@@ -6,6 +6,7 @@ contract Buyer {
 
 contract Seller {
     event BuyOrderReceived();
+    event Selfdestructed();
 
     Buyer _buyerContract;
     address _factory;
@@ -21,6 +22,7 @@ contract Seller {
 
     function sendProduct() public {
         _buyerContract.receiveProduct();
+        emit Selfdestructed();
         selfdestruct(_factory);
     }
 }
