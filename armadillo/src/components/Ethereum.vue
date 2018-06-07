@@ -21,7 +21,7 @@
         <div class="cssload-speeding-wheel" />
       </div>
       <div v-else>
-        <span>Contract deployed at: {{ contractAddress }}</span>
+        <span>Contract deployed at: {{ contractInstance.address }}</span>
       </div>
     </div>
 
@@ -47,11 +47,10 @@ export default {
   data: () => {
     return {
       connected: false,
-      solcReady: false,
-      contractDeployed: false,
-      nodeAddress: '',
       contractSelected: false,
-      contractAddress: '',
+      contractDeployed: false,
+      solcReady: false,
+      nodeAddress: '',
       contractFunction: { inputs: [] },
       paramsNeeded: false
     }
@@ -60,14 +59,6 @@ export default {
     this.bus.$on('task-triggered', (task) => this.callContract(task))
   },
   methods: {
-    initSolc: function() {
-      BrowserSolc.loadVersion("soljson-v0.4.24+commit.e67f0147.js", function(compiler) {
-        this.compiler = compiler
-        this.solcReady = true
-        this.submitContract()
-      }.bind(this))
-    },
-
     submitAddress: function() {
       const web3 = new Web3(new Web3.providers.HttpProvider(this.nodeAddress))
       if (web3.isConnected()) {
@@ -90,7 +81,6 @@ export default {
       }
 
       this.contractSelected = true
-
       this.contractName = file.name.split(".")[0]
 
       const reader = new FileReader()
@@ -105,20 +95,46 @@ export default {
       }
     },
 
-    deployContract: function(contract) {
-      if (!contract.isDeployed()) {
-        // contract was not yet deployed, deploy it here
-        return contract.new().then(instance => this.handleContractDeployed(instance))
-      } else {
-        // get the deployed contract
-        return contract.deployed().then(instance => this.handleContractDeployed(instance))
+    initSolc: function() {
+      BrowserSolc.loadVersion("soljson-v0.4.24+commit.e67f0147.js", function(compiler) {
+        this.compiler = compiler
+        this.solcReady = true
+        this.submitContract()
+      }.bind(this))
+    },
+
+    submitContract: function() {
+      const compiledContracts = this.compiler.compile(this.contractCode, 0)
+      const compiledContract = compiledContracts.contracts[":" + this.contractName]
+
+      if (!compiledContract) {
+        alert('Contract named ' + this.contractName + ' could not be compiled. See console for errors.')
+        console.log('Contract code:')
+        console.log(this.contractCode)
+        console.log('Errors:')
+        console.log(compiledContracts.errors)
+        this.contractSelected = false
+        return
+      } else if (compiledContracts.errors.length > 0) {
+        console.log('Warnings:')
+        console.log(compiledContracts.errors)
       }
+
+      const contractWrapper = contract({
+        abi: JSON.parse(compiledContract.interface),
+        unlinked_binary: '0x' + compiledContract.bytecode
+      })
+
+      contractWrapper.setProvider(this.web3.currentProvider)
+      contractWrapper.defaults({from: this.web3.eth.coinbase, gas: 1000000})
+
+      // TODO always deploy a new instance?
+      return contractWrapper.new().then(instance => this.handleContractDeployed(instance))
     },
 
     handleContractDeployed: function(instance) {
       this.contractDeployed = true
       this.contractInstance = instance
-      this.contractAddress = instance.address
 
       this.contractInstance.allEvents().watch((err, event) => {
         if (!err) {
@@ -129,40 +145,6 @@ export default {
       })
     },
 
-    submitContract: function() {
-      if (!this.solcReady) {
-        alert("Solc is not initialized yet.")
-        return
-      }
-
-      var contractObject = this.compiler.compile(this.contractCode, 0)
-      var rawContract = contractObject.contracts[":" + this.contractName]
-
-      if (!rawContract) {
-        alert('Contract named ' + this.contractName + ' could not be compiled. See console for errors.')
-        console.log('Contract code:')
-        console.log(this.contractCode)
-        console.log('Errors:')
-        console.log(contractObject.errors)
-        this.contractSelected = false
-        return
-      }
-      else if (contractObject.errors.length > 0) {
-        console.log('Warnings:')
-        console.log(contractObject.errors)
-      }
-
-      const wrappedContract = contract({
-        abi: JSON.parse(rawContract.interface),
-        unlinked_binary: '0x' + rawContract.bytecode
-      })
-
-      wrappedContract.setProvider(this.web3.currentProvider)
-      wrappedContract.defaults({from: this.web3.eth.coinbase, gas: 1000000})
-
-      this.deployContract(wrappedContract)
-    },
-
     callContract: function(task) {
       if (!this.contractInstance) {
         alert('No contract instance found!')
@@ -171,24 +153,24 @@ export default {
 
       const contractFunctions = this.contractInstance.abi
         .filter(entry => entry.type === 'function')
-
       const contractFunctionNames = contractFunctions.map(entry => entry.name)
 
       const taskName = task.businessObject.name
 
       if (!contractFunctionNames.includes(taskName)) {
         alert('No contract method named ' + taskName + ' was found.')
+        return
+      }
+
+      const contractFunction = contractFunctions.filter(func => func.name === taskName)[0]
+      if (contractFunction.inputs.length > 0) {
+        // collect input parameters from user
+        this.contractFunction = contractFunction
+        this.paramsNeeded = true
       } else {
-        const contractFunction = contractFunctions.filter(func => func.name === taskName)[0]
-        if (contractFunction.inputs.length > 0) {
-          // collect input parameters from user
-          this.contractFunction = contractFunction
-          this.paramsNeeded = true
-        } else {
-          // call directly
-          this.contractInstance[taskName]().then(receipt => this.logReceipt(receipt))
-          this.logBlockchainCall(taskName)
-        }
+        // call directly
+        this.logBlockchainCall(taskName)
+        this.contractInstance[taskName]().then(receipt => this.logReceipt(receipt))
       }
     },
 
