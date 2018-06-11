@@ -5,10 +5,10 @@
     <div class="container">
       <button v-if="!isClient && !isServer" v-on:click="isClient = true">Client</button>
       <button v-if="!isClient && !isServer" v-on:click="isServer = true">Server</button>
-      
+
       <process-client v-if="isClient" v-bind:bus="bus"></process-client>
       <process-server v-if="isServer" v-bind:bus="bus"></process-server>
-      
+
       <bpmn v-bind:bus="bus"></bpmn>
     </div>
   </div>
