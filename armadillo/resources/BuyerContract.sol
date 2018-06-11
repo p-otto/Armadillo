@@ -1,25 +1,25 @@
 pragma solidity ^0.4.24;
 
 contract SellerContract {
-	function receiveBuyOrder() public {}
+    function receiveBuyOrder() public {}
 }
 
 contract BuyerContract {
-	event ProductReceived();
+    event ProductReceived();
 
-	SellerContract _sellerContract;
+    SellerContract _sellerContract;
 
-	constructor() public {}
+    constructor() public {}
 
-	function setSellerContract(address contract_address) public {
-		_sellerContract = SellerContract(contract_address);
-	}
+    function setSellerContract(address contract_address) public {
+        _sellerContract = SellerContract(contract_address);
+    }
 
-	function sendBuyOrder() public {
-		_sellerContract.receiveBuyOrder();
-	}
+    function sendBuyOrder() public {
+        _sellerContract.receiveBuyOrder();
+    }
 
-	function receiveProduct() public {
-		emit ProductReceived();
-	}
+    function receiveProduct() public {
+        emit ProductReceived();
+    }
 }

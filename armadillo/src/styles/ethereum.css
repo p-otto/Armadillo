@@ -11,6 +11,13 @@ label {
   padding-bottom: 10px;
 }
 
+span {
+	padding-bottom: 10px;
+	display: block;
+  color: #888;
+  font-style: italic;
+}
+
 .contract {
   padding-top: 20px;
 }
