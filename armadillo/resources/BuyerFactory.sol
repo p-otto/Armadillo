@@ -4,6 +4,10 @@ contract Seller {
     function receiveBuyOrder() public {}
 }
 
+contract SellerFactory {
+    function createInstance() public returns(address sellerInstanceAddress) {}
+}
+
 contract Buyer {
     event ProductReceived();
     event Selfdestructed();
@@ -11,12 +15,9 @@ contract Buyer {
     Seller _sellerContract;
     address _factory;
 
-    constructor() public {
+    constructor(address seller_instance_address) public {
         _factory = msg.sender;
-    }
-
-    function setSellerContract(address contract_address) public {
-        _sellerContract = Seller(contract_address);
+        _sellerContract = Seller(seller_instance_address);
     }
 
     function sendBuyOrder() public {
@@ -33,9 +34,16 @@ contract Buyer {
 contract BuyerFactory {
     event BuyerInstanceCreated(address instanceAddress);
 
+    SellerFactory _sellerFactory;
+
     function createInstance() public returns(address buyerInstanceAddress) {
-        Buyer b = new Buyer();
+        address sellerInstanceAddress = _sellerFactory.createInstance();
+        Buyer b = new Buyer(sellerInstanceAddress);
         emit BuyerInstanceCreated(b);
         return b;
+    }
+
+    function setSellerFactoryContract(address factory_address) public {
+        _sellerFactory = SellerFactory(factory_address);
     }
 }

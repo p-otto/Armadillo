@@ -18,11 +18,7 @@
         <input type="file" id="contract-select" @change="loadContract($event)" />
       </div>
 
-      <div v-if="factoryDeployed">
-        <span>Factory contract deployed at: {{ factoryContract.address }}</span>
-        <span v-if="instanceRunning">Contract instance deployed at: {{ instanceContract.address }}</span>
-        <button v-else-if="!loading" v-on:click="createContractInstance">Create contract instance</button>
-      </div>
+      <span v-if="factoryDeployed">Factory contract deployed at: {{ factoryContract.address }}</span>
 
       <div v-if="loading" class="cssload-container">
         <div class="cssload-speeding-wheel" />
@@ -47,7 +43,7 @@ import browserSolc from 'browser-solc';
 
 
 export default {
-  name: 'Ethereum',
+  name: 'EthereumServer',
   props: ['bus'],
   data: () => {
     return {
@@ -184,13 +180,6 @@ export default {
             this.bus.$emit('eth-event-triggered', event.event)
           }
         })
-      })
-    },
-
-    createContractInstance: function(instance) {
-      this.loading = true
-      this.factoryContract.createInstance().then(_ => {
-        console.log('Contract instance created')
       })
     },
 
