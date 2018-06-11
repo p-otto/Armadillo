@@ -5,7 +5,11 @@ contract Seller {
 }
 
 contract SellerFactory {
-    function createInstance() public returns(address sellerInstanceAddress) {}
+    function createInstance(address accessAddress) public returns(address sellerInstanceAddress) {}
+}
+
+contract SellerAccess {
+    function isAuthorized(address buyerAddress) public returns(bool isAuthorized) {}
 }
 
 contract Buyer {
@@ -14,10 +18,12 @@ contract Buyer {
 
     Seller _sellerContract;
     address _factory;
+    SellerAccess _sellerAccess;
 
-    constructor(address seller_instance_address) public {
+    constructor(address sellerInstanceAddress, address sellerAccess) public {
         _factory = msg.sender;
-        _sellerContract = Seller(seller_instance_address);
+        _sellerContract = Seller(sellerInstanceAddress);
+        _sellerAccess = SellerAccess(sellerAccess);
     }
 
     function sendBuyOrder() public {
@@ -36,9 +42,9 @@ contract BuyerFactory {
 
     SellerFactory _sellerFactory;
 
-    function createInstance() public returns(address buyerInstanceAddress) {
-        address sellerInstanceAddress = _sellerFactory.createInstance();
-        Buyer b = new Buyer(sellerInstanceAddress);
+    function createInstance(address buyerAccess, address sellerAccess) public returns(address buyerInstanceAddress) {
+        address sellerInstanceAddress = _sellerFactory.createInstance(buyerAccess);
+        Buyer b = new Buyer(sellerInstanceAddress, sellerAccess);
         emit BuyerInstanceCreated(b);
         return b;
     }

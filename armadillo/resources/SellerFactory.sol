@@ -4,15 +4,21 @@ contract Buyer {
     function receiveProduct() public {}
 }
 
+contract BuyerAccess {
+    function isAuthorized(address buyerAddress) public returns(bool isAuthorized) {}
+}
+
 contract Seller {
     event BuyOrderReceived();
     event Selfdestructed();
 
     Buyer _buyerContract;
     address _factory;
+    BuyerAccess _buyerAccess;
 
-    constructor() public {
+    constructor(address remoteAccessAddress) public {
         _factory = msg.sender;
+        _buyerAccess = BuyerAccess(remoteAccessAddress);
     }
 
     function receiveBuyOrder() public {
@@ -30,8 +36,8 @@ contract Seller {
 contract SellerFactory {
     event SellerInstanceCreated(address instanceAddress);
 
-    function createInstance() public returns(address sellerInstanceAddress) {
-        Seller s = new Seller();
+    function createInstance(address remoteAccessAddress) public returns(address sellerInstanceAddress) {
+        Seller s = new Seller(remoteAccessAddress);
         emit SellerInstanceCreated(s);
         return s;
     }
