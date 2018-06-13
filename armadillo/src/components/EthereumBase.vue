@@ -58,6 +58,8 @@
     </div>
 
     <div v-if="paramsNeeded" class="inputs">
+      <label for="sender-address">Enter sender address:</label>
+      <input type="text" v-model="senderAddress" id="sender-address">
       <label v-for="(functionInput, index) in contractFunction.inputs">
         {{ functionInput.name }} ({{ functionInput.type }}):
         <input type="text" v-model="contractFunction.inputs[index].value">
@@ -81,6 +83,7 @@ export default {
       states: Object.freeze({ init: 1, connected: 2, factoryDeployed: 3, accessDeployed: 4, factoriesLinked: 5, instanceRunning: 6 }),
       currentState: 1,
       nodeAddress: '',
+      senderAddress: '',
       loading: false,
       solcReady: false,
       contractFunction: { inputs: [] },
@@ -261,22 +264,16 @@ export default {
       }
 
       const contractFunction = contractFunctions.filter(func => func.name === taskName)[0]
-      if (contractFunction.inputs.length > 0) {
         // collect input parameters from user
         this.contractFunction = contractFunction
         this.paramsNeeded = true
-      } else {
-        // call directly
-        this.logBlockchainCall(taskName)
-        this.instanceContract[taskName]().then(receipt => this.logReceipt(receipt))
-      }
     },
 
     submitParams: function() {
       const paramValues = this.contractFunction.inputs.map(input => input.value)
       this.paramsNeeded = false
-      this.instanceContract[this.contractFunction.name](...paramValues).then(receipt => this.logReceipt(receipt))
       this.logBlockchainCall(this.contractFunction.name)
+      this.instanceContract[this.contractFunction.name](...paramValues, { from: this.senderAddress }).then(receipt => this.logReceipt(receipt))
     },
 
     logBlockchainCall: function(functionName) {
