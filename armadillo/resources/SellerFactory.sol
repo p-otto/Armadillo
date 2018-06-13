@@ -5,7 +5,7 @@ contract Buyer {
 }
 
 contract BuyerAccess {
-    function isAuthorized(address buyerAddress) public returns(bool isAuthorized) {}
+    function isAuthorized(address) public returns(bool) {}
 }
 
 contract Seller {

@@ -116,7 +116,7 @@ export default {
         console.log(compileErrors)
         return
       } else if (compileErrors.length > 0) {
-        console.log('Warnings:')
+        console.log(this.contractName + ' warnings:')
         console.log(compileErrors)
       }
 

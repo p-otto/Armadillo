@@ -5,11 +5,11 @@ contract Seller {
 }
 
 contract SellerFactory {
-    function createInstance(address accessAddress) public returns(address sellerInstanceAddress) {}
+    function createInstance(address) public returns(address) {}
 }
 
 contract SellerAccess {
-    function isAuthorized(address buyerAddress) public returns(bool isAuthorized) {}
+    function isAuthorized(address) public returns(bool) {}
 }
 
 contract Buyer {
