@@ -1,0 +1,19 @@
+{
+  "name": "eth_admin",
+  "version": "1.0.0",
+  "description": "",
+  "main": "index.js",
+  "scripts": {
+    "repl": "./index.js"
+  },
+  "bin": {
+    "snippet": "./index.js"
+  },
+  "author": "",
+  "license": "ISC",
+  "dependencies": {
+    "truffle-contract": "^3.0.5",
+    "vorpal": "^1.12.0",
+    "web3": "^0.20.0"
+  }
+}
