@@ -5,7 +5,7 @@ contract Buyer {
 }
 
 contract BuyerAccess {
-    function isAuthorized(address) public returns(bool) {}
+    function isAuthorized(address, string) public returns(bool) {}
 }
 
 contract Seller {
@@ -16,12 +16,17 @@ contract Seller {
     address _factory;
     BuyerAccess _buyerAccess;
 
+    modifier authorized(string taskName) {
+        _buyerAccess.isAuthorized(msg.sender, taskName);
+        _;
+    }
+
     constructor(address remoteAccessAddress) public {
         _factory = msg.sender;
         _buyerAccess = BuyerAccess(remoteAccessAddress);
     }
 
-    function receiveBuyOrder() public {
+    function receiveBuyOrder() public authorized("receiveBuyOrder") {
         _buyerContract = Buyer(msg.sender);
         emit BuyOrderReceived();
     }
