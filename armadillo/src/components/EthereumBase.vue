@@ -157,21 +157,23 @@ export default {
 
     submitContract: function(contractCode, target) {
       const compiledContracts = this.compiler.compile(contractCode, 0)
-      const compiledContract = compiledContracts.contracts[":" + this.contractName]
-      const wrapper = this.wrapCompiledContract(compiledContract, compiledContracts.errors)
+      let compiledContract
       let handleDeployed
 
       if (target === 'access') {
+        compiledContract = compiledContracts.contracts[":" + this.contractName]
         handleDeployed = this.handleAccessDeployed
       } else if (target === 'factory') {
+        compiledContract = compiledContracts.contracts[":" + this.contractName + 'Factory']
         handleDeployed = this.handleFactoryDeployed
-        const compiledInstance = compiledContracts.contracts[":" + this.contractName.replace('Factory', '')]
+        const compiledInstance = compiledContracts.contracts[":" + this.contractName]
         this.instanceWrapper = this.wrapCompiledContract(compiledInstance, compiledContracts.errors)
       } else {
         console.log('Error: unknown contract target ' + target)
         return
       }
 
+      const wrapper = this.wrapCompiledContract(compiledContract, compiledContracts.errors)
       // TODO always deploy a new factory? What if there is already one on the blockchain
       wrapper.new().then(instance => handleDeployed(instance))
     },
