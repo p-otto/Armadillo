@@ -17,14 +17,6 @@ import Viewer from 'bpmn-js/lib/Viewer'
 export default {
   name: 'Bpmn',
   props: ['bus'],
-  data: () => {
-    return {
-      taskTypes: [
-        'bpmn:Task',
-        'bpmn:ServiceTask'
-      ]
-    }
-  },
   mounted: function() {
     this.diagramXml = null
     this.viewer = new Viewer({
@@ -43,8 +35,10 @@ export default {
       const clickEvent = 'element.click'
 
       eventBus.on(clickEvent, e => {
-        if (this.taskTypes.includes(e.element.type)) {
+        if (e.element.type === 'bpmn:ServiceTask') {
           this.triggerTask(e.element)
+        } else if (e.element.type === 'bpmn:Task') {
+          this.highlightElement(e.element)
         } else {
           console.log('[BPMN] click on ' + e.element + ' ignored')
         }
@@ -75,9 +69,6 @@ export default {
     },
 
     highlightElement: function(el) {
-      // if (!this.hightlightableElements.includes(e.element.type)) {
-      //   return
-      // }
       const canvas = this.viewer.get('canvas')
       canvas.addMarker(el.id, 'highlight')
 

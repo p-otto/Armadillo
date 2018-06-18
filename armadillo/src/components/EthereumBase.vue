@@ -260,12 +260,13 @@ export default {
         .filter(entry => entry.type === 'function')
       const contractFunctionNames = contractFunctions.map(entry => entry.name)
 
-      if (!contractFunctionNames.includes(taskName)) {
+      functionName = this.toCamelCase(taskName)
+      if (!contractFunctionNames.includes(functionName)) {
         alert('No contract method named ' + taskName + ' was found.')
         return
       }
 
-      const contractFunction = contractFunctions.filter(func => func.name === taskName)[0]
+      const contractFunction = contractFunctions.filter(func => func.name === functionName)[0]
         // collect input parameters from user
         this.contractFunction = contractFunction
         this.paramsNeeded = true
@@ -285,6 +286,13 @@ export default {
     logReceipt: function(receipt) {
       console.log('[Blockchain] received receipt:')
       console.log(receipt)
+    },
+
+    toCamelCase: function(str) {
+      return str
+        .replace(/\s(.)/g, letter => letter.toUpperCase())
+        .replace(/\s/g, '')
+        .replace(/^(.)/, letter => letter.toLowerCase())
     }
   }
 }
