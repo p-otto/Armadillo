@@ -11,11 +11,11 @@
       <bpmn:outgoing>SequenceFlow_0agksvx</bpmn:outgoing>
     </bpmn:serviceTask>
     <bpmn:sequenceFlow id="SequenceFlow_08j92z3" sourceRef="IntermediateThrowEvent_0vqhfng" targetRef="EndEvent_1wdavr5" />
-    <bpmn:endEvent id="EndEvent_1wdavr5" name="Receive product">
+    <bpmn:endEvent id="EndEvent_1wdavr5" name="Product received">
       <bpmn:incoming>SequenceFlow_08j92z3</bpmn:incoming>
       <bpmn:messageEventDefinition />
     </bpmn:endEvent>
-    <bpmn:intermediateCatchEvent id="IntermediateThrowEvent_0vqhfng" name="Receive report">
+    <bpmn:intermediateCatchEvent id="IntermediateThrowEvent_0vqhfng" name="Start of production received">
       <bpmn:incoming>SequenceFlow_0agksvx</bpmn:incoming>
       <bpmn:outgoing>SequenceFlow_08j92z3</bpmn:outgoing>
       <bpmn:messageEventDefinition />

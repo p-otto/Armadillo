@@ -31,7 +31,7 @@
       <bpmn:incoming>SequenceFlow_0akgeao</bpmn:incoming>
       <bpmn:outgoing>SequenceFlow_0xpj35i</bpmn:outgoing>
     </bpmn:serviceTask>
-    <bpmn:intermediateCatchEvent id="IntermediateThrowEvent_1qt9rz3" name="Receive parts">
+    <bpmn:intermediateCatchEvent id="IntermediateThrowEvent_1qt9rz3" name="Parts received">
       <bpmn:incoming>SequenceFlow_0xpj35i</bpmn:incoming>
       <bpmn:outgoing>SequenceFlow_07u19tv</bpmn:outgoing>
       <bpmn:messageEventDefinition />
@@ -53,7 +53,7 @@
       <bpmn:incoming>SequenceFlow_1x2eih8</bpmn:incoming>
       <bpmn:outgoing>SequenceFlow_132nd9b</bpmn:outgoing>
     </bpmn:serviceTask>
-    <bpmn:startEvent id="StartEvent_1" name="Receive order">
+    <bpmn:startEvent id="StartEvent_1" name="Order received">
       <bpmn:outgoing>SequenceFlow_1234eim</bpmn:outgoing>
       <bpmn:messageEventDefinition />
     </bpmn:startEvent>
