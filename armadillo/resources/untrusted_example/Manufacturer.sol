@@ -2,6 +2,7 @@ pragma solidity ^0.4.24;
 
 contract Middleman {
     function receiveOrder() public {}
+    function setManufacturer(address) public {}
 }
 
 contract BulkBuyer {
@@ -99,6 +100,8 @@ contract ManufacturerFactory {
         address specialCarrierAccess = _specialCarrierFactory.getAccessAddress();
         address bulkBuyerAccess = _bulkBuyerFactory.getAccessAddress();
         Manufacturer m = new Manufacturer(middlemanInstance, specialCarrierAccess, bulkBuyerAccess);
+        Middleman middleman = Middleman(middlemanInstance);
+        middleman.setManufacturer(m);
         emit ManufacturerInstanceCreated(m);
         return m;
     }
