@@ -1,0 +1,35 @@
+Bulk Buyer
+    sendOrder (creates Manufacturer process)
+
+    receiveStartOfProduction
+    receiveProduct
+
+Manufacturer
+    placeOrder (creates Middleman process)
+    reportStartOfProduction
+    deliverProduct
+
+    receiveOrder
+    receiveParts
+
+
+Middleman
+    forwardOrder (creates Supplier process)
+    orderTransport (creates Special Carrier process)
+
+    receiveOrder
+
+SpecialCarrier
+    requestDetails
+    deliverOrder
+
+    receiveOrder
+    receiveDetails
+    receiveWaybill
+
+Supplier
+    provideDetails
+    provideWaybill
+
+    receiveOrder
+    receiveRequest
