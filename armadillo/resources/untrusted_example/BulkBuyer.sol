@@ -1,7 +1,7 @@
 pragma solidity ^0.4.24;
 
 contract Manufacturer {
-    function receiveOrder() public {}
+    function receiveOrder(address) public {}
     function setBulkBuyer(address) public {}
 }
 
@@ -23,8 +23,9 @@ contract BulkBuyer {
     Access _manufacturerAccess;
     address _factory;
 
-    modifier authorized(string taskName) {
-        _manufacturerAccess.isAuthorized(msg.sender, taskName);
+    modifier authorized(string taskName, address sender) {
+        require(msg.sender == address(_manufacturer));
+        require(_manufacturerAccess.isAuthorized(sender, taskName));
         _;
     }
 
@@ -35,14 +36,14 @@ contract BulkBuyer {
     }
 
     function sendOrder() public {
-        _manufacturer.receiveOrder();
+        _manufacturer.receiveOrder(msg.sender);
     }
 
-    function receiveStartOfProduction() public authorized("receiveStartOfProduction") {
+    function receiveStartOfProduction(address sender) public authorized("receiveStartOfProduction", sender) {
         emit StartOfProductionReceived();
     }
 
-    function receiveProduct() public authorized("receiveProduct") {
+    function receiveProduct(address sender) public authorized("receiveProduct", sender) {
         emit ProductReceived();
         emit Selfdestructed();
         selfdestruct(_factory);
@@ -53,17 +54,16 @@ contract BulkBuyerFactory {
     event BulkBuyerInstanceCreated(address instanceAddress);
 
     address _accessAddress;
-    ManufacturerFactory _manufacturerFactory;
 
-    constructor(address accessAddress, address manufacturerAddress) public {
+    constructor(address accessAddress) public {
         _accessAddress = accessAddress;
-        _manufacturerFactory = ManufacturerFactory(manufacturerAddress);
     }
 
-    function createInstance() public returns(address) {
-        address manufacturerInstance = _manufacturerFactory.createInstance();
+    function createInstance(address manufacturerAddress) public returns(address) {
+        ManufacturerFactory manufacturerFactory = ManufacturerFactory(manufacturerAddress);
+        address manufacturerInstance = manufacturerFactory.createInstance();
         Manufacturer manufacturer = Manufacturer(manufacturerInstance);
-        address accessAddress = _manufacturerFactory.getAccessAddress();
+        address accessAddress = manufacturerFactory.getAccessAddress();
         BulkBuyer b = new BulkBuyer(manufacturerInstance, accessAddress);
         manufacturer.setBulkBuyer(b);
         emit BulkBuyerInstanceCreated(b);

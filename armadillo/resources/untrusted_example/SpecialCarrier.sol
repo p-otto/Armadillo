@@ -82,18 +82,16 @@ contract SpecialCarrierFactory {
     event SpecialCarrierInstanceCreated(address instanceAddress);
 
     address _accessAddress;
-    MiddlemanFactory _middlemanFactory;
-    SupplierFactory _supplierFactory;
 
-    constructor(address accessAddress, address middlemanAddress, address supplierAddress) public {
+    constructor(address accessAddress) public {
         _accessAddress = accessAddress;
-        _middlemanFactory = MiddlemanFactory(middlemanAddress);
-        _supplierFactory = SupplierFactory(supplierAddress);
     }
 
-    function createInstance() public returns(address) {
-        address middlemanAccess = _middlemanFactory.getAccessAddress();
-        address supplierAccess = _supplierFactory.getAccessAddress();
+    function createInstance(address middlemanAddress, address supplierAddress) public returns(address) {
+        MiddlemanFactory middlemanFactory = MiddlemanFactory(middlemanAddress);
+        SupplierFactory supplierFactory = SupplierFactory(supplierAddress);
+        address middlemanAccess = middlemanFactory.getAccessAddress();
+        address supplierAccess = supplierFactory.getAccessAddress();
         SpecialCarrier s = new SpecialCarrier(middlemanAccess, supplierAccess);
         emit SpecialCarrierInstanceCreated(s);
         return s;
