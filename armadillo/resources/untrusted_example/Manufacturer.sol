@@ -1,13 +1,13 @@
 pragma solidity ^0.4.24;
 
 contract Middleman {
-    function receiveOrder(address) public {}
+    function receiveOrder() public {}
     function setManufacturer(address) public {}
 }
 
 contract BulkBuyer {
-    function receiveStartOfProduction(address) public {}
-    function receiveProduct(address) public {}
+    function receiveStartOfProduction() public {}
+    function receiveProduct() public {}
 }
 
 contract MiddlemanFactory {
@@ -37,15 +37,13 @@ contract Manufacturer {
     Access _bulkBuyerAccess;
     address _factory;
 
-    modifier bulkBuyerAuthorized(string taskName, address sender) {
-        require(msg.sender == address(_bulkBuyer));
-        require(_bulkBuyerAccess.isAuthorized(sender, taskName));
+    modifier bulkBuyerAuthorized(string taskName) {
+        _bulkBuyerAccess.isAuthorized(msg.sender, taskName);
         _;
     }
 
-    modifier specialCarrierAuthorized(string taskName, address sender) {
-        require(msg.sender == address(_specialCarrier));
-        require(_specialCarrierAccess.isAuthorized(sender, taskName));
+    modifier specialCarrierAuthorized(string taskName) {
+        _specialCarrierAccess.isAuthorized(msg.sender, taskName);
         _;
     }
 
