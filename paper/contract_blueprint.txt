@@ -1,0 +1,64 @@
+<Include ABI of other Process Factories, other Process Instances and Access Contracts>
+
+// FactoryContract
+// ===============
+
+contract <Process>Factory {
+    event <Process>InstanceCreated(address instanceAddress);
+    address _accessAdress;
+}
+
+constructor(address accessAddress) {
+    _accessAddress = accessAddress;
+}
+
+function createInstance() public returns(address) {
+    // For each process that we call:
+    _<OtherProcess>Factory = <OtherProcess>Factory(<OtherProcess>Address);
+
+    // For each process that this process starts:
+    address <OtherProcess>Instance = _<OtherProcess>Factory.createInstance();
+
+    // Get access contracts all processes that call us:
+    address <OtherProcess>AccessAddress = _<OtherProcess>Factory.getAccessAddress();
+
+    // Create own instance contract
+    <Process> instance = new <Process>(<OtherProcessFactoryAddresses>, <OtherProcessAccessAddresses>);
+    emit <Process>InstanceCreated(instance);
+    return instance;
+}
+
+// InstanceContract
+// ================
+
+contract <Process> {
+    // For each catch event:
+    event <EventName>Received();
+
+    // For getting notified when process is completed
+    event Selfdestructed();
+
+    // For all processes, that we call:
+    <OtherProcess> _<OtherProcess>;
+
+    // For all processes, that call us:
+    Access _<OtherProcess>Access;
+
+    // TODO: modifiers
+
+    constructor(<OtherProcessFactoryAddresses>, <OtherProcessAccessAddresses>) public {
+        <Map addresses to contracts>
+    }
+
+    // For all throw events:
+    function send<EventName>() public {
+        _<OtherProcess>.receive<EventName>();
+    }
+
+    // For all catch events:
+    function receive<EventName>(address senderAddress) authorized("receive<EventName>") {
+        emit <EventName>Received();
+        emit Selfdestructed();
+        selfdestruct();
+    }
+}
