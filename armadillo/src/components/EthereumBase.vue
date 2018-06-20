@@ -66,6 +66,15 @@
       </label>
       <button v-on:click="submitParams">Submit</button>
     </div>
+
+    <div class="metrics">
+      <div class="metric-container">
+        Gas used by factory contract:  <span class="metric-value">{{ factoryGasUsed }}</span>
+      </div>
+      <div class="metric-container">
+        Gas used by instance contract: <span class="metric-value">{{ instanceGasUsed }}</span>
+      </div>
+    </div>
   </div>
 </template>
 
@@ -87,7 +96,9 @@ export default {
       loading: false,
       solcReady: false,
       contractFunction: { inputs: [] },
-      paramsNeeded: false
+      paramsNeeded: false,
+      factoryGasUsed: 0,
+      instanceGasUsed: 0
     }
   },
   mounted: function() {
@@ -276,16 +287,19 @@ export default {
       const paramValues = this.contractFunction.inputs.map(input => input.value)
       this.paramsNeeded = false
       this.logBlockchainCall(this.contractFunction.name)
-      this.instanceContract[this.contractFunction.name](...paramValues, { from: this.senderAddress }).then(receipt => this.logReceipt(receipt))
+      this.instanceContract[this.contractFunction.name](...paramValues, { from: this.senderAddress }).then(result => {
+        this.logTransactionResult(result)
+        this.instanceGasUsed += result.receipt.gasUsed
+      })
     },
 
     logBlockchainCall: function(functionName) {
       console.log('[Blockchain] execute ' + functionName + ' on ' + this.instanceContract.address)
     },
 
-    logReceipt: function(receipt) {
-      console.log('[Blockchain] received receipt:')
-      console.log(receipt)
+    logTransactionResult: function(result) {
+      console.log('[Blockchain] received transaction result:')
+      console.log(result)
     },
 
     toCamelCase: function(str) {

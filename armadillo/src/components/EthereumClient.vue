@@ -22,8 +22,11 @@ export default {
 
       createContractInstance: function() {
         this.loading = true
-        this.factoryContract.createInstance(this.accessContract.address, this.remoteAccessAddress).then(_ => {
-          console.log('Contract instance created')
+
+        this.factoryContract.createInstance(this.accessContract.address, this.remoteAccessAddress).then(result => {
+          console.log('[Blockchain] Creating instance contract.')
+          this.logTransactionResult(result)
+          this.factoryGasUsed += result.receipt.gasUsed
         })
       }
     }
