@@ -1,15 +1,17 @@
 pragma solidity ^0.4.24;
 
 contract Supplier {
-    function receiveOrder() public {}
+    function receiveOrder(address) public {}
     function setSpecialCarrier(address) public {}
 }
 
 contract SpecialCarrier {
-    function receiveOrder() public {}
+    function receiveOrder(address) public {}
     function setManufacturer(address) public {}
     function setSupplier(address) public {}
 }
+
+contract Manufacturer {}
 
 contract SupplierFactory {
     function createInstance() public returns(address) {}
@@ -33,35 +35,44 @@ contract Middleman {
 
     Supplier _supplier;
     SpecialCarrier _specialCarrier;
+    Manufacturer _manufacturer;
     Access _manufacturerAccess;
+    Access _localAccess;
     address _factory;
 
-    modifier authorized(string taskName) {
-        _manufacturerAccess.isAuthorized(msg.sender, taskName);
+    modifier manufacturerAuthorized(address sender, string taskName) {
+        require(msg.sender == address(_manufacturer));
+        require(_manufacturerAccess.isAuthorized(sender, taskName));
         _;
     }
 
-    constructor(address supplierInstance, address specialCarrierInstance, address manufacturerAccess) public {
+    modifier localAuthorized(string taskName) {
+        require(_localAccess.isAuthorized(msg.sender, taskName));
+    }
+
+    constructor(address localAccess, address supplierInstance, address specialCarrierInstance, address manufacturerAccess) public {
         _factory = msg.sender;
+        _localAccess = Access(localAccess);
         _supplier = Supplier(supplierInstance);
         _specialCarrier = SpecialCarrier(specialCarrierInstance);
         _manufacturerAccess = Access(manufacturerAccess);
     }
 
-    function setManufacturer(address manufacturer) public authorized("setManufacturer") {
+    function setManufacturer(address manufacturer) public manufacturerAuthorized("setManufacturer") {
+        _manufacturer = Manufacturer(manufacturer);
         _specialCarrier.setManufacturer(manufacturer);
     }
 
-    function receiveOrder() public authorized("receiveOrder") {
+    function receiveOrder(address sender) public manufacturerAuthorized(sender, "receiveOrder") {
         emit OrderReceived();
     }
 
-    function forwardOrder() public {
-        _supplier.receiveOrder();
+    function forwardOrder() public localAuthorized("forwardOrder") {
+        _supplier.receiveOrder(msg.sender);
     }
 
-    function orderTransport() public {
-        _specialCarrier.receiveOrder();
+    function orderTransport() public localAuthorized("orderTransport") {
+        _specialCarrier.receiveOrder(msg.sender);
         selfdestruct(_factory);
     }
 }
@@ -74,16 +85,17 @@ contract MiddlemanFactory {
     SpecialCarrierFactory _specialCarrierFactory;
     ManufacturerFactory _manufacturerFactory;
 
-    constructor(address accessAddress, address supplierAddress, address specialCarrierAddress, address manufacturerAddress) public {
+    constructor(address accessAddress) public {
         _accessAddress = accessAddress;
-        _supplierFactory = SupplierFactory(supplierAddress);
-        _specialCarrierFactory = SpecialCarrierFactory(specialCarrierAddress);
-        _manufacturerFactory = ManufacturerFactory(manufacturerAddress);
     }
 
-    function createInstance() public returns(address) {
-        address supplierInstance = _supplierFactory.createInstance();
-        address specialCarrierInstance = _specialCarrierFactory.createInstance();
+    function createInstance(address supplierAddress, address specialCarrierAddress, address manufacturerAddress) public returns(address) {
+        SupplierFactory supplierFactory = SupplierFactory(supplierAddress);
+        SpecialCarrierFactory specialCarrierFactory = SpecialCarrierFactory(specialCarrierAddress);
+        ManufacturerFactory manufacturerFactory = ManufacturerFactory(manufacturerAddress);
+
+        address supplierInstance = supplierFactory.createInstance();
+        address specialCarrierInstance = specialCarrierFactory.createInstance();
 
         Supplier supplier = Supplier(supplierInstance);
         supplier.setSpecialCarrier(specialCarrierInstance);
@@ -91,8 +103,8 @@ contract MiddlemanFactory {
         SpecialCarrier specialCarrier = SpecialCarrier(specialCarrierInstance);
         specialCarrier.setSupplier(supplierInstance);
 
-        address manufacturerAccess = _manufacturerFactory.getAccessAddress();
-        Middleman m = new Middleman(supplierInstance, specialCarrierInstance, manufacturerAccess);
+        address manufacturerAccess = manufacturerFactory.getAccessAddress();
+        Middleman m = new Middleman(_accessAddress, supplierInstance, specialCarrierInstance, manufacturerAccess);
         emit MiddlemanInstanceCreated(m);
         return m;
     }

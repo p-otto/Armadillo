@@ -1,12 +1,14 @@
 pragma solidity ^0.4.24;
 
 contract Supplier {
-    function receiveRequest() public {}
+    function receiveRequest(address) public {}
 }
 
 contract Manufacturer {
-    function receiveParts() public {}
+    function receiveParts(address) public {}
 }
+
+contract Middleman {}
 
 contract MiddlemanFactory {
     function getAccessAddress() public returns(address) {}
@@ -28,22 +30,32 @@ contract SpecialCarrier {
 
     Supplier _supplier;
     Manufacturer _manufacturer;
+    Middleman _middleman;
+    Access _localAccess;
     Access _supplierAccess;
     Access _middlemanAccess;
     address _factory;
 
-    modifier middlemanAuthorized(string taskName) {
-        _middlemanAccess.isAuthorized(msg.sender, taskName);
+    modifier middlemanAuthorized(address sender, string taskName) {
+        require(msg.sender == address(_middleman));
+        require(_middlemanAccess.isAuthorized(sender, taskName));
         _;
     }
 
-    modifier supplierAuthorized(string taskName) {
-        _supplierAccess.isAuthorized(msg.sender, taskName);
+    modifier supplierAuthorized(address sender, string taskName) {
+        require(msg.sender == address(_supplier));
+        require(_supplierAccess.isAuthorized(sender, taskName));
         _;
     }
 
-    constructor(address middlemanAccess, address supplierAccess) public {
+    modifier localAuthorized(string taskName) {
+        require(_localAccess.isAuthorized(msg.sender, taskName));
+        _;
+    }
+
+    constructor(address localAccess, address middlemanAccess, address supplierAccess) public {
         _factory = msg.sender;
+        _localAccess = Access(localAccess);
         _middlemanAccess = Access(middlemanAccess);
         _supplierAccess = Access(supplierAccess);
     }
@@ -56,24 +68,24 @@ contract SpecialCarrier {
         _manufacturer = Manufacturer(manufacturer);
     }
 
-    function receiveOrder() public middlemanAuthorized("receiveOrder") {
+    function receiveOrder(address sender) public middlemanAuthorized(sender, "receiveOrder") {
         emit OrderReceived();
     }
 
-    function requestDetails() public {
-        _supplier.receiveRequest();
+    function requestDetails() public localAuthorized("requestDetails") {
+        _supplier.receiveRequest(msg.sender);
     }
 
-    function receiveDetails() public supplierAuthorized("receiveDetails") {
+    function receiveDetails(address sender) public supplierAuthorized(sender, "receiveDetails") {
         emit DetailsReceived();
     }
 
-    function receiveWaybill() public supplierAuthorized("receiveWaybill") {
+    function receiveWaybill(address sender) public supplierAuthorized(sender, "receiveWaybill") {
         emit WaybillReceived();
     }
 
-    function deliverOrder() public {
-        _manufacturer.receiveParts();
+    function deliverOrder() public localAuthorized("deliverOrder") {
+        _manufacturer.receiveParts(msg.sender);
         selfdestruct(_factory);
     }
 }
@@ -85,16 +97,16 @@ contract SpecialCarrierFactory {
     MiddlemanFactory _middlemanFactory;
     SupplierFactory _supplierFactory;
 
-    constructor(address accessAddress, address middlemanAddress, address supplierAddress) public {
+    constructor(address accessAddress) public {
         _accessAddress = accessAddress;
-        _middlemanFactory = MiddlemanFactory(middlemanAddress);
-        _supplierFactory = SupplierFactory(supplierAddress);
     }
 
-    function createInstance() public returns(address) {
-        address middlemanAccess = _middlemanFactory.getAccessAddress();
-        address supplierAccess = _supplierFactory.getAccessAddress();
-        SpecialCarrier s = new SpecialCarrier(middlemanAccess, supplierAccess);
+    function createInstance(address middlemanAddress, address supplierAddress) public returns(address) {
+        MiddlemanFactory middlemanFactory = MiddlemanFactory(middlemanAddress);
+        SupplierFactory supplierFactory = SupplierFactory(supplierAddress);
+        address middlemanAccess = middlemanFactory.getAccessAddress();
+        address supplierAccess = supplierFactory.getAccessAddress();
+        SpecialCarrier s = new SpecialCarrier(_accessAddress, middlemanAccess, supplierAccess);
         emit SpecialCarrierInstanceCreated(s);
         return s;
     }

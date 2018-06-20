@@ -1,14 +1,16 @@
 pragma solidity ^0.4.24;
 
 contract Middleman {
-    function receiveOrder() public {}
+    function receiveOrder(address) public {}
     function setManufacturer(address) public {}
 }
 
 contract BulkBuyer {
-    function receiveStartOfProduction() public {}
-    function receiveProduct() public {}
+    function receiveStartOfProduction(address) public {}
+    function receiveProduct(address) public {}
 }
+
+contract SpecialCarrier {}
 
 contract MiddlemanFactory {
     function createInstance() public returns(address) {}
@@ -31,51 +33,61 @@ contract Manufacturer {
     event PartsReceived();
     event Selfdestructed();
 
+    uint _id;
     Middleman _middleman;
     BulkBuyer _bulkBuyer;
+    SpecialCarrier _specialCarrier;
+    BulkBuyerFactory _bulkBuyerFactory;
+    SpecialCarrierFactory _specialCarrierFactory;
     Access _specialCarrierAccess;
     Access _bulkBuyerAccess;
+    Access _localAccess;
     address _factory;
 
-    modifier bulkBuyerAuthorized(string taskName) {
-        _bulkBuyerAccess.isAuthorized(msg.sender, taskName);
+    modifier localAuthorized(string taskName) {
+        require(_localAccess.isAuthorized(msg.sender, taskName));
         _;
     }
 
-    modifier specialCarrierAuthorized(string taskName) {
-        _specialCarrierAccess.isAuthorized(msg.sender, taskName);
+    modifier bulkBuyerAuthorized(address sender, string taskName) {
+        require(_bulkBuyerFactory.isInstance(_id, msg.sender));
+        require(_bulkBuyerAccess.isAuthorized(sender, taskName));
         _;
     }
 
-    constructor(address middlemanInstance, address specialCarrierAccess, address bulkBuyerAccess) public {
+    modifier specialCarrierAuthorized(address sender, string taskName) {
+        require(_specialCarrierFactory.isInstance(_id, msg.sender));
+        require(_specialCarrierAccess.isAuthorized(sender, taskName));
+        _;
+    }
+
+    constructor(address localAccess, uint counter, address middlemanInstance, address specialCarrierAccess, address bulkBuyerAccess) public {
         _factory = msg.sender;
+        _localAccess = Access(localAccess);
+        _id = counter;
         _middleman = Middleman(middlemanInstance);
         _specialCarrierAccess = Access(specialCarrierAccess);
         _bulkBuyerAccess = Access(bulkBuyerAccess);
     }
 
-    function setBulkBuyer(address bulkBuyer) public bulkBuyerAuthorized("setBulkBuyer") {
-        _bulkBuyer = BulkBuyer(bulkBuyer);
-    }
-
-    function receiveOrder() public bulkBuyerAuthorized("receiveOrder") {
+    function receiveOrder(address sender) public bulkBuyerAuthorized(sender, "receiveOrder") {
         emit OrderReceived();
     }
 
     function placeOrder() public {
-        _middleman.receiveOrder();
+        _middleman.receiveOrder(msg.sender);
     }
 
-    function receiveParts() public specialCarrierAuthorized("receiveParts") {
+    function receiveParts(address sender) public specialCarrierAuthorized(sender, "receiveParts") {
         emit PartsReceived();
     }
 
-    function reportStartOfProduction() public {
-        _bulkBuyer.receiveStartOfProduction();
+    function reportStartOfProduction() public localAuthorized("reportStartOfProduction") {
+        _bulkBuyer.receiveStartOfProduction(msg.sender);
     }
 
-    function deliverProduct() public {
-        _bulkBuyer.receiveProduct();
+    function deliverProduct() public localAuthorized("deliverProduct") {
+        _bulkBuyer.receiveProduct(msg.sender);
         selfdestruct(_factory);
     }
 }
@@ -84,24 +96,25 @@ contract ManufacturerFactory {
     event ManufacturerInstanceCreated(address instanceAddress);
 
     address _accessAddress;
-    MiddlemanFactory _middlemanFactory;
-    SpecialCarrierFactory _specialCarrierFactory;
-    BulkBuyerFactory _bulkBuyerFactory;
+    mapping(uint => address) instances;
 
-    constructor(address accessAddress, address middlemanAddress, address specialCarrierAddress, address bulkBuyerAddress) public {
+    constructor(address accessAddress) public {
         _accessAddress = accessAddress;
-        _middlemanFactory = MiddlemanFactory(middlemanAddress);
-        _specialCarrierFactory = SpecialCarrierFactory(specialCarrierAddress);
-        _bulkBuyerFactory = BulkBuyerFactory(bulkBuyerAddress);
     }
 
-    function createInstance() public returns(address) {
-        address middlemanInstance = _middlemanFactory.createInstance();
-        address specialCarrierAccess = _specialCarrierFactory.getAccessAddress();
-        address bulkBuyerAccess = _bulkBuyerFactory.getAccessAddress();
-        Manufacturer m = new Manufacturer(middlemanInstance, specialCarrierAccess, bulkBuyerAccess);
+    function createInstance(uint counter, address middlemanAddress, address specialCarrierAddress, address bulkBuyerAddress) public returns(address) {
+        MiddlemanFactory middlemanFactory = MiddlemanFactory(middlemanAddress);
+        address middlemanInstance = middlemanFactory.createInstance();
         Middleman middleman = Middleman(middlemanInstance);
+
+        SpecialCarrierFactory specialCarrierFactory = SpecialCarrierFactory(specialCarrierAddress);
+        address specialCarrierAccess = specialCarrierFactory.getAccessAddress();
+
+        BulkBuyerFactory bulkBuyerFactory = BulkBuyerFactory(bulkBuyerAddress);
+        address bulkBuyerAccess = bulkBuyerFactory.getAccessAddress();
+        Manufacturer m = new Manufacturer(_accessAddress, counter, middlemanInstance, specialCarrierAccess, bulkBuyerAccess);
         middleman.setManufacturer(m);
+        instances[counter] = address(m);
         emit ManufacturerInstanceCreated(m);
         return m;
     }
