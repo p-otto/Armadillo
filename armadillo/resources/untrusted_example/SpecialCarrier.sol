@@ -1,25 +1,25 @@
 pragma solidity ^0.4.24;
 
 contract Supplier {
-    function receiveRequest(address) public {}
+    function receiveRequest(address) public;
 }
 
 contract Manufacturer {
-    function receiveParts(address) public {}
+    function receiveParts(address) public;
 }
 
-contract Middleman {}
-
 contract MiddlemanFactory {
-    function getAccessAddress() public returns(address) {}
+    function getAccessAddress() public returns(address);
+    function isInstance(uint id, address instanceAddress) public view returns(bool);
 }
 
 contract SupplierFactory {
-    function getAccessAddress() public returns(address) {}
+    function getAccessAddress() public returns(address);
+    function isInstance(uint id, address instanceAddress) public view returns(bool);
 }
 
 contract Access {
-    function isAuthorized(address, string) public returns(bool) {}
+    function isAuthorized(address, string) public returns(bool);
 }
 
 contract SpecialCarrier {
@@ -28,43 +28,60 @@ contract SpecialCarrier {
     event WaybillReceived();
     event Selfdestructed();
 
-    Supplier _supplier;
-    Manufacturer _manufacturer;
-    Middleman _middleman;
-    Access _localAccess;
-    Access _supplierAccess;
-    Access _middlemanAccess;
     address _factory;
+    Access _localAccess;
+    uint _id;
 
-    modifier middlemanAuthorized(address sender, string taskName) {
-        require(msg.sender == address(_middleman));
-        require(_middlemanAccess.isAuthorized(sender, taskName));
-        _;
-    }
-
-    modifier supplierAuthorized(address sender, string taskName) {
-        require(msg.sender == address(_supplier));
-        require(_supplierAccess.isAuthorized(sender, taskName));
-        _;
-    }
+    SupplierFactory _supplierFactory;
+    Access _supplierAccess;
+    Supplier _supplier;
+    MiddlemanFactory _middlemanFactory;
+    Access _middlemanAccess;
+    Manufacturer _manufacturer;
 
     modifier localAuthorized(string taskName) {
         require(_localAccess.isAuthorized(msg.sender, taskName));
         _;
     }
 
-    constructor(address localAccess, address middlemanAccess, address supplierAccess) public {
+    modifier middlemanInstance {
+        require(_middlemanFactory.isInstance(_id, msg.sender));
+        _;
+    }
+
+    modifier middlemanAuthorized(address sender, string taskName) {
+        require(_middlemanFactory.isInstance(_id, msg.sender));
+        require(_middlemanAccess.isAuthorized(sender, taskName));
+        _;
+    }
+
+    modifier supplierAuthorized(address sender, string taskName) {
+        require(_supplierFactory.isInstance(_id, msg.sender));
+        require(_supplierAccess.isAuthorized(sender, taskName));
+        _;
+    }
+
+    constructor(
+        address localAccess,
+        uint counter,
+        address middlemanFactory, address middlemanAccess,
+        address supplierFactory, address supplierAccess
+    ) public {
         _factory = msg.sender;
         _localAccess = Access(localAccess);
+        _id = counter;
+
+        _middlemanFactory = MiddlemanFactory(middlemanFactory);
         _middlemanAccess = Access(middlemanAccess);
+        _supplierFactory = SupplierFactory(supplierFactory);
         _supplierAccess = Access(supplierAccess);
     }
     
-    function setSupplier(address supplier) public middlemanAuthorized("setSupplier") {
+    function setSupplier(address supplier) public middlemanInstance {
         _supplier = Supplier(supplier);
     }
 
-    function setManufacturer(address manufacturer) public middlemanAuthorized("setManufacturer") {
+    function setManufacturer(address manufacturer) public middlemanInstance {
         _manufacturer = Manufacturer(manufacturer);
     }
 
@@ -94,19 +111,42 @@ contract SpecialCarrierFactory {
     event SpecialCarrierInstanceCreated(address instanceAddress);
 
     address _accessAddress;
-    MiddlemanFactory _middlemanFactory;
-    SupplierFactory _supplierFactory;
+    mapping(uint => address) _instances;
+
+    address _middlemanAddress = address(0);
+    address _supplierAddress = address(0);
+
+    modifier initialized {
+        require(_middlemanAddress != address(0));
+        require(_supplierAddress != address(0));
+        _;
+    }
 
     constructor(address accessAddress) public {
         _accessAddress = accessAddress;
     }
 
-    function createInstance(address middlemanAddress, address supplierAddress) public returns(address) {
-        MiddlemanFactory middlemanFactory = MiddlemanFactory(middlemanAddress);
-        SupplierFactory supplierFactory = SupplierFactory(supplierAddress);
+    function setMiddleman(address middlemanAddress) public {
+        _middlemanAddress = middlemanAddress;
+    }
+    
+    function setSupplier(address supplierAddress) public {
+        _supplierAddress = supplierAddress;
+    }
+
+    function createInstance(uint counter) public returns(address) {
+        MiddlemanFactory middlemanFactory = MiddlemanFactory(_middlemanAddress);
         address middlemanAccess = middlemanFactory.getAccessAddress();
+        
+        SupplierFactory supplierFactory = SupplierFactory(_supplierAddress);
         address supplierAccess = supplierFactory.getAccessAddress();
-        SpecialCarrier s = new SpecialCarrier(_accessAddress, middlemanAccess, supplierAccess);
+        
+        SpecialCarrier s = new SpecialCarrier(
+            _accessAddress,
+            counter,
+            middlemanFactory, middlemanAccess,
+            supplierFactory, supplierAccess);
+        _instances[counter] = address(s);
         emit SpecialCarrierInstanceCreated(s);
         return s;
     }
