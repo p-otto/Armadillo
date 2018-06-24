@@ -53,7 +53,7 @@ contract BulkBuyer {
         _manufacturer = Manufacturer(manufacturerInstance);
     }
 
-    function sendOrder() public localAuthorized("sendOrder") {
+    function sendOrder() public localAuthorized("receiveOrder") {
         _manufacturer.receiveOrder(msg.sender);
     }
 

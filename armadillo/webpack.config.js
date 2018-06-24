@@ -22,6 +22,10 @@ module.exports = {
         use: 'raw-loader'
       },
       {
+        test: /\.sol$/,
+        use: 'raw-loader'
+      },
+      {
         test: /\.vue$/,
         loader: 'vue-loader'
       },

@@ -44,6 +44,7 @@ contract Middleman {
 
     modifier localAuthorized(string taskName) {
         require(_localAccess.isAuthorized(msg.sender, taskName));
+        _;
     }
 
     modifier manufacturerAuthorized(address sender, string taskName) {
@@ -74,11 +75,11 @@ contract Middleman {
         emit OrderReceived();
     }
 
-    function forwardOrder() public localAuthorized("forwardOrder") {
+    function forwardOrder() public localAuthorized("receiveOrder") {
         _supplier.receiveOrder(msg.sender);
     }
 
-    function orderTransport() public localAuthorized("orderTransport") {
+    function orderTransport() public localAuthorized("receiveOrder") {
         _specialCarrier.setSupplier(_supplier);
         _specialCarrier.setManufacturer(_manufacturer);
         _specialCarrier.receiveOrder(msg.sender);

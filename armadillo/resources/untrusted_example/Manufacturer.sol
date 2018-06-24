@@ -85,7 +85,7 @@ contract Manufacturer {
         emit OrderReceived();
     }
 
-    function placeOrder() public localAuthorized("placeOrder") {
+    function placeOrder() public localAuthorized("receiveOrder") {
         _middleman.receiveOrder(msg.sender);
     }
 
@@ -93,11 +93,11 @@ contract Manufacturer {
         emit PartsReceived();
     }
 
-    function reportStartOfProduction() public localAuthorized("reportStartOfProduction") {
+    function reportStartOfProduction() public localAuthorized("receiveStartOfProduction") {
         _bulkBuyer.receiveStartOfProduction(msg.sender);
     }
 
-    function deliverProduct() public localAuthorized("deliverProduct") {
+    function deliverProduct() public localAuthorized("receiveProduct") {
         _bulkBuyer.receiveProduct(msg.sender);
         selfdestruct(_factory);
     }

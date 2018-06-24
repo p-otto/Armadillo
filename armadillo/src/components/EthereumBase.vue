@@ -14,41 +14,26 @@
     </div>
 
     <div class="contract">
-      <div v-if="currentState === states.connected">
+      <span v-if="currentState >= states.accessDeployed">Access contract deployed at: {{ accessContract.address }}</span>
+      <span v-if="currentState >= states.factoryDeployed">Factory contract deployed at: {{ factoryContract.address }}</span>
+      
+      <div v-if="currentState === states.accessDeployed">
         <label for="contract-select">Upload factory contract code:</label>
         <input type="file" id="contract-select" @change="loadContract($event, 'factory')" />
       </div>
 
-      <span v-if="currentState >= states.factoryDeployed">Factory contract deployed at: {{ factoryContract.address }}</span>
-
-      <div v-if="currentState === states.factoryDeployed">
-        <label for="access-select">Upload access contract code:</label>
-        <input type="file" id="access-select" @change="loadContract($event, 'access')" />
+      
+      <div v-if="currentState === states.factoryDeployed" v-for="setter in factorySetters">
+        <label>
+          {{ setter.inputs[0].name }} ({{ setter.inputs[0].type }}):
+          <input type="text" v-model="setter.inputs[0].value">
+        </label>
+        <button v-on:click="setRemoteFactory(setter)">Submit</button>
       </div>
 
-      <span v-if="currentState >= states.accessDeployed">Access contract deployed at: {{ accessContract.address }}</span>
-
-      <!-- client specific user interface -->
-      <div v-if="isClient">
-        <div v-if="currentState >= states.accessDeployed">
-          <div v-if="currentState < states.factoriesLinked">
-            <label for="remote-factory">Remote factory address:</label>
-            <input type="text" id="remote-factory" v-model="remoteAddress" />
-            <label for="remote-access">Remote access address:</label>
-            <input type="text" id="remote-access" v-model="remoteAccessAddress" />
-            <button v-on:click="submitRemote">Submit</button>
-          </div>
-          <div v-else>
-            <span>Remote factory linked at: {{ remoteAddress }}</span>
-
-            <span v-if="currentState >= states.instanceRunning">Contract instance deployed at: {{ instanceContract.address }}</span>
-            <button v-else v-on:click="createContractInstance">Create contract instance</button>
-          </div>
-        </div>
-      </div>
-
-      <!-- server specific user interface -->
-      <div v-if="!isClient">
+      <div v-if="currentState >= states.factoriesLinked">
+        <span v-if="currentState >= states.instanceRunning">Contract instance deployed at: {{ instanceContract.address }}</span>
+        <button v-else-if="isClient" v-on:click="createContractInstance">Create contract instance</button>
       </div>
 
       <!-- general user interface -->
@@ -73,6 +58,7 @@
 import Web3 from 'web3'
 import contract from 'truffle-contract'
 import browserSolc from 'browser-solc';
+import accessContractCode from '../../resources/Access.sol'
 
 
 export default {
@@ -80,13 +66,15 @@ export default {
   props: ['bus'],
   data: () => {
     return {
-      states: Object.freeze({ init: 1, connected: 2, factoryDeployed: 3, accessDeployed: 4, factoriesLinked: 5, instanceRunning: 6 }),
+      states: Object.freeze({ init: 1, connected: 2, accessDeployed: 3, factoryDeployed: 4, factoriesLinked: 5, instanceRunning: 6 }),
       currentState: 1,
       nodeAddress: '',
       senderAddress: '',
       loading: false,
       solcReady: false,
       contractFunction: { inputs: [] },
+      factorySetters: [],
+      factoriesSet: 0,
       paramsNeeded: false
     }
   },
@@ -100,6 +88,7 @@ export default {
       const web3 = new Web3(new Web3.providers.HttpProvider(this.nodeAddress))
       if (web3.isConnected()) {
         this.web3 = web3
+        this.compileContract(accessContractCode, 'access')
       } else {
         this.currentState = this.states.init
         alert('Connection failed!')
@@ -124,14 +113,6 @@ export default {
       } else {
         this.submitContract(contractCode, target)
       }
-    },
-
-    loadAccessContract: function(changeEvent) {
-      this.accessSelected = true
-
-      this.loadFile(changeEvent, loadEvent => {
-        this.submitAccessContract(loadEvent.target.result)
-      })
     },
 
     loadFile: function(changeEvent, callback) {
@@ -161,21 +142,19 @@ export default {
       let handleDeployed
 
       if (target === 'access') {
-        compiledContract = compiledContracts.contracts[":" + this.contractName]
-        handleDeployed = this.handleAccessDeployed
+        compiledContract = compiledContracts.contracts[":Access"]
+        const wrapper = this.wrapCompiledContract(compiledContract, compiledContracts.errors)
+        wrapper.new().then(instance => this.handleAccessDeployed(instance))
       } else if (target === 'factory') {
         compiledContract = compiledContracts.contracts[":" + this.contractName + 'Factory']
-        handleDeployed = this.handleFactoryDeployed
+        const wrapper = this.wrapCompiledContract(compiledContract, compiledContracts.errors)
+        // TODO always deploy a new factory? What if there is already one on the blockchain
+        wrapper.new(this.accessContract.address).then(instance => this.handleFactoryDeployed(instance))
         const compiledInstance = compiledContracts.contracts[":" + this.contractName]
         this.instanceWrapper = this.wrapCompiledContract(compiledInstance, compiledContracts.errors)
       } else {
         console.log('Error: unknown contract target ' + target)
-        return
       }
-
-      const wrapper = this.wrapCompiledContract(compiledContract, compiledContracts.errors)
-      // TODO always deploy a new factory? What if there is already one on the blockchain
-      wrapper.new().then(instance => handleDeployed(instance))
     },
 
     wrapCompiledContract: function(compiledContract, compileErrors) {
@@ -198,7 +177,7 @@ export default {
 
       // TODO use address given by user
       wrapper.setProvider(this.web3.currentProvider)
-      wrapper.defaults({from: this.web3.eth.coinbase, gas: 1000000})
+      wrapper.defaults({from: this.web3.eth.coinbase, gas: 3000000})
 
       return wrapper
     },
@@ -207,6 +186,9 @@ export default {
       this.factoryContract = factory
       this.loading = false
       this.currentState = this.states.factoryDeployed
+
+      this.factorySetters = this.factoryContract.abi.filter(
+        entry => entry.type === 'function' && entry.name.startsWith('set'))
 
       // watch for instance creation events
       this.factoryContract.allEvents().watch((err, event) => {
@@ -277,6 +259,14 @@ export default {
       this.paramsNeeded = false
       this.logBlockchainCall(this.contractFunction.name)
       this.instanceContract[this.contractFunction.name](...paramValues, { from: this.senderAddress }).then(receipt => this.logReceipt(receipt))
+    },
+
+    setRemoteFactory: function(setter) {
+      this.factoryContract[setter.name](setter.inputs[0].value).then(receipt => this.logReceipt(receipt))
+      this.factoriesSet = this.factoriesSet + 1
+      if (this.factoriesSet === this.factorySetters.length) {
+        this.currentState = this.states.factoriesLinked
+      }
     },
 
     logBlockchainCall: function(functionName) {

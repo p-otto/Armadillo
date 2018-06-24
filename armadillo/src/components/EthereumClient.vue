@@ -15,14 +15,9 @@ export default {
     },
 
     methods: {
-      submitRemote: function() {
-        this.factoryContract.setSellerFactoryContract(this.remoteAddress)
-        this.currentState = this.states.factoriesLinked
-      },
-
       createContractInstance: function() {
         this.loading = true
-        this.factoryContract.createInstance(this.accessContract.address, this.remoteAccessAddress).then(_ => {
+        this.factoryContract.createInstance().then(_ => {
           console.log('Contract instance created')
         })
       }

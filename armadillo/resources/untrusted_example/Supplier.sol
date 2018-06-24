@@ -76,11 +76,11 @@ contract Supplier {
         emit RequestReceived();
     }
 
-    function provideDetails() public localAuthorized("provideDetails") {
+    function provideDetails() public localAuthorized("receiveDetails") {
         _specialCarrier.receiveDetails(msg.sender);
     }
 
-    function provideWaybill() public localAuthorized("provideWaybill") {
+    function provideWaybill() public localAuthorized("receiveWaybill") {
         _specialCarrier.receiveWaybill(msg.sender);
         selfdestruct(_factory);
     }
@@ -113,7 +113,7 @@ contract SupplierFactory {
         _specialCarrierAddress = specialCarrierAddress;
     }
 
-    function createInstance(uint counter) public returns(address) {
+    function createInstance(uint counter) public initialized returns(address) {
         MiddlemanFactory middlemanFactory = MiddlemanFactory(_middlemanAddress);
         address middlemanAccess = middlemanFactory.getAccessAddress();
 

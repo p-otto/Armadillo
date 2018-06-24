@@ -89,7 +89,7 @@ contract SpecialCarrier {
         emit OrderReceived();
     }
 
-    function requestDetails() public localAuthorized("requestDetails") {
+    function requestDetails() public localAuthorized("receiveRequest") {
         _supplier.receiveRequest(msg.sender);
     }
 
@@ -101,7 +101,7 @@ contract SpecialCarrier {
         emit WaybillReceived();
     }
 
-    function deliverOrder() public localAuthorized("deliverOrder") {
+    function deliverOrder() public localAuthorized("receiveParts") {
         _manufacturer.receiveParts(msg.sender);
         selfdestruct(_factory);
     }
@@ -134,7 +134,7 @@ contract SpecialCarrierFactory {
         _supplierAddress = supplierAddress;
     }
 
-    function createInstance(uint counter) public returns(address) {
+    function createInstance(uint counter) public initialized returns(address) {
         MiddlemanFactory middlemanFactory = MiddlemanFactory(_middlemanAddress);
         address middlemanAccess = middlemanFactory.getAccessAddress();
         
@@ -149,5 +149,9 @@ contract SpecialCarrierFactory {
         _instances[counter] = address(s);
         emit SpecialCarrierInstanceCreated(s);
         return s;
+    }
+
+    function isInstance(uint id, address instanceAddress) public view returns(bool) {
+        return _instances[id] == instanceAddress;
     }
 }
