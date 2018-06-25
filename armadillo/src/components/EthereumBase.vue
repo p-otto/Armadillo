@@ -19,7 +19,7 @@
       
       <div v-if="currentState === states.accessDeployed">
         <label for="contract-select">Upload factory contract code:</label>
-        <input type="file" id="contract-select" @change="loadContract($event, 'factory')" />
+        <input type="file" id="contract-select" @change="loadContract($event)" />
       </div>
 
       
@@ -58,7 +58,8 @@
 import Web3 from 'web3'
 import contract from 'truffle-contract'
 import browserSolc from 'browser-solc';
-import accessContractCode from '../../resources/Access.sol'
+import accessContractAbi from '../../resources/Access.abi'
+import accessContractBin from '../../resources/Access.bin'
 
 
 export default {
@@ -88,7 +89,9 @@ export default {
       const web3 = new Web3(new Web3.providers.HttpProvider(this.nodeAddress))
       if (web3.isConnected()) {
         this.web3 = web3
-        this.compileContract(accessContractCode, 'access')
+        this.loading = true
+        const accessContractWrapper = this.wrapCompiledContract({interface: accessContractAbi, bytecode: accessContractBin })
+        accessContractWrapper.new().then(accessInstance => this.handleAccessDeployed(accessInstance))
       } else {
         this.currentState = this.states.init
         alert('Connection failed!')
@@ -100,18 +103,18 @@ export default {
       this.submitAddress()
     },
 
-    loadContract: function(changeEvent, target) {      
+    loadContract: function(changeEvent) {      
       this.loading = true
       this.loadFile(changeEvent, loadEvent => {
-        this.compileContract(loadEvent.target.result, target)
+        this.compileContract(loadEvent.target.result)
       })
     },
 
-    compileContract: function(contractCode, target) {
+    compileContract: function(contractCode) {
       if (!this.solcReady) {
-        this.initSolc(contractCode, target)
+        this.initSolc(contractCode)
       } else {
-        this.submitContract(contractCode, target)
+        this.submitContract(contractCode)
       }
     },
 
@@ -128,33 +131,22 @@ export default {
       reader.onload = callback
     },
 
-    initSolc: function(contractCode, target) {
+    initSolc: function(contractCode) {
       BrowserSolc.loadVersion("soljson-v0.4.24+commit.e67f0147.js", function(compiler) {
         this.compiler = compiler
         this.solcReady = true
-        this.submitContract(contractCode, target)
+        this.submitContract(contractCode)
       }.bind(this))
     },
 
-    submitContract: function(contractCode, target) {
+    submitContract: function(contractCode) {
       const compiledContracts = this.compiler.compile(contractCode, 0)
-      let compiledContract
-      let handleDeployed
-
-      if (target === 'access') {
-        compiledContract = compiledContracts.contracts[":Access"]
-        const wrapper = this.wrapCompiledContract(compiledContract, compiledContracts.errors)
-        wrapper.new().then(instance => this.handleAccessDeployed(instance))
-      } else if (target === 'factory') {
-        compiledContract = compiledContracts.contracts[":" + this.contractName + 'Factory']
-        const wrapper = this.wrapCompiledContract(compiledContract, compiledContracts.errors)
-        // TODO always deploy a new factory? What if there is already one on the blockchain
-        wrapper.new(this.accessContract.address).then(instance => this.handleFactoryDeployed(instance))
-        const compiledInstance = compiledContracts.contracts[":" + this.contractName]
-        this.instanceWrapper = this.wrapCompiledContract(compiledInstance, compiledContracts.errors)
-      } else {
-        console.log('Error: unknown contract target ' + target)
-      }
+      const compiledContract = compiledContracts.contracts[":" + this.contractName + 'Factory']
+      const wrapper = this.wrapCompiledContract(compiledContract, compiledContracts.errors)
+      // TODO always deploy a new factory? What if there is already one on the blockchain
+      wrapper.new(this.accessContract.address).then(instance => this.handleFactoryDeployed(instance))
+      const compiledInstance = compiledContracts.contracts[":" + this.contractName]
+      this.instanceWrapper = this.wrapCompiledContract(compiledInstance, compiledContracts.errors)
     },
 
     wrapCompiledContract: function(compiledContract, compileErrors) {

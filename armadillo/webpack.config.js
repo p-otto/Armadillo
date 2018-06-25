@@ -18,11 +18,7 @@ module.exports = {
   module: {
     rules: [
       {
-        test: /\.bpmn$/,
-        use: 'raw-loader'
-      },
-      {
-        test: /\.sol$/,
+        test: /\.(bpmn|sol|abi|bin)$/,
         use: 'raw-loader'
       },
       {
