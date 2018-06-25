@@ -45,19 +45,11 @@ export default {
     },
 
     triggerTask: function(el) {
-      if (el.parent.type === 'bpmn:Participant') {
-        this.validateRole(el)
-      }
       this.highlightElement(el)
       this.bus.$emit('task-triggered', el.businessObject.name)
     },
 
-    validateRole: function(el) {
-      const roleName = this.getRoleName(el)
-      this.bus.$emit('role-validation-required', roleName)
-    },
-
-    getRoleName: function(el) {
+    /*getRoleName: function(el) {
       if (el.businessObject.di.bpmnElement.lanes) {
         // if the task is contained in a lane, use the lane name
         return el.businessObject.di.bpmnElement.lanes[0].name
@@ -65,7 +57,7 @@ export default {
         // use the pool name as role name
         return el.parent.businessObject.name
       }
-    },
+    },*/
 
     highlightElement: function(el) {
       const canvas = this.viewer.get('canvas')
@@ -98,7 +90,7 @@ export default {
         })
       }
     },
-    
+
     highlightEvent: function(eventName) {
       this.viewer.get('elementRegistry').getAll()
         .filter(el => el.businessObject.name === eventName)

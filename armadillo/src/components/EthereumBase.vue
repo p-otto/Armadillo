@@ -80,7 +80,6 @@ export default {
     }
   },
   mounted: function() {
-    this.bus.$on('role-validation-required', roleName => this.validateRole(roleName))
     this.bus.$on('task-triggered', taskName => this.callContract(taskName))
   },
   methods: {
