@@ -3,7 +3,6 @@
 
     <label for="bpmn-select">Upload BPMN diagram:</label>
     <input type="file" id="bpmn-select" @change="loadDiagram($event)">
-    <button v-on:click="submitDiagram">Submit</button>
 
     <!-- BPMN diagram container -->
     <div id="canvas"></div>
@@ -88,22 +87,18 @@ export default {
       const reader = new FileReader()
       reader.readAsText(file.slice())
       reader.onload = event => {
-        this.diagramXml = event.target.result
+        this.viewer.importXML(event.target.result, err => {
+          if (err) {
+            alert('upload failed')
+            console.log(err)
+          } else {
+            const canvas = this.viewer.get('canvas')
+            canvas.zoom('fit-viewport')
+          }
+        })
       }
     },
-
-    submitDiagram: function() {
-      this.viewer.importXML(this.diagramXml, err => {
-        if (err) {
-          alert('upload failed')
-          console.log(err)
-        } else {
-          const canvas = this.viewer.get('canvas')
-          canvas.zoom('fit-viewport')
-        }
-      })
-    },
-
+    
     highlightEvent: function(eventName) {
       this.viewer.get('elementRegistry').getAll()
         .filter(el => el.businessObject.name === eventName)
