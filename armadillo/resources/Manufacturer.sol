@@ -141,7 +141,6 @@ contract ManufacturerFactory {
         MiddlemanFactory middlemanFactory = MiddlemanFactory(_middlemanAddress);
         address middlemanInstance = middlemanFactory.createInstance(counter);
 
-
         SpecialCarrierFactory specialCarrierFactory = SpecialCarrierFactory(_specialCarrierAddress);
         address specialCarrierAccess = specialCarrierFactory.getAccessAddress();
 
@@ -162,5 +161,9 @@ contract ManufacturerFactory {
 
     function isInstance(uint id, address instanceAddress) public view returns(bool) {
         return _instances[id] == instanceAddress;
+    }
+
+    function getAccessAddress() public view returns(address) {
+        return _accessAddress;
     }
 }

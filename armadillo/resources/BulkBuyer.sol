@@ -71,7 +71,7 @@ contract BulkBuyer {
 contract BulkBuyerFactory {
     event BulkBuyerInstanceCreated(address instanceAddress);
 
-    Access _access;
+    address _accessAddress;
     uint _counter;
 
     address _manufacturerAddress = address(0);
@@ -84,7 +84,7 @@ contract BulkBuyerFactory {
     }
 
     constructor(address accessAddress) public {
-        _access = Access(accessAddress);
+        _accessAddress = accessAddress;
         _counter = 0;
     }
 
@@ -100,13 +100,17 @@ contract BulkBuyerFactory {
         address manufacturerInstance = manufacturerFactory.createInstance(_counter);
 
         BulkBuyer b = new BulkBuyer(
-            _access,
+            _accessAddress,
             _counter,
             manufacturerFactory, manufacturerAccess, manufacturerInstance
         );
         _instances[_counter] = address(b);
         emit BulkBuyerInstanceCreated(b);
         return b;        
+    }
+
+    function getAccessAddress() public view returns(address) {
+        return _accessAddress;
     }
 
     function isInstance(uint id, address instanceAddress) public view returns(bool) {

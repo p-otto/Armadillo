@@ -120,7 +120,7 @@ contract MiddlemanFactory {
         _specialCarrierAddress = specialCarrierAddress;
     }
 
-    function createInstance(uint counter) public returns(address) {
+    function createInstance(uint counter) public initialized returns(address) {
         SupplierFactory supplierFactory = SupplierFactory(_supplierAddress);
         address supplierInstance = supplierFactory.createInstance(counter);
         
@@ -143,5 +143,9 @@ contract MiddlemanFactory {
 
     function isInstance(uint id, address instanceAddress) public view returns(bool) {
         return _instances[id] == instanceAddress;
+    }
+
+    function getAccessAddress() public view returns(address) {
+        return _accessAddress;
     }
 }
