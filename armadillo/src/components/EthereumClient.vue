@@ -17,9 +17,12 @@ export default {
     methods: {
       createContractInstance: function() {
         this.loading = true
-        this.factoryContract.createInstance().then(_ => {
-          console.log('Contract instance created')
-        })
+        this.factoryContract.createInstance()
+          .then(_ => console.log('Contract instance created'))
+          .catch(err => { 
+            alert("Error!")
+            console.log(err)
+          })
       }
     }
   }]

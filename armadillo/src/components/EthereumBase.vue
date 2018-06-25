@@ -169,7 +169,7 @@ export default {
 
       // TODO use address given by user
       wrapper.setProvider(this.web3.currentProvider)
-      wrapper.defaults({from: this.web3.eth.coinbase, gas: 3000000})
+      wrapper.defaults({from: this.web3.eth.coinbase, gas: 5000000})
 
       return wrapper
     },
@@ -220,10 +220,6 @@ export default {
       })
     },
 
-    validateRole: function(roleName) {
-
-    },
-
     callContract: function(taskName) {
       if (!this.instanceContract) {
         alert('No contract instance found!')
@@ -234,7 +230,7 @@ export default {
         .filter(entry => entry.type === 'function')
       const contractFunctionNames = contractFunctions.map(entry => entry.name)
 
-      functionName = this.toCamelCase(taskName)
+      const functionName = this.toCamelCase(taskName)
       if (!contractFunctionNames.includes(functionName)) {
         alert('No contract method named ' + taskName + ' was found.')
         return
@@ -250,11 +246,22 @@ export default {
       const paramValues = this.contractFunction.inputs.map(input => input.value)
       this.paramsNeeded = false
       this.logBlockchainCall(this.contractFunction.name)
-      this.instanceContract[this.contractFunction.name](...paramValues, { from: this.senderAddress }).then(receipt => this.logReceipt(receipt))
+      this.instanceContract[this.contractFunction.name](...paramValues, { from: this.senderAddress })
+        .then(receipt => this.logReceipt(receipt))
+        .catch(err => { 
+          alert("Error!")
+          console.log(err)
+        })
     },
 
     setRemoteFactory: function(setter) {
-      this.factoryContract[setter.name](setter.inputs[0].value).then(receipt => this.logReceipt(receipt))
+      this.factoryContract[setter.name](setter.inputs[0].value)
+        .then(receipt => this.logReceipt(receipt))
+        .catch(err => { 
+          alert("Error!")
+          console.log(err)
+        })
+
       this.factoriesSet = this.factoriesSet + 1
       if (this.factoriesSet === this.factorySetters.length) {
         this.currentState = this.states.factoriesLinked
