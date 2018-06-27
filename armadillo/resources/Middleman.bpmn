@@ -4,7 +4,7 @@
     <bpmn:participant id="Participant_1ebjmri" name="Middleman" processRef="Process_1" />
   </bpmn:collaboration>
   <bpmn:process id="Process_1" isExecutable="false">
-    <bpmn:startEvent id="StartEvent_1" name="Receive order">
+    <bpmn:startEvent id="StartEvent_1" name="Order received">
       <bpmn:outgoing>SequenceFlow_0jf6mwe</bpmn:outgoing>
       <bpmn:messageEventDefinition />
     </bpmn:startEvent>
@@ -31,7 +31,7 @@
       <bpmndi:BPMNShape id="StartEvent_19ttpdh_di" bpmnElement="StartEvent_1">
         <dc:Bounds x="187" y="188" width="36" height="36" />
         <bpmndi:BPMNLabel>
-          <dc:Bounds x="171" y="231" width="69" height="14" />
+          <dc:Bounds x="165" y="231" width="82" height="27" />
         </bpmndi:BPMNLabel>
       </bpmndi:BPMNShape>
       <bpmndi:BPMNEdge id="SequenceFlow_0jf6mwe_di" bpmnElement="SequenceFlow_0jf6mwe">

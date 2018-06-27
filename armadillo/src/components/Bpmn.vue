@@ -93,13 +93,23 @@ export default {
 
     highlightEvent: function(eventName) {
       this.viewer.get('elementRegistry').getAll()
-        .filter(el => el.businessObject.name === eventName)
+        .filter(el => this.toEthEventName(el.businessObject.name) === eventName)
         .forEach(el => this.highlightElement(el))
     },
 
     resetHighlighting: function() {
       this.viewer.get('elementRegistry').getAll()
         .forEach(el => this.resetElementHighlighting(el))
+    },
+
+    toEthEventName: function(str) {
+      if (!str) {
+        return ''
+      }
+
+      return str
+        .replace(/\s(.)/g, letter => letter.toUpperCase())
+        .replace(/\s/g, '')
     }
   }
 }

@@ -277,6 +277,10 @@ export default {
     },
 
     toCamelCase: function(str) {
+      if (!str) {
+        return ''
+      }
+      
       return str
         .replace(/\s(.)/g, letter => letter.toUpperCase())
         .replace(/\s/g, '')

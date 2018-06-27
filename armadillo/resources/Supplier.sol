@@ -46,7 +46,7 @@ contract Supplier {
     }
 
     modifier specialCarrierAuthorized(address sender, string taskName) {
-        require(msg.sender == address(_specialCarrier));
+        require(_specialCarrierFactory.isInstance(_id, msg.sender));
         require(_specialCarrierAccess.isAuthorized(sender, taskName));
         _;
     }

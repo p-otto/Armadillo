@@ -4,7 +4,7 @@
     <bpmn:participant id="Participant_000otdx" name="Supplier" processRef="Process_1" />
   </bpmn:collaboration>
   <bpmn:process id="Process_1" isExecutable="false">
-    <bpmn:startEvent id="StartEvent_1" name="Receive order">
+    <bpmn:startEvent id="StartEvent_1" name="Order received">
       <bpmn:outgoing>SequenceFlow_0cv64bn</bpmn:outgoing>
       <bpmn:messageEventDefinition />
     </bpmn:startEvent>
@@ -19,7 +19,7 @@
     </bpmn:task>
     <bpmn:sequenceFlow id="SequenceFlow_1qv99hi" sourceRef="Task_0w9l0uv" targetRef="Task_02vroi6" />
     <bpmn:sequenceFlow id="SequenceFlow_0qwy0dd" sourceRef="Task_02vroi6" targetRef="IntermediateThrowEvent_0ostno8" />
-    <bpmn:intermediateCatchEvent id="IntermediateThrowEvent_0ostno8" name="Receive request">
+    <bpmn:intermediateCatchEvent id="IntermediateThrowEvent_0ostno8" name="Request received">
       <bpmn:incoming>SequenceFlow_0qwy0dd</bpmn:incoming>
       <bpmn:outgoing>SequenceFlow_00vydzi</bpmn:outgoing>
       <bpmn:messageEventDefinition />
@@ -47,7 +47,7 @@
       <bpmndi:BPMNShape id="StartEvent_0y3rhev_di" bpmnElement="StartEvent_1">
         <dc:Bounds x="200" y="190" width="36" height="36" />
         <bpmndi:BPMNLabel>
-          <dc:Bounds x="184" y="233" width="69" height="14" />
+          <dc:Bounds x="178" y="233" width="82" height="27" />
         </bpmndi:BPMNLabel>
       </bpmndi:BPMNShape>
       <bpmndi:BPMNShape id="Task_0w9l0uv_di" bpmnElement="Task_0w9l0uv">
@@ -71,7 +71,7 @@
       <bpmndi:BPMNShape id="IntermediateCatchEvent_0mbytzw_di" bpmnElement="IntermediateThrowEvent_0ostno8">
         <dc:Bounds x="586" y="190" width="36" height="36" />
         <bpmndi:BPMNLabel>
-          <dc:Bounds x="564" y="233" width="80" height="14" />
+          <dc:Bounds x="580" y="233" width="48" height="40" />
         </bpmndi:BPMNLabel>
       </bpmndi:BPMNShape>
       <bpmndi:BPMNEdge id="SequenceFlow_00vydzi_di" bpmnElement="SequenceFlow_00vydzi">
