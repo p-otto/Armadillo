@@ -3,7 +3,6 @@
 
     <label for="bpmn-select">Upload BPMN diagram:</label>
     <input type="file" id="bpmn-select" @change="loadDiagram($event)">
-    <button v-on:click="submitDiagram">Submit</button>
 
     <!-- BPMN diagram container -->
     <div id="canvas"></div>
@@ -46,19 +45,11 @@ export default {
     },
 
     triggerTask: function(el) {
-      if (el.parent.type === 'bpmn:Participant') {
-        this.validateRole(el)
-      }
       this.highlightElement(el)
       this.bus.$emit('task-triggered', el.businessObject.name)
     },
 
-    validateRole: function(el) {
-      const roleName = this.getRoleName(el)
-      this.bus.$emit('role-validation-required', roleName)
-    },
-
-    getRoleName: function(el) {
+    /*getRoleName: function(el) {
       if (el.businessObject.di.bpmnElement.lanes) {
         // if the task is contained in a lane, use the lane name
         return el.businessObject.di.bpmnElement.lanes[0].name
@@ -66,7 +57,7 @@ export default {
         // use the pool name as role name
         return el.parent.businessObject.name
       }
-    },
+    },*/
 
     highlightElement: function(el) {
       const canvas = this.viewer.get('canvas')
@@ -88,31 +79,37 @@ export default {
       const reader = new FileReader()
       reader.readAsText(file.slice())
       reader.onload = event => {
-        this.diagramXml = event.target.result
+        this.viewer.importXML(event.target.result, err => {
+          if (err) {
+            alert('upload failed')
+            console.log(err)
+          } else {
+            const canvas = this.viewer.get('canvas')
+            canvas.zoom('fit-viewport')
+          }
+        })
       }
-    },
-
-    submitDiagram: function() {
-      this.viewer.importXML(this.diagramXml, err => {
-        if (err) {
-          alert('upload failed')
-          console.log(err)
-        } else {
-          const canvas = this.viewer.get('canvas')
-          canvas.zoom('fit-viewport')
-        }
-      })
     },
 
     highlightEvent: function(eventName) {
       this.viewer.get('elementRegistry').getAll()
-        .filter(el => el.businessObject.name === eventName)
+        .filter(el => this.toEthEventName(el.businessObject.name) === eventName)
         .forEach(el => this.highlightElement(el))
     },
 
     resetHighlighting: function() {
       this.viewer.get('elementRegistry').getAll()
         .forEach(el => this.resetElementHighlighting(el))
+    },
+
+    toEthEventName: function(str) {
+      if (!str) {
+        return ''
+      }
+
+      return str
+        .replace(/\s(.)/g, letter => letter.toUpperCase())
+        .replace(/\s/g, '')
     }
   }
 }
