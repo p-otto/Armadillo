@@ -1,20 +1,32 @@
-connect -c 0xb529f14aa8096f943177c09ca294ad66d2e08b1f
+# node index.js << test_setup
+
+# bulk buyer
+connect -c <?>
 right give -u 0xf17f52151ebef6c7334fad080c5704d77216b732 -r BulkBuyer
 task receiveOrder BulkBuyer
-connect -c 0x2a504b5e7ec284aca5b6f49716611237239f0b97
+
+# manufacturer
+connect -c <?>
 right give -u 0xc5fdf4076b8f3a5357c5e395ab970b5b54098fef -r Manufacturer_Procurement
 task receiveOrder Manufacturer_Procurement
 right give -u 0x821aea9a577a9b44299b9c15c88cf3087f3b5544 -r Manufacturer_Production
 task receiveStartOfProduction Manufacturer_Production
 task receiveProduct Manufacturer_Production
-connect -c 0x2eca6fcfef74e2c8d03fbaf0ff6712314c9bd58b
+
+# middleman
+connect -c <?>
 right give -u 0x0d1d4e623d10f9fba5db95830f7d3839406c6af2 -r Middleman
 task receiveOrder Middleman
-connect -c 0xf328c11c4df88d18fcbd30ad38d8b4714f4b33bf
+
+# supplier
+connect -c <?>
 right give -u 0x2932b7a2355d6fecc4b5c0b6bd44cc31df247a2e -r Supplier
 task receiveDetails Supplier
 task receiveWaybill Supplier
-connect -c 0xb9b7e0cb2edf5ea031c8b297a5a1fa20379b6a0a
+
+# special carrier
+connect -c <?>
 right give -u 0x2191ef87e392377ec08e7c08eb105ef5448eced5 -r SpecialCarrier
 task receiveRequest SpecialCarrier
 task receiveParts SpecialCarrier
+

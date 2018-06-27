@@ -1,11 +1,13 @@
 #! /usr/bin/expect -f
 
-set fp [open "./test_setup_instance" r]
+set fp [open "./setup_input_instance" r]
 
 spawn ./index.js
 
 while {[gets $fp line] >= 0} {
   send -- "$line\r"
-  sleep 1
+  expect {
+      "INFO:*" { continue }
+  }
 }
 interact

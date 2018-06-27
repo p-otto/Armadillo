@@ -13,7 +13,6 @@ var App = {
   contract: null,
 
   connect: function(node_address, contract_address) {
-    console.log('Connecting to ' + node_address + '...')
     const web3 = new Web3(new Web3.providers.HttpProvider(node_address))
     if (web3.isConnected()) {
       this.web3 = web3
@@ -29,7 +28,10 @@ var App = {
 
     contractWrapper
       .at(this.web3.toChecksumAddress(contract_address))
-      .then(instance => (this.contract = instance))
+      .then(instance => {
+        this.contract = instance
+        console.log('INFO: Connected to ' + instance.address)
+      })
       .catch(err => console.log('Error during contract loading: ' + err))
   },
 
@@ -38,12 +40,12 @@ var App = {
       this.contract
         .giveRights(userAddress, roleName)
         .catch(err => console.log(err))
-        .then(receipt => console.log(receipt))
+        .then(receipt => console.log('INFO: User role set'))
     } else {
       this.contract
         .removeRights(userAddress, roleName)
         .catch(err => console.log(err))
-        .then(receipt => console.log(receipt))
+        .then(receipt => console.log('INFO: User role unset'))
     }
   },
 
@@ -58,14 +60,14 @@ var App = {
     this.contract
       .assignRole(taskName, roleName)
       .catch(err => console.log(err))
-      .then(receipt => console.log(receipt))
+      .then(receipt => console.log('INFO: Task role set'))
   },
 
   unsetTaskRole: function(taskName) {
     this.contract
       .unassignRole(taskName)
       .catch(err => console.log(err))
-      .then(receipt => console.log(receipt))
+      .then(receipt => console.log('INFO: Task role unset'))
   }
 }
 
@@ -127,4 +129,4 @@ vorpal.command('task <taskName> <roleName>').action((args, callback) => {
   callback()
 })
 
-vorpal.delimiter('$').show()
+vorpal.delimiter('').show()
