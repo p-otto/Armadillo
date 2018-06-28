@@ -19,6 +19,10 @@ span {
   font-style: italic;
 }
 
+.right {
+	text-align: right;
+}
+
 .contract {
   padding-top: 20px;
 }

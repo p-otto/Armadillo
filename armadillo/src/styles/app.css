@@ -56,7 +56,11 @@ h3 {
   color: #666;
 }
 
-/* used for highlighting tasks on click */
+/* used for highlighting diagram elements */
 .highlight:not(.djs-connection) .djs-visual > :nth-child(1) {
-  fill: green !important;
+  fill: rgb(3, 199, 107) !important;
+}
+
+.lesser-highlight:not(.djs-connection) .djs-visual > :nth-child(1) {
+  fill: rgba(3, 199, 107, 0.5) !important;
 }

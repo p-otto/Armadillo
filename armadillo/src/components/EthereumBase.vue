@@ -23,12 +23,12 @@
       </div>
 
       
-      <div v-if="currentState === states.factoryDeployed" v-for="setter in factorySetters">
-        <label>
+      <div class="right" v-if="currentState === states.factoryDeployed">
+        <label v-for="setter in factorySetters">
           {{ setter.inputs[0].name }} ({{ setter.inputs[0].type }}):
           <input type="text" v-model="setter.inputs[0].value">
         </label>
-        <button v-on:click="setRemoteFactory(setter)">Submit</button>
+        <button v-on:click="setRemoteFactories()">Submit</button>
       </div>
 
       <div v-if="currentState >= states.factoriesLinked">
@@ -87,7 +87,6 @@ export default {
       factoryGasUsed: 0,
       instanceGasUsed: 0,
       factorySetters: [],
-      factoriesSet: 0,
     }
   },
   mounted: function() {
@@ -221,7 +220,7 @@ export default {
           console.log('Event observed: ' + event.event)
           console.log('Address: ' + event.address)
           if (event.event === 'Selfdestructed') {
-            this.currentState = this.states.accessDeployed
+            this.currentState = this.states.factoriesLinked
             this.bus.$emit('instance-terminated')
           } else {
             this.bus.$emit('eth-event-triggered', event.event)
@@ -247,9 +246,10 @@ export default {
       }
 
       const contractFunction = contractFunctions.filter(func => func.name === functionName)[0]
-        // collect input parameters from user
-        this.contractFunction = contractFunction
-        this.paramsNeeded = true
+      // collect input parameters from user
+      contractFunction.taskName = taskName
+      this.contractFunction = contractFunction
+      this.paramsNeeded = true
     },
 
     submitParams: function() {
@@ -261,11 +261,18 @@ export default {
         .then(result => {
           this.logTransactionResult(result)
           this.instanceGasUsed += result.receipt.gasUsed
+          this.bus.$emit('eth-call-succeeded', this.contractFunction.taskName)
         })
         .catch(err => { 
-          alert("Error!")
+          alert("Error during contract execution!")
+          this.bus.$emit('eth-call-failed', this.contractFunction.taskName)
           console.log(err)
         })
+    },
+
+    setRemoteFactories: function() {
+      this.factorySetters.forEach(this.setRemoteFactory)
+      this.currentState = this.states.factoriesLinked
     },
 
     setRemoteFactory: function(setter) {
@@ -278,11 +285,6 @@ export default {
           alert("Error!")
           console.log(err)
         })
-
-      this.factoriesSet = this.factoriesSet + 1
-      if (this.factoriesSet === this.factorySetters.length) {
-        this.currentState = this.states.factoriesLinked
-      }
     },
 
     logBlockchainCall: function(functionName) {

@@ -24,7 +24,9 @@ export default {
       })
     this.registerClickEvents()
 
-    this.bus.$on('eth-event-triggered', event => this.highlightEvent(event))
+    this.bus.$on('eth-call-succeeded', taskName => this.highlightTask(taskName))
+    this.bus.$on('eth-call-failed', taskName => this.resetTaskHighlight(taskName))
+    this.bus.$on('eth-event-triggered', ethEventName => this.highlightEvent(ethEventName))
     this.bus.$on('instance-terminated', () => this.resetHighlighting())
   },
   methods: {
@@ -45,29 +47,8 @@ export default {
     },
 
     triggerTask: function(el) {
-      this.highlightElement(el)
+      this.highlightElement(el, 'lesser-highlight')
       this.bus.$emit('task-triggered', el.businessObject.name)
-    },
-
-    /*getRoleName: function(el) {
-      if (el.businessObject.di.bpmnElement.lanes) {
-        // if the task is contained in a lane, use the lane name
-        return el.businessObject.di.bpmnElement.lanes[0].name
-      } else {
-        // use the pool name as role name
-        return el.parent.businessObject.name
-      }
-    },*/
-
-    highlightElement: function(el) {
-      const canvas = this.viewer.get('canvas')
-      canvas.addMarker(el.id, 'highlight')
-
-    },
-
-    resetElementHighlighting: function(el) {
-      const canvas = this.viewer.get('canvas')
-      canvas.removeMarker(el.id, 'highlight')
     },
 
     loadDiagram: function(event) {
@@ -91,15 +72,39 @@ export default {
       }
     },
 
-    highlightEvent: function(eventName) {
-      this.viewer.get('elementRegistry').getAll()
-        .filter(el => this.toEthEventName(el.businessObject.name) === eventName)
-        .forEach(el => this.highlightElement(el))
+    highlightElement: function(el, marker) {
+      const canvas = this.viewer.get('canvas')
+      canvas.addMarker(el.id, marker ? marker : 'highlight')
+    },
+
+    highlightTask: function(taskName) {
+      const task = this.viewer.get('elementRegistry').getAll()
+        .filter(el => el.businessObject.name === taskName)[0]
+      this.resetTaskHighlight(taskName)
+      this.highlightElement(task)
+    },
+
+    resetTaskHighlight: function(taskName) {
+      const task = this.viewer.get('elementRegistry').getAll()
+        .filter(el => el.businessObject.name === taskName)[0]
+      const canvas = this.viewer.get('canvas')
+      canvas.removeMarker(task.id, 'highlight')
+      canvas.removeMarker(task.id, 'lesser-highlight')
+    },
+
+    highlightEvent: function(ethEventName) {
+      const event = this.viewer.get('elementRegistry').getAll()
+        .filter(el => this.toEthEventName(el.businessObject.name) === ethEventName)[0]
+      this.highlightElement(event)
     },
 
     resetHighlighting: function() {
+      const canvas = this.viewer.get('canvas')
       this.viewer.get('elementRegistry').getAll()
-        .forEach(el => this.resetElementHighlighting(el))
+        .forEach(el => {
+          canvas.removeMarker(el.id, 'highlight')
+          canvas.removeMarker(el.id, 'lesser-highlight')
+        })
     },
 
     toEthEventName: function(str) {
@@ -111,6 +116,16 @@ export default {
         .replace(/\s(.)/g, letter => letter.toUpperCase())
         .replace(/\s/g, '')
     }
+
+    /*getRoleName: function(el) {
+      if (el.businessObject.di.bpmnElement.lanes) {
+        // if the task is contained in a lane, use the lane name
+        return el.businessObject.di.bpmnElement.lanes[0].name
+      } else {
+        // use the pool name as role name
+        return el.parent.businessObject.name
+      }
+    },*/
   }
 }
 </script>
