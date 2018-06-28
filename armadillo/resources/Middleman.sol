@@ -83,6 +83,7 @@ contract Middleman {
         _specialCarrier.setSupplier(_supplier);
         _specialCarrier.setManufacturer(_manufacturer);
         _specialCarrier.receiveOrder(msg.sender);
+        emit Selfdestructed();
         selfdestruct(_factory);
     }
 }

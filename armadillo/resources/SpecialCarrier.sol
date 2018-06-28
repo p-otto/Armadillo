@@ -103,6 +103,7 @@ contract SpecialCarrier {
 
     function deliverOrder() public localAuthorized("receiveParts") {
         _manufacturer.receiveParts(msg.sender);
+        emit Selfdestructed();
         selfdestruct(_factory);
     }
 }

@@ -99,6 +99,7 @@ contract Manufacturer {
 
     function deliverProduct() public localAuthorized("receiveProduct") {
         _bulkBuyer.receiveProduct(msg.sender);
+        emit Selfdestructed();
         selfdestruct(_factory);
     }
 }

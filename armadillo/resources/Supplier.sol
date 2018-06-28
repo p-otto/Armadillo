@@ -82,6 +82,7 @@ contract Supplier {
 
     function provideWaybill() public localAuthorized("receiveWaybill") {
         _specialCarrier.receiveWaybill(msg.sender);
+        emit Selfdestructed();
         selfdestruct(_factory);
     }
 }
