@@ -11,6 +11,7 @@ var CONTRACT_ABI =
 var App = {
   web3: null,
   contract: null,
+  gasUsed: 0,
 
   connect: function(node_address, contract_address) {
     const web3 = new Web3(new Web3.providers.HttpProvider(node_address))
@@ -35,17 +36,30 @@ var App = {
       .catch(err => console.log('Error during contract loading: ' + err))
   },
 
+  logGas: function(info, receipt) {
+    this.gasUsed += receipt.gasUsed
+    console.log(
+      'INFO: ' +
+        info +
+        ' (Gas used: ' +
+        receipt.gasUsed +
+        ', total: ' +
+        this.gasUsed +
+        ')'
+    )
+  },
+
   setUserRole: function(userAddress, roleName, hasAccess) {
     if (hasAccess) {
       this.contract
         .giveRights(userAddress, roleName)
         .catch(err => console.log(err))
-        .then(receipt => console.log('INFO: User role set'))
+        .then(result => this.logGas('User role set', result.receipt))
     } else {
       this.contract
         .removeRights(userAddress, roleName)
         .catch(err => console.log(err))
-        .then(receipt => console.log('INFO: User role unset'))
+        .then(result => this.logGas('User role unset', result.receipt))
     }
   },
 
@@ -53,21 +67,21 @@ var App = {
     this.contract
       .isAuthorized(userAddress, roleName)
       .catch(err => console.log(err))
-      .then(receipt => console.log(receipt))
+      .then(result => console.log(result))
   },
 
   setTaskRole: function(taskName, roleName) {
     this.contract
       .assignRole(taskName, roleName)
       .catch(err => console.log(err))
-      .then(receipt => console.log('INFO: Task role set'))
+      .then(result => this.logGas('Task role set', result.receipt))
   },
 
   unsetTaskRole: function(taskName) {
     this.contract
       .unassignRole(taskName)
       .catch(err => console.log(err))
-      .then(receipt => console.log('INFO: Task role unset'))
+      .then(result => this.logGas('Task role unset', result.receipt))
   }
 }
 

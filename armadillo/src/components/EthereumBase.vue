@@ -54,6 +54,9 @@
 
     <div class="metrics">
       <div class="metric-container">
+        Gas used for deployment: <span class="metric-value">{{ deploymentGasUsed }}</span>
+      </div>
+      <div class="metric-container">
         Gas used by factory contract:  <span class="metric-value">{{ factoryGasUsed }}</span>
       </div>
       <div class="metric-container">
@@ -84,6 +87,7 @@ export default {
       solcReady: false,
       contractFunction: { inputs: [] },
       paramsNeeded: false,
+      deploymentGasUsed: 0,
       factoryGasUsed: 0,
       instanceGasUsed: 0,
       factorySetters: [],
@@ -184,6 +188,8 @@ export default {
     },
 
     handleFactoryDeployed: function(factory) {
+      const receipt = this.web3.eth.getTransactionReceipt(factory.transactionHash)
+      this.deploymentGasUsed += receipt.gasUsed
       this.factoryContract = factory
       this.loading = false
       this.currentState = this.states.factoryDeployed
@@ -200,6 +206,8 @@ export default {
     },
 
     handleAccessDeployed: function(accessContract) {
+      const receipt = this.web3.eth.getTransactionReceipt(accessContract.transactionHash)
+      this.deploymentGasUsed += receipt.gasUsed
       this.accessContract = accessContract
       this.loading = false
       this.currentState = this.states.accessDeployed
