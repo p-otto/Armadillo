@@ -16,9 +16,6 @@
 %
 \title{Untrusted B2B Collaboration using the Blockchain}
 %
-%\titlerunning{Abbreviated paper title}
-% If the paper title is too long for the running head, you can set
-% an abbreviated paper title here
 %
 \author{Jonas Beyer \and
 Philipp Otto\and
@@ -29,15 +26,23 @@ S\"oren Tietb\"ohl}
 % If there are more than two authors, 'et al.' is used.
 %
 \institute{
+<<<<<<< HEAD
 Hasso-Plattner-Institut f\"ur Digital Engineering gGmbH, Prof.-Dr.-Helmert-Str. 2-3, Potsdam 14482, Germany\\
+=======
+Hasso-Plattner-Institut, Potsdam, Germany\\
+>>>>>>> Add some abstract
 \email{\{jonas.beyer,philipp.otto2,soeren.tietboehl\}@student.hpi.de}}
 %
-\maketitle              % typeset the header of the contribution
+\maketitle % typeset the header of the contribution
 %
 \begin{abstract}
-Blockchain technology enables untrusting parties to have trusted communication. We use this to implement a conversion of BPM choreographies to smart contracts on the Ethereum Blockchain.
+Lack of trust between communication partners is one of the major issues companies face when implementing business processes in a cross-organizational setting.
+Blockchain is an emerging technology that enables decentralization and distribution of state without the need for a trusted central instance.
+This allows for consensus in communication between otherwise untrusting parties.
+In this paper we introduce Armadillo, an open-source prototype implementation for realizing business process choreographies using the Ethereum blockchain.
+We present a user interface for connecting business processes with blockchain calls, as well as an underlying smart contract structure for inter-process communication.
 
-\keywords{First keyword  \and Second keyword \and Another keyword.}
+\keywords{Blockchain \and Business Processes \and Ethereum \and Choreography \and Smart Contract \and BPMN}
 \end{abstract}
 %
 %
@@ -57,12 +62,29 @@ Blockchain technology enables untrusting parties to have trusted communication. 
 % Goals / Claims (Contribution, Sketch Results)
 % Paper structure (The remainder of this paper is structured as follows ...)
 
-What is BPMN?
-What is Blockchain?
-What problems are there with BPMN that can be solved with Blockchain?
-What approaches exist currently (Caterpillar \cite{lopez2017caterpillar}, Untrusted paper \cite{weber2016untrusted})
-What is our general Idea?
-What are our results? (briefly)
+% What is BPMN?
+The Business Process Model Notation (BPMN) enables detailed documentation of business processes. This is used to realize complex inter-business processes which involve vast communication structures. One common problem is that within these processes the parties have to trust each other.
+% What is Blockchain?
+
+With the increasing spread of Blockchain technology, this problem could be rectified.
+A Blockchain is a decentralized information-storage network. Information is stored in blocks, which are chained together via cryptograhic means. This means, that many participants can agree on a common public state of information without trusting each other. This technology is commonly used to realize virtual currencies, also called cryptocurrencies.
+Ethereum is one implementation of the Blockchain concept, and it realizes a key feature called smart contracts.
+Smart contracts are small programs, which are ran by the Blockchain network. They have very limited processing power, but they enable the execution of code which has a commonly known state. 
+
+%What problems are there with BPMN that can be solved with Blockchain?
+The problem of needing to trust each other when collaborating in a business process can be addressed by applying the benefits of blockchain technology. The Blockchain be used in several ways to facilitate trusted communication between untrusted parties.
+
+% What approaches exist currently (Caterpillar \cite{lopez2017caterpillar}, Untrusted paper \cite{weber2016untrusted})
+Current approaches aim to convert the functionality of traditional BPMN Engines to smart contracts on the Ethereum Blockchain.
+
+Caterpillar~\cite{lopez2017caterpillar} features the implementation of most common BPMN elements. It enables the transformation of BPMN Models to smart contracts, which can be deployed and executed on the Blockchain.
+
+Weber et al.~\cite{weber2016untrusted} realize Orchestrations on the Blockchain.
+
+%What is our general Idea?
+We want to expand on the work of Weber et al. and implement true choreographies. In their current approach they are using one central smart contract called a mediator / monitor which manages the Orchestration state.
+We will have a set of smart contracts for every party, which will then communicate with each other to realize the choreography.
+%What are our results? (briefly)
 
 \section{Preliminary}
 

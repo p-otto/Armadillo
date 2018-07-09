@@ -1,6 +1,7 @@
 target
 .idea
 *.iml
+.vscode/
 paper/*.pdf
 paper/*.gz
 paper/*.aux
