@@ -86,7 +86,6 @@ We will have a set of smart contracts for every party, which will then communica
 In the following section we present concepts and technologies that are related to our concept.
 
 \subsection{Orchestrations and Choreographies}
-A work by Weber et. al \citep{weber2016untrusted} showed how to use the blockchain to monitor and coordinate business processes across organizations. They use a smart contract that all parties of a business process communicate with.
 
 \subsection{Blockchain}
 A blockchain is a distributed ledger that allows users to find a concensus in decentralized applications.
@@ -107,12 +106,16 @@ They can receive and send money, store information locally and emit events on th
 When calling functions on a smart contract, users have to supply \emph{gas}, a unit that powers smart contract computations.
 Contracts deplete gas for each operation and return excess gas back to the user.
 This ensures that contracts are not running for an unlimited amount of time and that computations on the blockchain are expensive in order to avoid unnecessary operations being performed on-chain.
+%TODO short text on the paper which shows smart contract examples
 
 \subsection{Prior Work on Business Processes on the Blockchain}
 %summarize untrusted paper
 %summarize Caterpillar
 %acknowledge their Work
 %display the shortcomings
+A work by Weber et. al \cite{weber2016untrusted} showed how to use the blockchain to monitor and coordinate business processes across organizations.
+They use a smart contract that all parties of a business process communicate with.
+They also introduce the concept of \emph{triggers}, applications that listen to events on the blockchain and trigger external API calls.
 
 
 \section{Solution approach}
