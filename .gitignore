@@ -3,4 +3,9 @@ target
 *.iml
 paper/*.pdf
 paper/*.gz
+paper/*.aux
+paper/*.bbl
+paper/*.blg
+paper/*.log
+paper/*.pdf
 paper/fig/*.pdf
