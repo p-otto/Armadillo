@@ -1,9 +1,5 @@
-% This is samplepaper.tex, a sample chapter demonstrating the
-% LLNCS macro package for Springer Computer Science proceedings;
-% Version 2.20 of 2017/10/04
-%
 \documentclass[runningheads]{llncs}
-%
+
 \usepackage{graphicx}
 % Used for displaying a sample figure. If possible, figure files should
 % be included in EPS format.
@@ -17,9 +13,7 @@
 \title{Untrusted B2B Collaboration using the Blockchain}
 %
 %
-\author{Jonas Beyer \and
-Philipp Otto\and
-S\"oren Tietb\"ohl}
+\author{Jonas Beyer \and Philipp Otto \and S\"oren Tietb\"ohl}
 %
 \authorrunning{J. Beyer et al.}
 % First names are abbreviated in the running head.
@@ -34,11 +28,11 @@ Hasso-Plattner-Institut, Potsdam, Germany\\
 \begin{abstract}
 Lack of trust between communication partners is one of the major issues companies face when implementing business processes in a cross-organizational setting.
 Blockchain is an emerging technology that enables decentralization and distribution of state without the need for a trusted central instance.
-This allows for consensus in communication between otherwise untrusting parties.
+As a result, it is possible to form consensus in the communication between otherwise untrusting parties.
 In this paper we introduce Armadillo, an open-source prototype implementation for realizing business process choreographies using the Ethereum blockchain.
 We present a user interface for connecting business processes with blockchain calls, as well as an underlying smart contract structure for inter-process communication.
 
-\keywords{Blockchain \and Business Processes \and Ethereum \and Choreography \and Smart Contract \and BPMN}
+\keywords{Business Processes \and BPMN \and Choreographies \and Blockchain \and Ethereum \and Smart Contracts}
 \end{abstract}
 %
 %
@@ -107,16 +101,36 @@ When calling functions on a smart contract, users have to supply \emph{gas}, a u
 Contracts deplete gas for each operation and return excess gas back to the user.
 This ensures that contracts are not running for an unlimited amount of time and that computations on the blockchain are expensive in order to avoid unnecessary operations being performed on-chain.
 %TODO short text on the paper which shows smart contract examples
+%TODO short text on solidity
 
 \subsection{Prior Work on Business Processes on the Blockchain}
-%summarize untrusted paper
+In \cite{weber2016untrusted}, a first approach of monitoring and coordinating business process interactions across organizations on the blockchain was presented.
+Using a smart contract as a central \emph{monitor} or \emph{mediator} of the communication, a form of inter-process orchestration is implemented.
+They describe a contract architecture, where a factory contract is responsible for deploying instance contracts for each process instance.
+They also introduce the concept of \emph{triggers}, applications that listen to events on the blockchain and trigger external API calls.
+In order to achieve BPMN-to-Solidity compilation, they describe translation rules to transform BPMN elements to Solidity code.
+%TODO highlight lack of access right explanation and problem of central contract?
+
+%we build on:
+%factories \& instances
+%registering users to roles
+%triggers
+%the model they used (originally from Fdhila et al)
+
+%we don\'t:
+%do bpmn solidity translation
+%use one central contract instance
+
 %summarize Caterpillar
 %acknowledge their Work
 %display the shortcomings
-A work by Weber et. al \cite{weber2016untrusted} showed how to use the blockchain to monitor and coordinate business processes across organizations.
-They use a smart contract that all parties of a business process communicate with.
-They also introduce the concept of \emph{triggers}, applications that listen to events on the blockchain and trigger external API calls.
+\cite{lopez2017caterpillar} presents an open-source implementation of an Ethereum-based Business Process Management System.
+It implements BPMN-to-Solidity compilation and thereby tracks the state of process executions on the blockchain.
+Processes can be started and executed via a user interface, which calls the generated Solidity code in the background.
 
+%describes components and architecture of engine
+%automatic bpmn solidity translation
+%no choreographies / lanes supported, all tasks / transitions are managed on-chain through process %contract
 
 \section{Solution approach}
 
