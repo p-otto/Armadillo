@@ -10,3 +10,6 @@ paper/*.blg
 paper/*.log
 paper/*.pdf
 paper/fig/*.pdf
+paper/__latexindent_temp.tex
+paper/*.fdb_latexmk
+paper/*.fls
