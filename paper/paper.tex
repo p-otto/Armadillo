@@ -82,6 +82,26 @@ In the following section we present concepts and technologies that are related t
 
 \subsection{Orchestrations and Choreographies}
 
+When speaking about a Buisiness Process with multiple participants, there are generally two types of perspectives the Process Model can have: Orchestrations and Choreographies.
+Orchestrations view the Process from a central perspective, and contain only one main pool which the process is focused around. 
+They describe the internal process of an organization represented by the pool.
+External communication partners can be included as pools aswell, however their internal processes are not modeled.
+This gives the model a clear state and order in which it has to be executed.
+The main pool inhibits the role of a mediator or manager, dictating and guiding the execution.
+
+In a choreography, the participants are much more independent.
+There is no clear order or state, because the participants are acting and communicating independent of others.
+An orchestration includes all public processes of each pool, as well as the communication between the processes.
+
+One of the main ways our solution differs from the solution of Weber et al.~\cite{weber2016untrusted} is in the interpretation of orchestration and choreography.
+Weber et al. implement choreographies by means of a central mediator/monitor contract.
+Thus every step in the process is managed by this central contract.
+The contract also holds an internal state of the process.
+By our interpretation of the terms, this would not be a choreography but an orchestration.
+Therefore we wanted to implement a solution, which models each pool seperately as their own entity, including having their own contracts.
+Our goal is to decrease the amount trust needed between the communication partners.
+By giving every pool their own set of contracts, we can make sure that every pool has control over the part of the process that is most relevant to them.
+
 \subsection{Blockchain}
 A blockchain is a distributed ledger that allows users to find a concensus in decentralized applications.
 It works by splitting information into blocks that are connected as a linked list.
