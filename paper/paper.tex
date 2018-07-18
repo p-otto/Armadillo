@@ -222,8 +222,17 @@ The organizations that did not start the instance creation can detect the new pr
 	\label{fig:event_sending}
 \end{figure}
 
-\subsection{Authorization}
-In order to authorize users, the instance contract calls the access contract.
+%TODO correctly show that the address is passed instead of using msg.sender
+When a throw event is triggered in the process engine of organization $A$, the corresponding \emph{throw event function} is called on the instance contract of the collaboration partner $B$.
+In the instance contract of $A$ an authorization is performed by looking up the sender address in the access contract of $A$.
+If this check is successful, the \emph{catch event function} is called on the partner instance contract of $B$.
+In the instance contract of $B$ there is another authorization against the access contract of $A$.
+This ensures that both sides can be confident, that the throw event was triggered by an authorized person who belongs to organization $A$.
+If this check was also successful, an event is emitted to the blockchain.
+This will be detected by the trigger of $B$ and passed to the process engine.
+Thus, a message was sent from $A$ to $B$ via the blockchain and an audit trail was created.
+An example can be seen in the sequence diagram in Figure \ref{fig:event_sending}.
+
 
 \section{Implementation}
 
