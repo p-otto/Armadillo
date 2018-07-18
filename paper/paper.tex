@@ -1,12 +1,15 @@
 \documentclass[runningheads]{llncs}
 
 \usepackage{graphicx}
+\usepackage{listings}
 % Used for displaying a sample figure. If possible, figure files should
 % be included in EPS format.
 %
 % If you use the hyperref package, please uncomment the following line
 % to display URLs in blue roman font according to Springer's eBook style:
 % \renewcommand\UrlFont{\color{blue}\rmfamily}
+
+\input{solidity-highlighting.tex}
 
 \begin{document}
 %
@@ -16,23 +19,21 @@
 \author{Jonas Beyer \and Philipp Otto \and S\"oren Tietb\"ohl}
 %
 \authorrunning{J. Beyer et al.}
-% First names are abbreviated in the running head.
-% If there are more than two authors, 'et al.' is used.
 %
 \institute{
-Hasso-Plattner-Institut, Potsdam, Germany\\
-\email{\{jonas.beyer,philipp.otto2,soeren.tietboehl\}@student.hpi.de}}
+	Hasso-Plattner-Institut, Potsdam, Germany\\
+	\email{\{jonas.beyer,philipp.otto2,soeren.tietboehl\}@student.hpi.de}}
 %
 \maketitle % typeset the header of the contribution
 %
 \begin{abstract}
-Lack of trust between communication partners is one of the major issues companies face when implementing business processes in a cross-organizational setting.
-Blockchain is an emerging technology that enables decentralization and distribution of state without the need for a trusted central instance.
-As a result, it is possible to form consensus in the communication between otherwise untrusting parties.
-In this paper we introduce Armadillo, an open-source prototype implementation for realizing business process choreographies using the Ethereum blockchain.
-We present a user interface for connecting business processes with blockchain calls, as well as an underlying smart contract structure for inter-process communication.
+	Lack of trust between communication partners is one of the major issues companies face when implementing business processes in a cross-organizational setting.
+	Blockchain is an emerging technology that enables decentralization and distribution of state without the need for a trusted central instance.
+	As a result, it is possible to form consensus in the communication between otherwise untrusting parties.
+	In this paper we introduce Armadillo, an open-source prototype implementation for realizing business process choreographies using the Ethereum blockchain.
+	We present a user interface for connecting business processes with blockchain calls, as well as an underlying smart contract structure for inter-process communication.
 
-\keywords{Business Processes \and BPMN \and Choreographies \and Blockchain \and Ethereum \and Smart Contracts}
+	\keywords{Business Processes \and BPMN \and Choreographies \and Blockchain \and Ethereum \and Smart Contracts}
 \end{abstract}
 %
 %
@@ -59,7 +60,7 @@ The Business Process Model Notation (BPMN) enables detailed documentation of bus
 With the increasing spread of Blockchain technology, this problem could be rectified.
 A Blockchain is a decentralized information-storage network. Information is stored in blocks, which are chained together via cryptograhic means. This means, that many participants can agree on a common public state of information without trusting each other. This technology is commonly used to realize virtual currencies, also called cryptocurrencies.
 Ethereum is one implementation of the Blockchain concept, and it realizes a key feature called smart contracts.
-Smart contracts are small programs, which are ran by the Blockchain network. They have very limited processing power, but they enable the execution of code which has a commonly known state. 
+Smart contracts are small programs, which are ran by the Blockchain network. They have very limited processing power, but they enable the execution of code which has a commonly known state.
 
 %What problems are there with BPMN that can be solved with Blockchain?
 The problem of needing to trust each other when collaborating in a business process can be addressed by applying the benefits of blockchain technology. The Blockchain be used in several ways to facilitate trusted communication between untrusted parties.
@@ -83,7 +84,7 @@ In the following section we present concepts and technologies that are related t
 
 \subsection{Blockchain}
 A blockchain is a distributed ledger that allows users to find a concensus in decentralized applications.
-It works by splitting information into blocks that are connected as a linked list. 
+It works by splitting information into blocks that are connected as a linked list.
 %TODO proof of work is only one possibility
 %TODO explain more in depth?
 Each block has to be signed in a way that is mathematically hard to calculate, but easy to verify.
@@ -95,7 +96,7 @@ A concensus is reached by propagating the longest blockchain within the network 
 Blockchain technology is used in cryptocurrencies, most notably Bitcoin \cite{nakamoto2008bitcoin}.
 The use in cryptocurrency has laid the foundation for a number of decentralized application besides financial ones.
 Ethereum \cite{wood2014ethereum} is a cryptocurrency that also builds on blockchain technologies and allows users to execute code in the form of \emph{smart contracts}.
-Smart contracts are Turing complete code artifacts, that can be deployed on the blockchain and have an interface that is callable by users. 
+Smart contracts are Turing complete code artifacts, that can be deployed on the blockchain and have an interface that is callable by users.
 They can receive and send money, store information locally and emit events on the blockchain ledger.
 When calling functions on a smart contract, users have to supply \emph{gas}, a unit that powers smart contract computations.
 Contracts deplete gas for each operation and return excess gas back to the user.
@@ -133,89 +134,213 @@ Processes can be started and executed via a user interface, which calls the gene
 %no choreographies / lanes supported, all tasks / transitions are managed on-chain through process %contract
 
 \section{Solution approach}
+We propose a system design, that allows choreographies to be executed publicly on the blockchain.
+In the following section, we describe our approach and its architecture.
 
-basic understanding/ intuition
--> make orchestration possible
+%basic understanding/ intuition
+%-> make orchestration possible
 
-use one contuous example
-
-visualizations !!
-
-\subsection{Contract Structure}
-
-factory (maps to process)
-creates instance (maps to process instance)
-also access contract for user rights management
-
-\subsection{Authorization}
-
-access contract API
-
-\subsection{Decentralization}
 % Decentralized contracts vs. central monitor
 % Engine on chain vs. message channel
 
-\section{Architecture}
+%use one contuous example
+
+%visualizations !!
 
 \subsection{System overview}
-
-Figure~\ref{fig:system_diagram} shows the architecture of our design.
-
 \begin{figure}
-    \begin{center}
-        \includegraphics[width=200px]{fig/system_diagram.eps}
-    \end{center}
-    \caption{The architecture of our design.} \label{fig:system_diagram}
+	\centering
+	\includegraphics[width=100mm]{fig/system_diagram.eps}
+	\caption{An architecture diagram showing the interactions within the system.} 			
+	\label{fig:system_diagram}
 \end{figure}
+
+Every organization provides an interface of their public process in an \emph{instance contract}.
+Additionally, \emph{factory contracts} manage these instance contracts and \emph{access contracts} are used for rights management.
+The contract structure will be described in detail in the following sections.
+We assume that all participating organizations use a process engine to execute their private processes.
+When a throw event is triggered within a process engine, a \emph{throw event function} is called on an instance contract and the corresponding \emph{catch event function} is called on the instance contract of the organization responsible for catching the event.
+Thus, the public processes of all organizations are recorded on the blockchain.
+
+%TODO reference "trigger" from Untrusted paper
+Each organization uses a \emph{trigger} that continuously listens to catch events.
+If a catch event is observed, this information is relayed to the process engine to handle the event.
+The usage of the blockchain to monitor the choreography is encapsulated in the process engine and is therefore hidden from the users.
+
+The interaction of the components can be seen in Figure \ref{fig:system_diagram}.
+
+\subsection{Contract Structure}
+To realize the system, we use three kinds of smart contracts.
+Firstly, each organization uses one \emph{instance contract} per process instance.
+It represents the public process of the organization for the corresponding process.
+It is called during the process execution when a catch or throw event is reached in the process instance.
+When this happens, it emits an event on the blockchain to document this fact.
+
+Secondly, each organization uses one \emph{factory contract} per process.
+It is responsible for creating instance contracts and saving a mapping from instance IDs to the corresponding contracts.
+
+Thirdly, each organization uses \emph{access contracts} to manage which users can trigger events on the instance contracts.
+Either, there is on access contract per process or access contracts are shared over multiple processes depending on the use case.
 
 \subsection{Per company setup}
-
 \begin{figure}
-    \begin{center}
-        \includegraphics[width=200px]{fig/initialization.eps}
-    \end{center}
-    \caption{An initialization process.} \label{fig:initialization}
+	\centering
+	\includegraphics[width=70mm]{fig/initialization.eps}
+	\caption{A sequence diagram describing the initialization process for an organization.} 
+	\label{fig:initialization}
 \end{figure}
+
+%TODO add a step where other factory contracts are set
+Each organization needs to perform some setup before they can take part in a process execution.
+An access contract and a factory contract for a process need to be deployed it it has not been done yet.
+Additionally, the user-to-role and and task-to-role mappings have to be updated, to allow verification of users during the process execution.
+A diagram of this process can be seen in Figure \ref{fig:initialization}.
 
 \subsection{Interaction setup}
-
 \begin{figure}
-    \begin{center}
-        \includegraphics[width=200px]{fig/instance_creation.eps}
-    \end{center}
-    \caption{An initialization process.} \label{fig:instance_creation}
+	\centering
+	\includegraphics[width=\textwidth]{fig/instance_creation.eps}
+	\caption{A sequence diagram describing the process of creating a new process instance.} 
+	\label{fig:instance_creation}
 \end{figure}
+
+In order to create a new process instance, the organization that initiates the instance by triggering the first throw event has to explicitly create an instance contract by calling the factory contract.
+To create an instance contract, the factory contract may need to initialize other instance contracts by calling other factory contracts.
+When all partner instance, factory and access contracts are known, the instance contract can be created and its address is returned to the user and an event is emitted to the blockchain.
+This process is visualized in Figure \ref{fig:instance_creation}.
+
+The recursive initialization ensures that all instance contracts that are part of the process instance will be created by one function call.
+%TODO add emit event in the diagram
+%TODO better formulation
+The organizations that did not start the instance creation can detect the new process instance by using their trigger to watch the factory contract.
 
 \subsection{Sending messages}
-
 \begin{figure}
-    \begin{center}
-        \includegraphics[width=200px]{fig/event_sending.eps}
-    \end{center}
-    \caption{An initialization process.} \label{fig:event_sending}
+	\centering
+	\includegraphics[width=\textwidth]{fig/event_sending.eps}
+	\caption{A sequence diagram describing the process of sending a message to a collaboration partner.} 
+	\label{fig:event_sending}
 \end{figure}
 
+%TODO correctly show that the address is passed instead of using msg.sender
+When a throw event is triggered in the process engine of organization $A$, the corresponding \emph{throw event function} is called on the instance contract of the collaboration partner $B$.
+In the instance contract of $A$ an authorization is performed by looking up the sender address in the access contract of $A$.
+If this check is successful, the \emph{catch event function} is called on the partner instance contract of $B$.
+In the instance contract of $B$ there is another authorization against the access contract of $A$.
+This ensures that both sides can be confident, that the throw event was triggered by an authorized person who belongs to organization $A$.
+If this check was also successful, an event is emitted to the blockchain.
+This will be detected by the trigger of $B$ and passed to the process engine.
+Thus, a message was sent from $A$ to $B$ via the blockchain and an audit trail was created.
+An example can be seen in the sequence diagram in Figure \ref{fig:event_sending}.
 
 
 \section{Implementation}
 
-\subsection{Contracts}
-\cite{xu2018pattern}
+Given the architecture, we will now discuss the implementation of the contracts used in the system.
+Afterwards, we will shortly describe the tools we built for interacting with the system.
 
-factory
-instance
+\subsection{Contracts}
+
+\subsubsection{Process Contracts}
+
+For taking part in the process collaboration, each company needs to deploy a factory contract that contains the contract definition of the company's instance contract.
+This closely follows the factory contract pattern used in \cite{weber2016untrusted}, and described as Pattern 14 in \cite{xu2018pattern}.
+
+- Split between choreography intiator and other participants
+- has following interface:
+- constructor, passing the address of the access contract (needs to deployed first, details in next section)
+- setters for dependent factories
+- createInstance()
+- getAccessAddress()
+- isInstance(id, address)
+- has following internal impl
+- guard instance creation until all dependent factories are set
+-> hold list of addresses of dependent factories
+- hold address of access contract
+- hold mapping from uuid -> address, identifying its own instances for a given choreography id
+- if initiator: generate uuid on createInstance
+
+The factory contract source code also contains the public interfaces of
+- the access contract (same for every participant)
+- remote factory contracts (if receiving messages from remote, for verification)
+- remote instance contracts (if sending messages to remote instance)
+as well as the complete definition of the instance contract source code.
+
+The instance contract provides the following interface
+- a constructor where the local access contract, the choreography id and all dependency addresses can be passed
+- a function for each sending action (task or event), called from process engine
+- a function for each receiving action (task or event), called from other instance contracts
+and the following internal impl
+- hold the choreography id
+- hold the addresses of its own factory (for selfdestruction) and its own access contract (for local verification)
+- hold the addresses of remote factory and access contract (again, if receiving messages from remote)
+- hold the addresses of remote instance contract (again, if sending messages)
+- add guards to each sending action to verify the local sender
+- add guards to each receiving action to verify the remote sender
+- implement events and emit them to the blockchain on receive action, that can be watched from external triggers
+- call remote receive functions on local send action
+- selfdestruct on the last send or receive action of the instance
+
+Guards = access checks (Pattern 13)
+
+See github repo for example % TODO
 
 \subsubsection{Access Contract}
 
-we chose mapping approach
-other approaches part of further work, e.g. token based
+Each company deploys an access contract that holds information about the roles and permissions of the company's employees.
+Having permission data encapsuled in a separate access contract follows pattern 12, the Data Contract pattern, from \cite{xu2018pattern}.
+It allows decoupling the roles and permissions from the actual contract instances, allowing for a simple modification at runtime.
+Access contracts can be deployed per process, or even once per company as a single source of truth for all processes.
 
-\subsection{eth\_admin}
+To allow the administration of user permissions, access contracts provide the following interface:
+\begin{itemize}
+	\item
+	      \texttt{assignRoleToUser(userAddress, role)}
+	\item
+	      \texttt{removeRoleFromUser(userAddress, role)}
+	\item
+	      \texttt{assignTaskToRole(task, role)}
+	\item
+	      \texttt{removeTaskFromRole(task, role)}
+\end{itemize}
+The access to these functions should be guarded, allowing only a specific administrator address to call them.
+
+Verifying a users permission to execute a certain task can be achieved by calling \texttt{isAuthorized(userAddress, task)}.
+\newline
+
+Given this interface, there are multiple possible implementation approaches for access contracts.
+As it was our main focus to develop a running prototype, and not to provide an optimized, production-ready system, we decided on a simple mapping-based implementation:
+\begin{lstlisting}[
+  caption=Mappings in our access contract implementation,
+  language=Solidity,
+  basicstyle=\small
+]
+pragma solidity ^0.4.23;
+
+contract Access {
+    mapping(string => string) taskToRole;
+    mapping(string => uint) roleToIndex;
+    mapping(address => uint) addressToAccessBitmask;
+    ...
+}
+\end{lstlisting}
+The first mapping stores the tasks that can be executed by a specific role (cf. pools and lanes, and their contained tasks, in BPMN diagrams).
+The second mapping assigns each role an index in the access bitmask, i.e., if the bit at the given index is set, the user holds the corresponding role.
+The third mapping assigns such an access bitmask to each user.
+
+Storing large amounts data on the blockchain is expensive by design.
+As the mappings grow in size with each user, role and task that is part of some process in the company, our implementation is probably not suited for real-world application.
+Finding optimized, less costly (both in computation cost and storage cost) approaches is part of future work.
+One other approach we thought of is based on Pattern 5 of \cite{xu2018pattern} - depicting real world permissions as tokens, and "paying" with these tokens on function call to verify one's role.
+
+\subsection{Tools}
+
+\subsubsection{eth\_admin}
 
 node-js command line tool using vorpal
 commands trigger blockchain calls using web3
 
-\subsection{armadillo}
+\subsubsection{armadillo}
 
 \section{Evaluation}
 %Gas cost
@@ -226,6 +351,10 @@ commands trigger blockchain calls using web3
 %Mention problem of giving and removing right to change access rights
 %But in the end one instance has to a be superadmin in the contract, if it is leaked there is a problem
 
+% future work: 
+% - access contract
+% - instantiation
+% - automatic generation -> template
 \section{Conclusion}
 
 %
