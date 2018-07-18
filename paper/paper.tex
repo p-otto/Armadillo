@@ -1,12 +1,15 @@
 \documentclass[runningheads]{llncs}
 
 \usepackage{graphicx}
+\usepackage{listings}
 % Used for displaying a sample figure. If possible, figure files should
 % be included in EPS format.
 %
 % If you use the hyperref package, please uncomment the following line
 % to display URLs in blue roman font according to Springer's eBook style:
 % \renewcommand\UrlFont{\color{blue}\rmfamily}
+
+\input{solidity-highlighting.tex}
 
 \begin{document}
 %
@@ -177,16 +180,99 @@ access contract API
 
 \section{Implementation}
 
-\subsection{Contracts}
-\cite{xu2018pattern}
+Given the architecture, we will now discuss the implementation of a) the contracts used in the system, and b) the tools for interacting with the system.
 
-factory
-instance
+\subsection{Contracts}
+
+For taking part in the process collaboration, each company needs to deploy a factory contract that contains the contract definition of the company's instance contract.
+This closely follows the factory contract pattern used in \cite{weber2016untrusted}, and described as Pattern 14 in \cite{xu2018pattern}.
+
+- Split between choreography intiator and other participants
+- has following interface:
+  - constructor, passing the address of the access contract (needs to deployed first, details in next section)
+  - setters for dependent factories
+  - createInstance()
+  - getAccessAddress()
+  - isInstance(id, address)
+- has following internal impl
+  - guard instance creation until all dependent factories are set
+  -> hold list of addresses of dependent factories
+  - hold address of access contract
+  - hold mapping from uuid -> address, identifying its own instances for a given choreography id
+  - if initiator: generate uuid on createInstance
+
+The factory contract source code also contains the public interfaces of
+  - the access contract (same for every participant)
+  - remote factory contracts (if receiving messages from remote, for verification)
+  - remote instance contracts (if sending messages to remote instance)
+as well as the complete definition of the instance contract source code.
+
+The instance contract provides the following interface
+  - a constructor where the local access contract, the choreography id and all dependency addresses can be passed
+  - a function for each sending action (task or event), called from process engine
+  - a function for each receiving action (task or event), called from other instance contracts
+and the following internal impl
+  - hold the choreography id
+  - hold the addresses of its own factory (for selfdestruction) and its own access contract (for local verification)
+  - hold the addresses of remote factory and access contract (again, if receiving messages from remote)
+  - hold the addresses of remote instance contract (again, if sending messages)
+  - add guards to each sending action to verify the local sender
+  - add guards to each receiving action to verify the remote sender
+  - implement events and emit them to the blockchain on receive action, that can be watched from external triggers
+  - call remote receive functions on local send action
+  - selfdestruct on the last send or receive action of the instance
+
+Guards = access checks (Pattern 13)
+
+See appendix for example % TODO
 
 \subsubsection{Access Contract}
 
-we chose mapping approach
-other approaches part of further work, e.g. token based
+Each company deploys an access contract that holds information about the roles and permissions of the company's employees.
+Having permission data encapsuled in a separate access contract follows pattern 12, the Data Contract pattern, from \cite{xu2018pattern}.
+It allows decoupling the roles and permissions from the actual contract instances, allowing for a simple modification at runtime.
+Access contracts can be deployed per process, or even once per company as a single source of truth for all processes.
+
+To allow the administration of user permissions, access contracts provide the following interface:
+\begin{itemize}
+  \item 
+    \texttt{assignRoleToUser(userAddress, role)}
+  \item
+    \texttt{removeRoleFromUser(userAddress, role)}
+  \item
+    \texttt{assignTaskToRole(task, role)}
+  \item
+    \texttt{removeTaskFromRole(task, role)}
+\end{itemize}
+The access to these functions should be guarded, allowing only a specific administrator address to call them.
+
+Verifying a users permission to execute a certain task can be achieved by calling \texttt{isAuthorized(userAddress, task)}.
+\newline
+
+Given this interface, there are multiple possible implementation approaches for access contracts.
+As it was our main focus to develop a running prototype, and not to provide an optimized, production-ready system, we decided on a simple mapping-based implementation:
+\begin{lstlisting}[
+  caption=Mappings in our access contract implementation,
+  language=Solidity,
+  basicstyle=\small
+]
+pragma solidity ^0.4.23;
+
+contract Access {
+    mapping(string => string) taskToRole;
+    mapping(string => uint) roleToIndex;
+    mapping(address => uint) addressToAccessBitmask;
+    ...
+}
+\end{lstlisting}
+The first mapping stores the tasks that can be executed by a specific role (cf. pools and lanes, and their contained tasks, in BPMN diagrams).
+The second mapping assigns each role an index in the access bitmask, i.e., if the bit at the given index is set, the user holds the corresponding role.
+The third mapping assigns such an access bitmask to each user.
+
+Storing large amounts data on the blockchain is expensive by design.
+As the mappings grow in size with each user, role and task that is part of some process in the company, our implementation is probably not suited for real-world application.
+Finding optimized, less costly (both in computation cost and storage cost) approaches is part of future work.
+One other approach we thought of is based on Pattern 5 of \cite{xu2018pattern} - depicting real world permissions as tokens, and "paying" with these tokens on function call to verify one's role.
 
 \subsection{eth\_admin}
 
@@ -205,6 +291,140 @@ commands trigger blockchain calls using web3
 %But in the end one instance has to a be superadmin in the contract, if it is leaked there is a problem
 
 \section{Conclusion}
+
+
+\section{Appendix}
+% TODO highlight different parts as described in section Implementation? or remove?
+\begin{lstlisting}[
+  caption=Example source code of the Bulk Buyer's factory contract,
+  language=Solidity,
+  basicstyle=\small,
+  xleftmargin=-3cm,
+  xrightmargin=-3cm]
+pragma solidity ^0.4.24;
+
+contract Manufacturer {
+    function receiveOrder(address) public;
+    function setBulkBuyer(address) public;
+}
+
+contract ManufacturerFactory {
+    function createInstance(uint) public returns(address);
+    function getAccessAddress() public returns(address);
+    function isInstance(uint, address) public view returns(bool);
+}
+
+contract Access {
+    function isAuthorized(address, string) public returns(bool);
+}
+
+contract BulkBuyer {
+    event ProductReceived();
+    event StartOfProductionReceived();
+    event Selfdestructed();
+
+    address _factory;
+    Access _localAccess;
+    uint _id;
+
+    ManufacturerFactory _manufacturerFactory;
+    Access _manufacturerAccess;
+    Manufacturer _manufacturer;
+
+    modifier manufacturerAuthorized(address sender, string taskName) {
+        require(_manufacturerFactory.isInstance(_id, msg.sender));
+        require(_manufacturerAccess.isAuthorized(sender, taskName));
+        _;
+    }
+
+    modifier localAuthorized(string taskName) {
+        require(_localAccess.isAuthorized(msg.sender, taskName));
+        _;
+    }
+
+    constructor(
+        address localAccess,
+        uint counter,
+        address manufacturerFactory, address manufacturerAccess, address manufacturerInstance
+    ) public {
+        _factory = msg.sender;
+        _localAccess = Access(localAccess);
+        _id = counter;
+
+        _manufacturerFactory = ManufacturerFactory(manufacturerFactory);
+        _manufacturerAccess = Access(manufacturerAccess);
+        _manufacturer = Manufacturer(manufacturerInstance);
+    }
+
+    function placeOrder() public localAuthorized("receiveOrder") {
+        _manufacturer.receiveOrder(msg.sender);
+    }
+
+    function receiveStartOfProduction(address sender) 
+      public manufacturerAuthorized(sender, "receiveStartOfProduction")
+    {
+        emit StartOfProductionReceived();
+    }
+
+    function receiveProduct(address sender) 
+      public manufacturerAuthorized(sender, "receiveProduct")
+    {
+        emit ProductReceived();
+        emit Selfdestructed();
+        selfdestruct(_factory);
+    }
+}
+
+contract BulkBuyerFactory {
+    event BulkBuyerInstanceCreated(address instanceAddress);
+
+    address _accessAddress;
+    uint _counter;
+
+    address _manufacturerAddress = address(0);
+
+    mapping(uint => address) _instances;
+
+    modifier initialized {
+        require(_manufacturerAddress != address(0));
+        _;
+    }
+
+    constructor(address accessAddress) public {
+        _accessAddress = accessAddress;
+        _counter = 0;
+    }
+
+    function setManufacturer(address manufacturerAddress) public {
+        _manufacturerAddress = manufacturerAddress;
+    }
+
+    function createInstance() public initialized returns(address) {
+        _counter = _counter + 1;
+
+        ManufacturerFactory manufacturerFactory = ManufacturerFactory(_manufacturerAddress);
+        address manufacturerAccess = manufacturerFactory.getAccessAddress();
+        address manufacturerInstance = manufacturerFactory.createInstance(_counter);
+
+        BulkBuyer b = new BulkBuyer(
+            _accessAddress,
+            _counter,
+            manufacturerFactory, manufacturerAccess, manufacturerInstance
+        );
+        _instances[_counter] = address(b);
+        emit BulkBuyerInstanceCreated(b);
+        return b;        
+    }
+
+    function getAccessAddress() public view returns(address) {
+        return _accessAddress;
+    }
+
+    function isInstance(uint id, address instanceAddress) public view returns(bool) {
+        return _instances[id] == instanceAddress;
+    }
+}
+\end{lstlisting}
 
 %
 % ---- Bibliography ----
