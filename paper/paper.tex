@@ -136,23 +136,43 @@ Processes can be started and executed via a user interface, which calls the gene
 %no choreographies / lanes supported, all tasks / transitions are managed on-chain through process %contract
 
 \section{Solution approach}
+We propose a system design, that allows choreographies to be executed publicly on the blockchain.
+In order to achieve this, every organization to provides an interface for their public process using smart contracts.
+We assume that all participating organizations use a process engine to execute their private processes.
+When a throw event is triggered within a process engine, a \emph{throw event function} is called on a smart contract and the corresponding \emph{catch event function} is called on the smart contract of the organization responsible for catching the event.
+Thus, the public processes of all organizations are recorded on the blockchain.
 
-basic understanding/ intuition
--> make orchestration possible
+%TODO reference "trigger" from Untrusted paper
+Each organization uses a \emph{trigger} that continuously listens to catch events.
+If a catch event is observed, this information is relayed to the process engine to handle the event.
+The usage of the blockchain to monitor the choreography is encapsulated in the process engine and is therefore hidden from the users.
 
-use one contuous example
+%basic understanding/ intuition
+%-> make orchestration possible
 
-visualizations !!
+%use one contuous example
+
+%visualizations !!
 
 \subsection{Contract Structure}
+To realize the system, we use three kinds of smart contracts.
+Firstly, each organization uses one \emph{instance contract} per process instance.
+It represents the public process of the organization for the corresponding process.
+It is called during the process execution when a catch or throw event is reached in the process instance.
+When this happens, it emits an event on the blockchain to document this fact.
 
-factory (maps to process)
-creates instance (maps to process instance)
-also access contract for user rights management
+Secondly, each organization uses one \emph{factory contract} per process.
+It is responsible for creating instance contracts and saving a mapping from instance IDs to the corresponding contracts.
+
+Thirdly, each organization uses \emph{access contracts} to manage which users can trigger events on the instance contracts.
+Either, there is on access contract per process or access contracts are shared over multiple processes depending on the use case.
+
+%factory (maps to process)
+%creates instance (maps to process instance)
+%also access contract for user rights management
 
 \subsection{Authorization}
-
-access contract API
+In order to authorize users, the instance contract calls the access contract.
 
 \subsection{Decentralization}
 % Decentralized contracts vs. central monitor
