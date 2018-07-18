@@ -135,15 +135,7 @@ Processes can be started and executed via a user interface, which calls the gene
 
 \section{Solution approach}
 We propose a system design, that allows choreographies to be executed publicly on the blockchain.
-In order to achieve this, every organization to provides an interface for their public process using smart contracts.
-We assume that all participating organizations use a process engine to execute their private processes.
-When a throw event is triggered within a process engine, a \emph{throw event function} is called on a smart contract and the corresponding \emph{catch event function} is called on the smart contract of the organization responsible for catching the event.
-Thus, the public processes of all organizations are recorded on the blockchain.
-
-%TODO reference "trigger" from Untrusted paper
-Each organization uses a \emph{trigger} that continuously listens to catch events.
-If a catch event is observed, this information is relayed to the process engine to handle the event.
-The usage of the blockchain to monitor the choreography is encapsulated in the process engine and is therefore hidden from the users.
+In the following section, we describe our approach and its architecture.
 
 %basic understanding/ intuition
 %-> make orchestration possible
@@ -156,11 +148,26 @@ The usage of the blockchain to monitor the choreography is encapsulated in the p
 %visualizations !!
 
 \subsection{System overview}
-
 \begin{figure}
-	\includegraphics[width=\textwidth]{fig/system_diagram.eps}
-	\caption{The architecture of our design.} \label{fig1}
+	\centering
+	\includegraphics[width=100mm]{fig/system_diagram.eps}
+	\caption{An architecture diagram showing the interactions within the system.} 			
+	\label{fig:system_diagram}
 \end{figure}
+
+Every organization provides an interface of their public process in an \emph{instance contract}.
+Additionally, \emph{factory contracts} manage these instance contracts and \emph{access contracts} are used for rights management.
+The contract structure will be described in detail in the following sections.
+We assume that all participating organizations use a process engine to execute their private processes.
+When a throw event is triggered within a process engine, a \emph{throw event function} is called on an instance contract and the corresponding \emph{catch event function} is called on the instance contract of the organization responsible for catching the event.
+Thus, the public processes of all organizations are recorded on the blockchain.
+
+%TODO reference "trigger" from Untrusted paper
+Each organization uses a \emph{trigger} that continuously listens to catch events.
+If a catch event is observed, this information is relayed to the process engine to handle the event.
+The usage of the blockchain to monitor the choreography is encapsulated in the process engine and is therefore hidden from the users.
+
+The interaction of the components can be seen in Figure \ref{fig:system_diagram}.
 
 \subsection{Contract Structure}
 To realize the system, we use three kinds of smart contracts.
@@ -175,20 +182,45 @@ It is responsible for creating instance contracts and saving a mapping from inst
 Thirdly, each organization uses \emph{access contracts} to manage which users can trigger events on the instance contracts.
 Either, there is on access contract per process or access contracts are shared over multiple processes depending on the use case.
 
-%factory (maps to process)
-%creates instance (maps to process instance)
-%also access contract for user rights management
-
 \subsection{Per company setup}
-
 \begin{figure}
-	\includegraphics[width=\textwidth]{fig/initialization.eps}
-	\caption{An initialization process.} \label{fig2}
+	\centering
+	\includegraphics[width=70mm]{fig/initialization.eps}
+	\caption{A sequence diagram describing the initialization process for an organization.} 
+	\label{fig:initialization}
 \end{figure}
 
+%TODO add a step where other factory contracts are set
+Each organization needs to perform some setup before they can take part in a process execution.
+An access contract and a factory contract for a process need to be deployed it it has not been done yet.
+Additionally, the user-to-role and and task-to-role mappings have to be updated, to allow verification of users during the process execution.
+A diagram of this process can be seen in Figure \ref{fig:initialization}.
+
 \subsection{Interaction setup}
+\begin{figure}
+	\centering
+	\includegraphics[width=\textwidth]{fig/instance_creation.eps}
+	\caption{A sequence diagram describing the process of creating a new process instance.} 
+	\label{fig:instance_creation}
+\end{figure}
+
+In order to create a new process instance, the organization that initiates the instance by triggering the first throw event has to explicitly create an instance contract by calling the factory contract.
+To create an instance contract, the factory contract may need to initialize other instance contracts by calling other factory contracts.
+When all partner instance, factory and access contracts are known, the instance contract can be created and its address is returned to the user and an event is emitted to the blockchain.
+This process is visualized in Figure \ref{fig:instance_creation}.
+
+The recursive initialization ensures that all instance contracts that are part of the process instance will be created by one function call.
+%TODO add emit event in the diagram
+%TODO better formulation
+The organizations that did not start the instance creation can detect the new process instance by using their trigger to watch the factory contract.
 
 \subsection{Sending messages}
+\begin{figure}
+	\centering
+	\includegraphics[width=\textwidth]{fig/event_sending.eps}
+	\caption{A sequence diagram describing the process of sending a message to a collaboration partner.} 
+	\label{fig:event_sending}
+\end{figure}
 
 \subsection{Authorization}
 In order to authorize users, the instance contract calls the access contract.
