@@ -19,8 +19,6 @@
 \author{Jonas Beyer \and Philipp Otto \and S\"oren Tietb\"ohl}
 %
 \authorrunning{J. Beyer et al.}
-% First names are abbreviated in the running head.
-% If there are more than two authors, 'et al.' is used.
 %
 \institute{
 	Hasso-Plattner-Institut, Potsdam, Germany\\
@@ -150,9 +148,19 @@ The usage of the blockchain to monitor the choreography is encapsulated in the p
 %basic understanding/ intuition
 %-> make orchestration possible
 
+% Decentralized contracts vs. central monitor
+% Engine on chain vs. message channel
+
 %use one contuous example
 
 %visualizations !!
+
+\subsection{System overview}
+
+\begin{figure}
+	\includegraphics[width=\textwidth]{fig/system_diagram.eps}
+	\caption{The architecture of our design.} \label{fig1}
+\end{figure}
 
 \subsection{Contract Structure}
 To realize the system, we use three kinds of smart contracts.
@@ -171,32 +179,19 @@ Either, there is on access contract per process or access contracts are shared o
 %creates instance (maps to process instance)
 %also access contract for user rights management
 
-\subsection{Authorization}
-In order to authorize users, the instance contract calls the access contract.
-
-\subsection{Decentralization}
-% Decentralized contracts vs. central monitor
-% Engine on chain vs. message channel
-
-\section{Architecture}
-
-\subsection{System overview}
-
 \subsection{Per company setup}
-
-\subsection{Interaction setup}
-
-\subsection{Sending messages}
-
-\begin{figure}
-	\includegraphics[width=\textwidth]{fig/system_diagram.eps}
-	\caption{The architecture of our design.} \label{fig1}
-\end{figure}
 
 \begin{figure}
 	\includegraphics[width=\textwidth]{fig/initialization.eps}
 	\caption{An initialization process.} \label{fig2}
 \end{figure}
+
+\subsection{Interaction setup}
+
+\subsection{Sending messages}
+
+\subsection{Authorization}
+In order to authorize users, the instance contract calls the access contract.
 
 \section{Implementation}
 
@@ -247,7 +242,7 @@ and the following internal impl
 
 Guards = access checks (Pattern 13)
 
-See appendix for example % TODO
+See github repo for example % TODO
 
 \subsubsection{Access Contract}
 
@@ -315,141 +310,11 @@ commands trigger blockchain calls using web3
 %Mention problem of giving and removing right to change access rights
 %But in the end one instance has to a be superadmin in the contract, if it is leaked there is a problem
 
+% future work: 
+% - access contract
+% - instantiation
+% - automatic generation -> template
 \section{Conclusion}
-
-
-\section{Appendix}
-% TODO highlight different parts as described in section Implementation? or remove?
-\begin{lstlisting}[
-  caption=Example source code of the Bulk Buyer's factory contract,
-  language=Solidity,
-  basicstyle=\small,
-  xleftmargin=-3cm,
-  xrightmargin=-3cm]
-pragma solidity ^0.4.24;
-
-contract Manufacturer {
-    function receiveOrder(address) public;
-    function setBulkBuyer(address) public;
-}
-
-contract ManufacturerFactory {
-    function createInstance(uint) public returns(address);
-    function getAccessAddress() public returns(address);
-    function isInstance(uint, address) public view returns(bool);
-}
-
-contract Access {
-    function isAuthorized(address, string) public returns(bool);
-}
-
-contract BulkBuyer {
-    event ProductReceived();
-    event StartOfProductionReceived();
-    event Selfdestructed();
-
-    address _factory;
-    Access _localAccess;
-    uint _id;
-
-    ManufacturerFactory _manufacturerFactory;
-    Access _manufacturerAccess;
-    Manufacturer _manufacturer;
-
-    modifier manufacturerAuthorized(address sender, string taskName) {
-        require(_manufacturerFactory.isInstance(_id, msg.sender));
-        require(_manufacturerAccess.isAuthorized(sender, taskName));
-        _;
-    }
-
-    modifier localAuthorized(string taskName) {
-        require(_localAccess.isAuthorized(msg.sender, taskName));
-        _;
-    }
-
-    constructor(
-        address localAccess,
-        uint counter,
-        address manufacturerFactory, address manufacturerAccess, address manufacturerInstance
-    ) public {
-        _factory = msg.sender;
-        _localAccess = Access(localAccess);
-        _id = counter;
-
-        _manufacturerFactory = ManufacturerFactory(manufacturerFactory);
-        _manufacturerAccess = Access(manufacturerAccess);
-        _manufacturer = Manufacturer(manufacturerInstance);
-    }
-
-    function placeOrder() public localAuthorized("receiveOrder") {
-        _manufacturer.receiveOrder(msg.sender);
-    }
-
-    function receiveStartOfProduction(address sender) 
-      public manufacturerAuthorized(sender, "receiveStartOfProduction")
-    {
-        emit StartOfProductionReceived();
-    }
-
-    function receiveProduct(address sender) 
-      public manufacturerAuthorized(sender, "receiveProduct")
-    {
-        emit ProductReceived();
-        emit Selfdestructed();
-        selfdestruct(_factory);
-    }
-}
-
-contract BulkBuyerFactory {
-    event BulkBuyerInstanceCreated(address instanceAddress);
-
-    address _accessAddress;
-    uint _counter;
-
-    address _manufacturerAddress = address(0);
-
-    mapping(uint => address) _instances;
-
-    modifier initialized {
-        require(_manufacturerAddress != address(0));
-        _;
-    }
-
-    constructor(address accessAddress) public {
-        _accessAddress = accessAddress;
-        _counter = 0;
-    }
-
-    function setManufacturer(address manufacturerAddress) public {
-        _manufacturerAddress = manufacturerAddress;
-    }
-
-    function createInstance() public initialized returns(address) {
-        _counter = _counter + 1;
-
-        ManufacturerFactory manufacturerFactory = ManufacturerFactory(_manufacturerAddress);
-        address manufacturerAccess = manufacturerFactory.getAccessAddress();
-        address manufacturerInstance = manufacturerFactory.createInstance(_counter);
-
-        BulkBuyer b = new BulkBuyer(
-            _accessAddress,
-            _counter,
-            manufacturerFactory, manufacturerAccess, manufacturerInstance
-        );
-        _instances[_counter] = address(b);
-        emit BulkBuyerInstanceCreated(b);
-        return b;        
-    }
-
-    function getAccessAddress() public view returns(address) {
-        return _accessAddress;
-    }
-
-    function isInstance(uint id, address instanceAddress) public view returns(bool) {
-        return _instances[id] == instanceAddress;
-    }
-}
-\end{lstlisting}
 
 %
 % ---- Bibliography ----
