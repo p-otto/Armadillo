@@ -23,19 +23,19 @@
 % If there are more than two authors, 'et al.' is used.
 %
 \institute{
-Hasso-Plattner-Institut, Potsdam, Germany\\
-\email{\{jonas.beyer,philipp.otto2,soeren.tietboehl\}@student.hpi.de}}
+	Hasso-Plattner-Institut, Potsdam, Germany\\
+	\email{\{jonas.beyer,philipp.otto2,soeren.tietboehl\}@student.hpi.de}}
 %
 \maketitle % typeset the header of the contribution
 %
 \begin{abstract}
-Lack of trust between communication partners is one of the major issues companies face when implementing business processes in a cross-organizational setting.
-Blockchain is an emerging technology that enables decentralization and distribution of state without the need for a trusted central instance.
-As a result, it is possible to form consensus in the communication between otherwise untrusting parties.
-In this paper we introduce Armadillo, an open-source prototype implementation for realizing business process choreographies using the Ethereum blockchain.
-We present a user interface for connecting business processes with blockchain calls, as well as an underlying smart contract structure for inter-process communication.
+	Lack of trust between communication partners is one of the major issues companies face when implementing business processes in a cross-organizational setting.
+	Blockchain is an emerging technology that enables decentralization and distribution of state without the need for a trusted central instance.
+	As a result, it is possible to form consensus in the communication between otherwise untrusting parties.
+	In this paper we introduce Armadillo, an open-source prototype implementation for realizing business process choreographies using the Ethereum blockchain.
+	We present a user interface for connecting business processes with blockchain calls, as well as an underlying smart contract structure for inter-process communication.
 
-\keywords{Business Processes \and BPMN \and Choreographies \and Blockchain \and Ethereum \and Smart Contracts}
+	\keywords{Business Processes \and BPMN \and Choreographies \and Blockchain \and Ethereum \and Smart Contracts}
 \end{abstract}
 %
 %
@@ -62,7 +62,7 @@ The Business Process Model Notation (BPMN) enables detailed documentation of bus
 With the increasing spread of Blockchain technology, this problem could be rectified.
 A Blockchain is a decentralized information-storage network. Information is stored in blocks, which are chained together via cryptograhic means. This means, that many participants can agree on a common public state of information without trusting each other. This technology is commonly used to realize virtual currencies, also called cryptocurrencies.
 Ethereum is one implementation of the Blockchain concept, and it realizes a key feature called smart contracts.
-Smart contracts are small programs, which are ran by the Blockchain network. They have very limited processing power, but they enable the execution of code which has a commonly known state. 
+Smart contracts are small programs, which are ran by the Blockchain network. They have very limited processing power, but they enable the execution of code which has a commonly known state.
 
 %What problems are there with BPMN that can be solved with Blockchain?
 The problem of needing to trust each other when collaborating in a business process can be addressed by applying the benefits of blockchain technology. The Blockchain be used in several ways to facilitate trusted communication between untrusted parties.
@@ -86,7 +86,7 @@ In the following section we present concepts and technologies that are related t
 
 \subsection{Blockchain}
 A blockchain is a distributed ledger that allows users to find a concensus in decentralized applications.
-It works by splitting information into blocks that are connected as a linked list. 
+It works by splitting information into blocks that are connected as a linked list.
 %TODO proof of work is only one possibility
 %TODO explain more in depth?
 Each block has to be signed in a way that is mathematically hard to calculate, but easy to verify.
@@ -98,7 +98,7 @@ A concensus is reached by propagating the longest blockchain within the network 
 Blockchain technology is used in cryptocurrencies, most notably Bitcoin \cite{nakamoto2008bitcoin}.
 The use in cryptocurrency has laid the foundation for a number of decentralized application besides financial ones.
 Ethereum \cite{wood2014ethereum} is a cryptocurrency that also builds on blockchain technologies and allows users to execute code in the form of \emph{smart contracts}.
-Smart contracts are Turing complete code artifacts, that can be deployed on the blockchain and have an interface that is callable by users. 
+Smart contracts are Turing complete code artifacts, that can be deployed on the blockchain and have an interface that is callable by users.
 They can receive and send money, store information locally and emit events on the blockchain ledger.
 When calling functions on a smart contract, users have to supply \emph{gas}, a unit that powers smart contract computations.
 Contracts deplete gas for each operation and return excess gas back to the user.
@@ -189,58 +189,61 @@ In order to authorize users, the instance contract calls the access contract.
 \subsection{Sending messages}
 
 \begin{figure}
-\includegraphics[width=\textwidth]{fig/system_diagram.eps}
-\caption{The architecture of our design.} \label{fig1}
+	\includegraphics[width=\textwidth]{fig/system_diagram.eps}
+	\caption{The architecture of our design.} \label{fig1}
 \end{figure}
 
 \begin{figure}
-\includegraphics[width=\textwidth]{fig/initialization.eps}
-\caption{An initialization process.} \label{fig2}
+	\includegraphics[width=\textwidth]{fig/initialization.eps}
+	\caption{An initialization process.} \label{fig2}
 \end{figure}
 
 \section{Implementation}
 
-Given the architecture, we will now discuss the implementation of a) the contracts used in the system, and b) the tools for interacting with the system.
+Given the architecture, we will now discuss the implementation of the contracts used in the system.
+Afterwards, we will shortly describe the tools we built for interacting with the system.
 
 \subsection{Contracts}
+
+\subsubsection{Process Contracts}
 
 For taking part in the process collaboration, each company needs to deploy a factory contract that contains the contract definition of the company's instance contract.
 This closely follows the factory contract pattern used in \cite{weber2016untrusted}, and described as Pattern 14 in \cite{xu2018pattern}.
 
 - Split between choreography intiator and other participants
 - has following interface:
-  - constructor, passing the address of the access contract (needs to deployed first, details in next section)
-  - setters for dependent factories
-  - createInstance()
-  - getAccessAddress()
-  - isInstance(id, address)
+- constructor, passing the address of the access contract (needs to deployed first, details in next section)
+- setters for dependent factories
+- createInstance()
+- getAccessAddress()
+- isInstance(id, address)
 - has following internal impl
-  - guard instance creation until all dependent factories are set
-  -> hold list of addresses of dependent factories
-  - hold address of access contract
-  - hold mapping from uuid -> address, identifying its own instances for a given choreography id
-  - if initiator: generate uuid on createInstance
+- guard instance creation until all dependent factories are set
+-> hold list of addresses of dependent factories
+- hold address of access contract
+- hold mapping from uuid -> address, identifying its own instances for a given choreography id
+- if initiator: generate uuid on createInstance
 
 The factory contract source code also contains the public interfaces of
-  - the access contract (same for every participant)
-  - remote factory contracts (if receiving messages from remote, for verification)
-  - remote instance contracts (if sending messages to remote instance)
+- the access contract (same for every participant)
+- remote factory contracts (if receiving messages from remote, for verification)
+- remote instance contracts (if sending messages to remote instance)
 as well as the complete definition of the instance contract source code.
 
 The instance contract provides the following interface
-  - a constructor where the local access contract, the choreography id and all dependency addresses can be passed
-  - a function for each sending action (task or event), called from process engine
-  - a function for each receiving action (task or event), called from other instance contracts
+- a constructor where the local access contract, the choreography id and all dependency addresses can be passed
+- a function for each sending action (task or event), called from process engine
+- a function for each receiving action (task or event), called from other instance contracts
 and the following internal impl
-  - hold the choreography id
-  - hold the addresses of its own factory (for selfdestruction) and its own access contract (for local verification)
-  - hold the addresses of remote factory and access contract (again, if receiving messages from remote)
-  - hold the addresses of remote instance contract (again, if sending messages)
-  - add guards to each sending action to verify the local sender
-  - add guards to each receiving action to verify the remote sender
-  - implement events and emit them to the blockchain on receive action, that can be watched from external triggers
-  - call remote receive functions on local send action
-  - selfdestruct on the last send or receive action of the instance
+- hold the choreography id
+- hold the addresses of its own factory (for selfdestruction) and its own access contract (for local verification)
+- hold the addresses of remote factory and access contract (again, if receiving messages from remote)
+- hold the addresses of remote instance contract (again, if sending messages)
+- add guards to each sending action to verify the local sender
+- add guards to each receiving action to verify the remote sender
+- implement events and emit them to the blockchain on receive action, that can be watched from external triggers
+- call remote receive functions on local send action
+- selfdestruct on the last send or receive action of the instance
 
 Guards = access checks (Pattern 13)
 
@@ -255,14 +258,14 @@ Access contracts can be deployed per process, or even once per company as a sing
 
 To allow the administration of user permissions, access contracts provide the following interface:
 \begin{itemize}
-  \item 
-    \texttt{assignRoleToUser(userAddress, role)}
-  \item
-    \texttt{removeRoleFromUser(userAddress, role)}
-  \item
-    \texttt{assignTaskToRole(task, role)}
-  \item
-    \texttt{removeTaskFromRole(task, role)}
+	\item
+	      \texttt{assignRoleToUser(userAddress, role)}
+	\item
+	      \texttt{removeRoleFromUser(userAddress, role)}
+	\item
+	      \texttt{assignTaskToRole(task, role)}
+	\item
+	      \texttt{removeTaskFromRole(task, role)}
 \end{itemize}
 The access to these functions should be guarded, allowing only a specific administrator address to call them.
 
@@ -294,12 +297,14 @@ As the mappings grow in size with each user, role and task that is part of some 
 Finding optimized, less costly (both in computation cost and storage cost) approaches is part of future work.
 One other approach we thought of is based on Pattern 5 of \cite{xu2018pattern} - depicting real world permissions as tokens, and "paying" with these tokens on function call to verify one's role.
 
-\subsection{eth\_admin}
+\subsection{Tools}
+
+\subsubsection{eth\_admin}
 
 node-js command line tool using vorpal
 commands trigger blockchain calls using web3
 
-\subsection{armadillo}
+\subsubsection{armadillo}
 
 \section{Evaluation}
 %Gas cost
