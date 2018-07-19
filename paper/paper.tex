@@ -12,6 +12,8 @@
 
 \input{solidity-highlighting.tex}
 
+\lstset{basicstyle=\small\ttfamily}
+
 \begin{document}
 %
 \title{Untrusted B2B Collaboration using the Blockchain}
@@ -327,8 +329,7 @@ Given this interface, there are multiple possible implementation approaches for 
 As it was our main focus to develop a running prototype, and not to provide an optimized, production-ready system, we decided on a simple mapping-based implementation:
 \begin{lstlisting}[
   caption=Mappings in our access contract implementation,
-  language=Solidity,
-  basicstyle=\small
+  language=Solidity
 ]
 pragma solidity ^0.4.23;
 
