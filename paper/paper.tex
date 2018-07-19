@@ -183,7 +183,7 @@ Secondly, each organization uses one \emph{factory contract} per process.
 It is responsible for creating instance contracts and saving a mapping from instance IDs to the corresponding contracts.
 
 Thirdly, each organization uses \emph{access contracts} to manage which users can trigger events on the instance contracts.
-Either, there is on access contract per process or access contracts are shared over multiple processes depending on the use case.
+Either there is one access contract per process or access contracts are shared over multiple processes depending on the use case.
 
 \subsection{Per company setup}
 \begin{figure}
@@ -356,12 +356,28 @@ One other approach we thought of is based on Pattern 5 of \cite{xu2018pattern} -
 
 \subsection{Tools}
 
-\subsubsection{eth\_admin}
+In the following, we will briefly present the tools we implemented integrate process management with our blockchain approach.
+The implementations can be found in our repository at \url{https://github.com/p-otto/ProcessesMeetBlockchain2018/}, in the \texttt{armadillo} and \texttt{eth\_admin} folders, respectively.
+% TODO repo ist noch private
+% TODO update if repository changes
+% TODO overfull hbox
 
-node-js command line tool using vorpal
-commands trigger blockchain calls using web3
+\subsubsection{Armadillo}
 
-\subsubsection{armadillo}
+As a way of joining process execution with our blockchain architecture, we developed a single page web application in JavaScript and HTML, using the Vue.js framework\footnote{\url{https://vuejs.org}}.
+With the help of the Web3 Ethereum JavaScript API\footnote{\label{web3}\url{https://github.com/ethereum/web3.js/}}, we can trigger contract functions based on user actions in the applications user interface.
+Armadillo also implements the upload and rendering of BPMN diagrams using the bpmn.js toolkit\footnote{\url{https://bpmn.io/toolkit/bpmn-js/}}.
+Building upon the BPMN viewer provided in the toolkit, we implemented the handling of user clicks on tasks, which allowed us to use the viewer as a process engine mock.
+A screencast of the full choreography can be found in the respository under \url{https://github.com/p-otto/ProcessesMeetBlockchain2018/blob/master/presentation/armadillo-screencast.mp4}.
+% TODO repo, hbox etc.
+
+\subsubsection{Eth\_Admin}
+
+We developed a small command line application for managing users and roles via the access contract.
+The application is written in JavaScript in the node.js framework\footnote{\url{https://nodejs.org/}}.
+Internally, calls functions on access contracts utilizing the Web3 Ethereum JavaScript API\textsuperscript{\ref{web3}}.
+We decide to build the command line functionality with the help of the Vorpal framework\footnote{\url{http://vorpal.js.org/}}.
+The README in our repository describes how to use the application.
 
 \section{Evaluation}
 %Gas cost
