@@ -9,6 +9,7 @@ paper/*.bbl
 paper/*.blg
 paper/*.log
 paper/*.pdf
+paper/*.out
 paper/fig/*.pdf
 paper/__latexindent_temp.tex
 paper/*.fdb_latexmk

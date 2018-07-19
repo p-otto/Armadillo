@@ -2,12 +2,13 @@
 
 \usepackage{graphicx}
 \usepackage{listings}
+\usepackage{hyperref}
 % Used for displaying a sample figure. If possible, figure files should
 % be included in EPS format.
 %
 % If you use the hyperref package, please uncomment the following line
 % to display URLs in blue roman font according to Springer's eBook style:
-% \renewcommand\UrlFont{\color{blue}\rmfamily}
+\renewcommand\UrlFont{\color{blue}\rmfamily}
 
 \input{solidity-highlighting.tex}
 
@@ -241,24 +242,38 @@ Afterwards, we will shortly describe the tools we built for interacting with the
 
 \subsection{Contracts}
 
+In the following, we will formally describe our contract implementations.
+The implemented contracts can be found in our repository at \url{https://github.com/p-otto/ProcessesMeetBlockchain2018/tree/master/armadillo/resources}.
+% TODO repo ist noch private
+% TODO update if repository changes
+
 \subsubsection{Process Contracts}
 
-For taking part in the process collaboration, each company needs to deploy a factory contract that contains the contract definition of the company's instance contract.
+For taking part in the process collaboration, each company needs to deploy a factory contract that is responsible for creating instance contracts.
+To this end, the factory contract source code needs to contain the definition of the company's instance contract.
 This closely follows the factory contract pattern used in \cite{weber2016untrusted}, and described as Pattern 14 in \cite{xu2018pattern}.
 
-- Split between choreography intiator and other participants
-- has following interface:
-- constructor, passing the address of the access contract (needs to deployed first, details in next section)
-- setters for dependent factories
-- createInstance()
-- getAccessAddress()
-- isInstance(id, address)
-- has following internal impl
-- guard instance creation until all dependent factories are set
--> hold list of addresses of dependent factories
-- hold address of access contract
-- hold mapping from uuid -> address, identifying its own instances for a given choreography id
-- if initiator: generate uuid on createInstance
+In our implementation, a company's factory contract also knows the address of the company's access contract for convenience.
+Additionally, it stores the addresses of created instances, mapped by a \textit{choreography instance ID}, i.e., an ID that is shared between all choreography participants for each instance of the shared choreography.
+
+To allow interaction between companies via the blockchain, two participants need to exchange the addresses of their factory contracts when there is a direct interaction between them.
+
+A factory contract thus has the resulting interface:
+\begin{itemize}
+	\item A \texttt{constructor} where the address of the company's access contract is passed
+	\item Setter methods for the factory contract addresses of interaction partners
+	\item A \texttt{createInstance} function
+	\item A \texttt{getAccessAddress} function
+	\item A \texttt{isInstance} function, checking if a given address belongs to an instance created by this factory, for a given choreography instance ID % TODO rephrase?
+\end{itemize}
+
+Internally, there are a few implementation details worth mentioning.
+Regarding storage, private fields are necessary holding the factory contract addresses, the access contract address as well as the instance address mapping.
+To avoid communication errors at runtime, it should not be possible to call \texttt{createInstance} before all required factory addresses are set.
+Finally, there is one minor implementation difference depending on whether a participant is the \textit{choreography initiator} -- the participant to manually start the choreography instance by sending a request -- or instead is starting its instance as a response to another participant's request: % TODO arrgh bessere formulierung
+The initiator needs to generate the choreography instance ID inside of its \texttt{createInstance} function, and pass it to all its interaction partners.
+Every other participant needs to have a parameter for the ID in their \texttt{createInstance} function.
+
 
 The factory contract source code also contains the public interfaces of
 - the access contract (same for every participant)
