@@ -154,7 +154,7 @@ In the following section, we describe our approach and its architecture.
 \begin{figure}
 	\centering
 	\includegraphics[width=0.6\textwidth]{fig/system_diagram.eps}
-	\caption{An architecture diagram showing the interactions within the system.} 			
+	\caption{An architecture diagram showing the interactions within the system.}
 	\label{fig:system_diagram}
 \end{figure}
 
@@ -189,7 +189,7 @@ Either, there is on access contract per process or access contracts are shared o
 \begin{figure}
 	\centering
 	\includegraphics[width=0.45\textwidth]{fig/initialization.eps}
-	\caption{A sequence diagram describing the initialization process for an organization.} 
+	\caption{A sequence diagram describing the initialization process for an organization.}
 	\label{fig:initialization}
 \end{figure}
 
@@ -203,7 +203,7 @@ A diagram of this process can be seen in Figure \ref{fig:initialization}.
 \begin{figure}
 	\centering
 	\includegraphics[width=\textwidth]{fig/instance_creation.eps}
-	\caption{A sequence diagram describing the process of creating a new process instance.} 
+	\caption{A sequence diagram describing the process of creating a new process instance.}
 	\label{fig:instance_creation}
 \end{figure}
 
@@ -221,7 +221,7 @@ The organizations that did not start the instance creation can detect the new pr
 \begin{figure}
 	\centering
 	\includegraphics[width=\textwidth]{fig/event_sending.eps}
-	\caption{A sequence diagram describing the process of sending a message to a collaboration partner.} 
+	\caption{A sequence diagram describing the process of sending a message to a collaboration partner.}
 	\label{fig:event_sending}
 \end{figure}
 
@@ -276,31 +276,40 @@ Finally, there is one minor implementation difference depending on whether a par
 The initiator needs to generate the choreography instance ID inside of its \texttt{createInstance} function, and pass it to all its interaction partners.
 Every other participant needs to have a parameter for the ID in their \texttt{createInstance} function.
 
+Communication between smart contracts happens in the form of function calls.
+To allow the factory and instance contracts to call functions on their interaction partner's contracts, the partner's function interface needs to be known, i.e., it needs to be declared in the factory contract source code.
+%- the access contract (same for every participant)
+%- remote factory contracts (if receiving messages from remote, for verification)
+%- remote instance contracts (if sending messages to remote instance)
 
-The factory contract source code also contains the public interfaces of
-- the access contract (same for every participant)
-- remote factory contracts (if receiving messages from remote, for verification)
-- remote instance contracts (if sending messages to remote instance)
-as well as the complete definition of the instance contract source code.
+The instance contract definition is also part of the factory contract source code.
+The factory contract creates an instance by calling its constructor and passing all for the inter-process communication required addresses.
+Instance contracts provide functions for each sending action, i.e., send tasks or events in the company's process, which can be called by the process engine.
+For each receiving action (task or event), a function needs to be present that can be called from other instance contracts.
+When company $A$ triggers a sending function on their instance contract, it in turn calls a corresponding receive function on the instance contract of company $B$.
 
-The instance contract provides the following interface
-- a constructor where the local access contract, the choreography id and all dependency addresses can be passed
-- a function for each sending action (task or event), called from process engine
-- a function for each receiving action (task or event), called from other instance contracts
-and the following internal impl
-- hold the choreography id
-- hold the addresses of its own factory (for selfdestruction) and its own access contract (for local verification)
-- hold the addresses of remote factory and access contract (again, if receiving messages from remote)
-- hold the addresses of remote instance contract (again, if sending messages)
-- add guards to each sending action to verify the local sender
-- add guards to each receiving action to verify the remote sender
-- implement events and emit them to the blockchain on receive action, that can be watched from external triggers
-- call remote receive functions on local send action
-- selfdestruct on the last send or receive action of the instance
+Instance contracts need to store:
+\begin{itemize}
+	\item The choreography instance ID for verifying incoming messages
+	\item The addresses of the factory and access contracts of partners for verifying incoming messages
+	\item The addresses of the instance contracts of partners for sending messages
+	\item The address of the company's own access contract, for verifying local function calls
+	\item The address of the company's own factory contract, for returning any remaining funds upon \texttt{selfdestruct}
+\end{itemize}
 
-Guards = access checks (Pattern 13)
+A few more implementation details are worth noting:
+Verification is implemented on sender-side and on receiver side.
+Each send function has a guard checking the caller in the company's own access contract.
+Each receive function has a guard checking a) that the caller is a contract instance that is part of the choreography instance (via the partner factory contract), and b) checking the account behind the request in the partner's access contract.
+Guarding functions against unwanted access was described in pattern 13, Embedded Permission, in \cite{xu2018pattern}.
 
-See github repo for example % TODO
+Having achieved a traceable communication on the blockchain using contract function calls, we still want to access messages in off-chain applications, e.g., triggering process events in a process engine on message receive.
+To this end, smart contracts need to implement events that are omitted to the blockchain whenever a receive function is executed.
+Blockchain events can then be watched, and reacted upon, by off-chain components.
+
+In our current implementation, the end of a process instance is marked by the instance contract selfdestructing.
+At the end of the execution of the last send or receive function in the process, the solidity builtin \texttt{selfdestruct} is called.
+By passing the factory contract address, potential remaining funds are transferred to the factory contract.
 
 \subsubsection{Access Contract}
 
@@ -311,14 +320,10 @@ Access contracts can be deployed per process, or even once per company as a sing
 
 To allow the administration of user permissions, access contracts provide the following interface:
 \begin{itemize}
-	\item
-	      \texttt{assignRoleToUser(userAddress, role)}
-	\item
-	      \texttt{removeRoleFromUser(userAddress, role)}
-	\item
-	      \texttt{assignTaskToRole(task, role)}
-	\item
-	      \texttt{removeTaskFromRole(task, role)}
+	\item \texttt{assignRoleToUser(userAddress, role)}
+	\item \texttt{removeRoleFromUser(userAddress, role)}
+	\item \texttt{assignTaskToRole(task, role)}
+	\item \texttt{removeTaskFromRole(task, role)}
 \end{itemize}
 The access to these functions should be guarded, allowing only a specific administrator address to call them.
 
