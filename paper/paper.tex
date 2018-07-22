@@ -2,14 +2,17 @@
 
 \usepackage{graphicx}
 \usepackage{listings}
+\usepackage{hyperref}
 % Used for displaying a sample figure. If possible, figure files should
 % be included in EPS format.
 %
 % If you use the hyperref package, please uncomment the following line
 % to display URLs in blue roman font according to Springer's eBook style:
-% \renewcommand\UrlFont{\color{blue}\rmfamily}
+\renewcommand\UrlFont{\color{blue}\rmfamily}
 
 \input{solidity-highlighting.tex}
+
+\lstset{basicstyle=\small\ttfamily}
 
 \begin{document}
 %
@@ -170,8 +173,8 @@ In the following section, we describe our approach and its architecture.
 \subsection{System overview}
 \begin{figure}
 	\centering
-	\includegraphics[width=100mm]{fig/system_diagram.eps}
-	\caption{An architecture diagram showing the interactions within the system.} 			
+	\includegraphics[width=0.6\textwidth]{fig/system_diagram.eps}
+	\caption{An architecture diagram showing the interactions within the system.}
 	\label{fig:system_diagram}
 \end{figure}
 
@@ -200,13 +203,13 @@ Secondly, each organization uses one \emph{factory contract} per process.
 It is responsible for creating instance contracts and saving a mapping from instance IDs to the corresponding contracts.
 
 Thirdly, each organization uses \emph{access contracts} to manage which users can trigger events on the instance contracts.
-Either, there is on access contract per process or access contracts are shared over multiple processes depending on the use case.
+Either there is one access contract per process or access contracts are shared over multiple processes depending on the use case.
 
 \subsection{Per company setup}
 \begin{figure}
 	\centering
-	\includegraphics[width=70mm]{fig/initialization.eps}
-	\caption{A sequence diagram describing the initialization process for an organization.} 
+	\includegraphics[width=0.45\textwidth]{fig/initialization.eps}
+	\caption{A sequence diagram describing the initialization process for an organization.}
 	\label{fig:initialization}
 \end{figure}
 
@@ -220,7 +223,7 @@ A diagram of this process can be seen in Figure \ref{fig:initialization}.
 \begin{figure}
 	\centering
 	\includegraphics[width=\textwidth]{fig/instance_creation.eps}
-	\caption{A sequence diagram describing the process of creating a new process instance.} 
+	\caption{A sequence diagram describing the process of creating a new process instance.}
 	\label{fig:instance_creation}
 \end{figure}
 
@@ -238,7 +241,7 @@ The organizations that did not start the instance creation can detect the new pr
 \begin{figure}
 	\centering
 	\includegraphics[width=\textwidth]{fig/event_sending.eps}
-	\caption{A sequence diagram describing the process of sending a message to a collaboration partner.} 
+	\caption{A sequence diagram describing the process of sending a message to a collaboration partner.}
 	\label{fig:event_sending}
 \end{figure}
 
@@ -261,49 +264,72 @@ Afterwards, we will shortly describe the tools we built for interacting with the
 
 \subsection{Contracts}
 
+In the following, we will formally describe our contract implementations.
+The implemented contracts can be found in our repository at \url{https://github.com/p-otto/ProcessesMeetBlockchain2018/tree/master/armadillo/resources}.
+% TODO repo ist noch private
+% TODO update if repository changes
+
 \subsubsection{Process Contracts}
 
-For taking part in the process collaboration, each company needs to deploy a factory contract that contains the contract definition of the company's instance contract.
+For taking part in the process collaboration, each company needs to deploy a factory contract that is responsible for creating instance contracts.
+To this end, the factory contract source code needs to contain the definition of the company's instance contract.
 This closely follows the factory contract pattern used in \cite{weber2016untrusted}, and described as Pattern 14 in \cite{xu2018pattern}.
 
-- Split between choreography intiator and other participants
-- has following interface:
-- constructor, passing the address of the access contract (needs to deployed first, details in next section)
-- setters for dependent factories
-- createInstance()
-- getAccessAddress()
-- isInstance(id, address)
-- has following internal impl
-- guard instance creation until all dependent factories are set
--> hold list of addresses of dependent factories
-- hold address of access contract
-- hold mapping from uuid -> address, identifying its own instances for a given choreography id
-- if initiator: generate uuid on createInstance
+In our implementation, a company's factory contract also knows the address of the company's access contract for convenience.
+Additionally, it stores the addresses of created instances, mapped by a \textit{choreography instance ID}, i.e., an ID that is shared between all choreography participants for each instance of the shared choreography.
 
-The factory contract source code also contains the public interfaces of
-- the access contract (same for every participant)
-- remote factory contracts (if receiving messages from remote, for verification)
-- remote instance contracts (if sending messages to remote instance)
-as well as the complete definition of the instance contract source code.
+To allow interaction between companies via the blockchain, two participants need to exchange the addresses of their factory contracts when there is a direct interaction between them.
 
-The instance contract provides the following interface
-- a constructor where the local access contract, the choreography id and all dependency addresses can be passed
-- a function for each sending action (task or event), called from process engine
-- a function for each receiving action (task or event), called from other instance contracts
-and the following internal impl
-- hold the choreography id
-- hold the addresses of its own factory (for selfdestruction) and its own access contract (for local verification)
-- hold the addresses of remote factory and access contract (again, if receiving messages from remote)
-- hold the addresses of remote instance contract (again, if sending messages)
-- add guards to each sending action to verify the local sender
-- add guards to each receiving action to verify the remote sender
-- implement events and emit them to the blockchain on receive action, that can be watched from external triggers
-- call remote receive functions on local send action
-- selfdestruct on the last send or receive action of the instance
+A factory contract thus has the resulting interface:
+\begin{itemize}
+	\item A \texttt{constructor} where the address of the company's access contract is passed
+	\item Setter methods for the factory contract addresses of interaction partners
+	\item A \texttt{createInstance} function
+	\item A \texttt{getAccessAddress} function
+	\item A \texttt{isInstance} function, checking if a given address belongs to an instance created by this factory, for a given choreography instance ID % TODO rephrase?
+\end{itemize}
 
-Guards = access checks (Pattern 13)
+Internally, there are a few implementation details worth mentioning.
+Regarding storage, private fields are necessary holding the factory contract addresses, the access contract address as well as the instance address mapping.
+To avoid communication errors at runtime, it should not be possible to call \texttt{createInstance} before all required factory addresses are set.
+Finally, there is one minor implementation difference depending on whether a participant is the \textit{choreography initiator} -- the participant to manually start the choreography instance by sending a request -- or instead is starting its instance as a response to another participant's request: % TODO arrgh bessere formulierung
+The initiator needs to generate the choreography instance ID inside of its \texttt{createInstance} function, and pass it to all its interaction partners.
+Every other participant needs to have a parameter for the ID in their \texttt{createInstance} function.
 
-See github repo for example % TODO
+Communication between smart contracts happens in the form of function calls.
+To allow the factory and instance contracts to call functions on their interaction partner's contracts, the partner's function interface needs to be known, i.e., it needs to be declared in the factory contract source code.
+%- the access contract (same for every participant)
+%- remote factory contracts (if receiving messages from remote, for verification)
+%- remote instance contracts (if sending messages to remote instance)
+
+The instance contract definition is also part of the factory contract source code.
+The factory contract creates an instance by calling its constructor and passing all for the inter-process communication required addresses.
+Instance contracts provide functions for each sending action, i.e., send tasks or events in the company's process, which can be called by the process engine.
+For each receiving action (task or event), a function needs to be present that can be called from other instance contracts.
+When company $A$ triggers a sending function on their instance contract, it in turn calls a corresponding receive function on the instance contract of company $B$.
+
+Instance contracts need to store:
+\begin{itemize}
+	\item The choreography instance ID for verifying incoming messages
+	\item The addresses of the factory and access contracts of partners for verifying incoming messages
+	\item The addresses of the instance contracts of partners for sending messages
+	\item The address of the company's own access contract, for verifying local function calls
+	\item The address of the company's own factory contract, for returning any remaining funds upon \texttt{selfdestruct}
+\end{itemize}
+
+A few more implementation details are worth noting:
+Verification is implemented on sender-side and on receiver side.
+Each send function has a guard checking the caller in the company's own access contract.
+Each receive function has a guard checking a) that the caller is a contract instance that is part of the choreography instance (via the partner factory contract), and b) checking the account behind the request in the partner's access contract.
+Guarding functions against unwanted access was described in pattern 13, Embedded Permission, in \cite{xu2018pattern}.
+
+Having achieved a traceable communication on the blockchain using contract function calls, we still want to access messages in off-chain applications, e.g., triggering process events in a process engine on message receive.
+To this end, smart contracts need to implement events that are omitted to the blockchain whenever a receive function is executed.
+Blockchain events can then be watched, and reacted upon, by off-chain components.
+
+In our current implementation, the end of a process instance is marked by the instance contract selfdestructing.
+At the end of the execution of the last send or receive function in the process, the solidity builtin \texttt{selfdestruct} is called.
+By passing the factory contract address, potential remaining funds are transferred to the factory contract.
 
 \subsubsection{Access Contract}
 
@@ -314,14 +340,10 @@ Access contracts can be deployed per process, or even once per company as a sing
 
 To allow the administration of user permissions, access contracts provide the following interface:
 \begin{itemize}
-	\item
-	      \texttt{assignRoleToUser(userAddress, role)}
-	\item
-	      \texttt{removeRoleFromUser(userAddress, role)}
-	\item
-	      \texttt{assignTaskToRole(task, role)}
-	\item
-	      \texttt{removeTaskFromRole(task, role)}
+	\item \texttt{assignRoleToUser(userAddress, role)}
+	\item \texttt{removeRoleFromUser(userAddress, role)}
+	\item \texttt{assignTaskToRole(task, role)}
+	\item \texttt{removeTaskFromRole(task, role)}
 \end{itemize}
 The access to these functions should be guarded, allowing only a specific administrator address to call them.
 
@@ -332,8 +354,7 @@ Given this interface, there are multiple possible implementation approaches for 
 As it was our main focus to develop a running prototype, and not to provide an optimized, production-ready system, we decided on a simple mapping-based implementation:
 \begin{lstlisting}[
   caption=Mappings in our access contract implementation,
-  language=Solidity,
-  basicstyle=\small
+  language=Solidity
 ]
 pragma solidity ^0.4.23;
 
@@ -355,12 +376,28 @@ One other approach we thought of is based on Pattern 5 of \cite{xu2018pattern} -
 
 \subsection{Tools}
 
-\subsubsection{eth\_admin}
+In the following, we will briefly present the tools we implemented integrate process management with our blockchain approach.
+The implementations can be found in our repository at \url{https://github.com/p-otto/ProcessesMeetBlockchain2018/}, in the \texttt{armadillo} and \texttt{eth\_admin} folders, respectively.
+% TODO repo ist noch private
+% TODO update if repository changes
+% TODO overfull hbox
 
-node-js command line tool using vorpal
-commands trigger blockchain calls using web3
+\subsubsection{Armadillo}
 
-\subsubsection{armadillo}
+As a way of joining process execution with our blockchain architecture, we developed a single page web application in JavaScript and HTML, using the Vue.js framework\footnote{\url{https://vuejs.org}}.
+With the help of the Web3 Ethereum JavaScript API\footnote{\label{web3}\url{https://github.com/ethereum/web3.js/}}, we can trigger contract functions based on user actions in the applications user interface.
+Armadillo also implements the upload and rendering of BPMN diagrams using the bpmn.js toolkit\footnote{\url{https://bpmn.io/toolkit/bpmn-js/}}.
+Building upon the BPMN viewer provided in the toolkit, we implemented the handling of user clicks on tasks, which allowed us to use the viewer as a process engine mock.
+A screencast of the full choreography can be found in the respository under \url{https://github.com/p-otto/ProcessesMeetBlockchain2018/blob/master/presentation/armadillo-screencast.mp4}.
+% TODO repo, hbox etc.
+
+\subsubsection{Eth\_Admin}
+
+We developed a small command line application for managing users and roles via the access contract.
+The application is written in JavaScript in the node.js framework\footnote{\url{https://nodejs.org/}}.
+Internally, calls functions on access contracts utilizing the Web3 Ethereum JavaScript API\textsuperscript{\ref{web3}}.
+We decide to build the command line functionality with the help of the Vorpal framework\footnote{\url{http://vorpal.js.org/}}.
+The README in our repository describes how to use the application.
 
 \section{Evaluation}
 %Gas cost
