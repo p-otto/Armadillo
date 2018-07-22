@@ -41,6 +41,7 @@
 %
 %
 %
+% TODO casing of headlines (capital)
 \section{Introduction}
 
 % Establish common ground with reader Worth readers time? Give some results
@@ -400,18 +401,48 @@ We decide to build the command line functionality with the help of the Vorpal fr
 The README in our repository describes how to use the application.
 
 \section{Evaluation}
-%Gas cost
+
+When evaluating blockchain implementations, the underlying system comes with new aspects that need to be considered.
+First, computation and data storage on the blockchain needs to be paid for in \textit{transaction fees}.
+In Ethereum, the unit \textit{gas} was introduced as a way of having consistent fee pricing in spite of fluctuating Ether prices.
+
+We measured the gas used for each transaction that is executed by the Armadillo tool, and we summed up the gas usage for the different kinds of contracts in the companies in the following table:
+
+\begin{tabular}{l|l|l|l}
+	% TODO
+	a & b & c & d
+\end{tabular}
+
+Most of the transactions have proven to come with reasonable gas costs.
+However, the instantiation cost that is currently paid by the initiator appears to be problematic.
+As the first instantiation transitively triggers all the other participant's instantiations, this can become quite costly, and might even surpass the \textit{gas limit}, the maximum amount of gas that can be spent per transaction.
+Even if that is not the case, a high gas cost is still a problem, since transactions with high gas costs are less likely to be included in a block by miners, possibly leading to long waiting times. % TODO explain?
+
+Second, security is one of the main reasons to opt for blockchain systems.
+In our case, we put effort into making the message exchange secure by adding multiple steps of access verification using the access contracts.
+Access contracts themselves, however, only implement access verification by comparing the sender address with the address the contract was deployed with (the \textit{owner} address).
+As the owner can give and remove access rights freely, another layer of off-chain security might make sense here to restrict the owner account from unwanted access.
+
 %Time for one instance
 %Setup difficulty
-%Security
 
-%Mention problem of giving and removing right to change access rights
-%But in the end one instance has to a be superadmin in the contract, if it is leaked there is a problem
+\section{Future Work}
 
-% future work: 
-% - access contract
-% - instantiation
-% - automatic generation -> template
+We researched a system prototype for handling process choreographies on the blockchain.
+While we were able to execute an example choreography using our implementation, a few aspects are left for future work.
+
+\paragraph{Access Contract}
+
+As stated earlier, there possibly are better ways of implementing a role-based access control inside a smart contract.
+We decided for a simple mapping-based approach, which requires a relatively large amount of memory.
+Finding approaches that are more suited for blockchain architectures is one direction in which further research could go.
+
+\paragraph{Instantiation Costs}
+
+\paragraph{Contract Generation}
+
+\paragraph{Process Engine Integration}
+
 \section{Conclusion}
 
 %
