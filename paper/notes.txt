@@ -1,0 +1,26 @@
+prozessdiagramme zeigen orchestrierungen
+
+verbundene prozessdiagramme -> collaborationsdiagramm, kann sowohl interne orchestrierung als auch choreographie zeigen
+
+choreographiediagramme
+
+choreography = order of interactions
+collaboration can contain private processes
+
+===================================================
+
+check for choreography locks (middleman, supplier, special carrier)
+=> hybrid approach?
+=> adriatik REST choreographies paper
+
+BPMN standard, Weskes buch, P2P paper zitieren
+
+Solidity erklären?
+
+Related work <-> prior work on bpm & blockchain
+
+event payload -> welche daten, datentypen (event-felder), pointer auf ipfs/distributed file system?
+
+xuwei xu: blockchain as implementation platform?
+
+ethereum yellow paper -> costs?
