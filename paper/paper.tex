@@ -444,7 +444,19 @@ Finding approaches that are more suited for blockchain architectures is one dire
 
 \paragraph{Instantiation Costs}
 
+During evaluation, we saw that the instantiation costs are very high, have a potential to hit the gas limit in larger choreographies and also have to be paid by the initiator.
+These problems need to be addressed before our solution is viable for production use.
+One possbile way to distribute the costs among the participants makes use of triggers on the factory contracts.
+Instead of creating all instance contracts transitively, the factory contract would have a method for accepting requests for instantiation.
+The process engine could then react to such a call via a trigger, and call the instantiation method.
+Then the other factory would have to be notified that the instantiation was successful.
+
 \paragraph{Contract Generation}
+
+Currently all contracts are written manually.
+Since the contracts all share the same patterns,  this is a prime candidate for automation.
+A possible implementation could use a rule-based approach for translating the choreography model, similar to \cite{lopez2017caterpillar}.
+This would then automatically generate Solidity code for the access and factory contracts.
 
 \paragraph{Process Engine Integration}
 
