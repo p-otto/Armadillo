@@ -43,6 +43,7 @@
 %
 % TODO casing of headlines (capital)
 \section{Introduction}
+% TODO: rewrite introduction
 
 % Establish common ground with reader Worth readers time? Give some results
 
@@ -74,6 +75,7 @@ Current approaches aim to convert the functionality of traditional BPMN Engines 
 
 Caterpillar~\cite{lopez2017caterpillar} features the implementation of most common BPMN elements. It enables the transformation of BPMN Models to smart contracts, which can be deployed and executed on the Blockchain.
 
+% TODO write more here
 Weber et al.~\cite{weber2016untrusted} realize Orchestrations on the Blockchain.
 
 %What is our general Idea?
@@ -86,6 +88,7 @@ In the following section we present concepts and technologies that are related t
 
 \subsection{Orchestrations and Choreographies}
 
+% TODO improve wording
 When speaking about a Buisiness Process with multiple participants, there are generally two types of perspectives the Process Model can have: Orchestrations and Choreographies.
 Orchestrations view the Process from a central perspective, and contain only one main pool which the process is focused around. 
 They describe the internal process of an organization represented by the pool.
@@ -103,8 +106,10 @@ Thus every step in the process is managed by this central contract.
 The contract also holds an internal state of the process.
 By our interpretation of the terms, this would not be a choreography but an orchestration.
 Therefore we wanted to implement a solution, which models each pool seperately as their own entity, including having their own contracts.
-Our goal is to decrease the amount trust needed between the communication partners.
+Our goal is to decrease the amount of trust needed between the communication partners.
 By giving every pool their own set of contracts, we can make sure that every pool has control over the part of the process that is most relevant to them.
+
+% TODO write about public and private processes
 
 \subsection{Blockchain}
 A blockchain is a distributed ledger that allows users to find a concensus in decentralized applications.
@@ -216,7 +221,7 @@ Either there is one access contract per process or access contracts are shared o
 
 %TODO add a step where other factory contracts are set
 Each organization needs to perform some setup before they can take part in a process execution.
-An access contract and a factory contract for a process need to be deployed it it has not been done yet.
+An access contract and a factory contract for a process need to be deployed, if it has not been done yet.
 Additionally, the user-to-role and and task-to-role mappings have to be updated, to allow verification of users during the process execution.
 A diagram of this process can be seen in Figure \ref{fig:initialization}.
 
@@ -325,7 +330,7 @@ Each receive function has a guard checking a) that the caller is a contract inst
 Guarding functions against unwanted access was described in pattern 13, Embedded Permission, in \cite{xu2018pattern}.
 
 Having achieved a traceable communication on the blockchain using contract function calls, we still want to access messages in off-chain applications, e.g., triggering process events in a process engine on message receive.
-To this end, smart contracts need to implement events that are omitted to the blockchain whenever a receive function is executed.
+To this end, smart contracts need to implement events that are emitted to the blockchain whenever a receive function is executed.
 Blockchain events can then be watched, and reacted upon, by off-chain components.
 
 In our current implementation, the end of a process instance is marked by the instance contract selfdestructing.
