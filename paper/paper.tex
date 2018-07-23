@@ -393,7 +393,7 @@ The implementations can be found in our repository at \url{https://github.com/p-
 As a way of joining process execution with our blockchain architecture, we developed a single page web application in JavaScript and HTML, using the Vue.js framework\footnote{\url{https://vuejs.org}}.
 With the help of the Web3 Ethereum JavaScript API\footnote{\label{web3}\url{https://github.com/ethereum/web3.js/}}, we can trigger contract functions based on user actions in the applications user interface.
 Armadillo also implements the upload and rendering of BPMN diagrams using the bpmn.js toolkit\footnote{\url{https://bpmn.io/toolkit/bpmn-js/}}.
-Building upon the BPMN viewer provided in the toolkit, we implemented the handling of user clicks on tasks, which allowed us to use the viewer as a process engine mock.
+Building upon the BPMN viewer provided in the toolkit, we implemented the handling of user clicks on \textit{BPMN Service Tasks}, which allowed us to use the viewer as a process engine mock.
 A screencast of the full choreography can be found in the respository under \url{https://github.com/p-otto/ProcessesMeetBlockchain2018/blob/master/presentation/armadillo-screencast.mp4}.
 % TODO repo, hbox etc.
 
@@ -436,13 +436,12 @@ As the owner can give and remove access rights freely, another layer of off-chai
 We researched a system prototype for handling process choreographies on the blockchain.
 While we were able to execute an example choreography using our implementation, a few aspects are left for future work.
 
-\paragraph{Access Contract}
+\subsubsection{Instantiation Costs}
 
-As stated earlier, there possibly are better ways of implementing a role-based access control inside a smart contract.
-We decided for a simple mapping-based approach, which requires a relatively large amount of memory.
-Finding approaches that are more suited for blockchain architectures is one direction in which further research could go.
-
-\paragraph{Instantiation Costs}
+In the evaluation, we realized that the instantiation cost currently is too high for our system to be used in a productive environment.
+Further research thus could be invested into a more decentralized instantiation, where each participant pays for its own instance contract creation.
+One approach we discussed, but did not have the time to implement, would be to have the intiator emit a specific instance creation event that each other participant would listen to.
+Then, a trigger could be implemented, that calls the \texttt{createInstance} method as soon as the event is received.
 
 During evaluation, we saw that the instantiation costs are very high, have a potential to hit the gas limit in larger choreographies and also have to be paid by the initiator.
 These problems need to be addressed before our solution is viable for production use.
@@ -451,17 +450,41 @@ Instead of creating all instance contracts transitively, the factory contract wo
 The process engine could then react to such a call via a trigger, and call the instantiation method.
 Then the other factory would have to be notified that the instantiation was successful.
 
-\paragraph{Contract Generation}
+\subsubsection{Access Contract}
+
+As stated earlier, there possibly are better ways of implementing a role-based access control inside a smart contract.
+We decided for a simple mapping-based approach, which requires a relatively large amount of memory.
+Finding approaches that are more suited for blockchain architectures is one direction in which further research could go.
+
+\subsubsection{Process Contract Generation}
+
+Our contract implementations are the result of manual, iterative development.
+Having reached the final iteration, we realized that most of the implementation could probably be generated, i.e., from a choreography diagram (or at least from the participant's public processes).
+The next step would be to define a template for the factory contract source code, to determine which parts are easily generated, and which parts might need manual adjustments, e.g., depending on whether the participant is the initiator or not.
+Given such a template, one could work on a contract generation tool that takes a diagram as input and produces factory contract code.
 
 Currently all contracts are written manually.
 Since the contracts all share the same patterns,  this is a prime candidate for automation.
 A possible implementation could use a rule-based approach for translating the choreography model, similar to \cite{lopez2017caterpillar}.
 This would then automatically generate Solidity code for the access and factory contracts.
 
-\paragraph{Process Engine Integration}
+\subsubsection{Process Engine Integration}
+
+In related work \cite{lopez2017caterpillar}, process logic was executed on the blockchain.
+As we decided for a hybrid approach, using a process engine for execution and the Ethereum blockchain for traceable message passing, we implemented a mock process engine in our application.
+Now, it certainly makes sense to integrate the system with a productive process engine implementation, e.g., the Camunda BPMN Workflow Engine\footnote{\url{https://camunda.com/products/bpmn-engine}} for further evaluation.
 
 \section{Conclusion}
 
+In this paper, we presented a system architecture and prototypical implementation for connecting process execution with blockchain technology.
+While keeping the process execution off-chain, we developed an approach of inter-process communication using the Ethereum blockchain as a messaging channel.
+Having a permanent ledger as the underlying data structure storing messages, faults and misunderstandings can be traced back to their origin and responsibilities are disclosed.
+
+Building on the findings of this paper, improvements regarding runtime and execution costs open up a wide area of possible future work on the topic.
+
+Currently, blockchain technology is most widely used to handle monetary transactions.
+Instead of shifting assets between partners, however, we are using the blockchain to shift \textit{responsibilities}.
+Given the similar nature of the two, we speculate that this topic is of future relevance.
 %
 % ---- Bibliography ----
 %
