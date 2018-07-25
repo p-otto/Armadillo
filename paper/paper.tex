@@ -145,6 +145,7 @@ Smart contracts can also not communicate with anything outside the blockchain.
 %TODO short text on the paper which shows smart contract examples
 %TODO short text on solidity
 
+% TODO search for more papers, such as Optimized execution of business processes on blockchain
 \subsection{Prior Work on Business Processes on the Blockchain}
 In \cite{weber2016untrusted}, a first approach of monitoring and coordinating business process interactions across organizations on the blockchain was presented.
 Using a smart contract as a central \emph{monitor} or \emph{mediator} of the communication, a form of inter-process orchestration is implemented.
@@ -178,15 +179,9 @@ Processes can be started and executed via a user interface, which calls the gene
 We propose a system design, that allows choreographies to be executed publicly on the blockchain.
 In the following section, we describe our approach and its architecture.
 
-%basic understanding/ intuition
-%-> make orchestration possible
-
-% Decentralized contracts vs. central monitor
-% Engine on chain vs. message channel
-
-%use one contuous example
-
-%visualizations !!
+\section{Requirements}
+% refer to presentation here
+% TODO Vielleicht könnt ihr ganz am Anfang einen Überblick geben was das System erfüllen muss, wie das geschieht erklärt ihr dann in den  Unterkapiteln
 
 \subsection{System overview}
 \begin{figure}
@@ -200,8 +195,8 @@ Every organization provides an interface of their public process in an \emph{ins
 Additionally, \emph{factory contracts} manage these instance contracts and \emph{access contracts} are used for rights management.
 The contract structure will be described in detail in the following sections.
 We assume that all participating organizations use a process engine to execute their private processes.
-When a throw event is triggered within a process engine, a \emph{throw event function} is called on an instance contract and the corresponding \emph{catch event function} is called on the instance contract of the organization responsible for catching the event.
-Thus, the public processes of all organizations are recorded on the blockchain.
+When a throw event is triggered within a process engine, the process engine calls the \emph{throw event function} on an instance contract and the corresponding \emph{catch event function} is called on the instance contract of the organization responsible for catching the event.
+Thus, all communication between organizations is recorded on the blockchain.
 
 %TODO reference "trigger" from Untrusted paper
 Each organization uses a \emph{trigger} that continuously listens to catch events.
@@ -264,7 +259,7 @@ The organizations that did not start the instance creation can detect the new pr
 \end{figure}
 
 %TODO correctly show that the address is passed instead of using msg.sender
-When a throw event is triggered in the process engine of organization $A$, the corresponding \emph{throw event function} is called on the instance contract of the collaboration partner $B$.
+When a throw event is triggered in the process engine of organization $A$, the process engine of $A$ calls the corresponding \emph{throw event function} on the instance contract of organization $A$.
 In the instance contract of $A$ an authorization is performed by looking up the sender address in the access contract of $A$.
 If this check is successful, the \emph{catch event function} is called on the partner instance contract of $B$.
 In the instance contract of $B$ there is another authorization against the access contract of $A$.
