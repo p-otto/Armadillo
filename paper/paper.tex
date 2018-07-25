@@ -449,7 +449,7 @@ While we were able to execute an example choreography using our implementation, 
 
 In the evaluation, we realized that the instantiation cost currently is too high for our system to be used in a productive environment.
 Further research thus could be invested into a more decentralized instantiation, where each participant pays for its own instance contract creation.
-One approach we discussed, but did not have the time to implement, would be to have the intiator emit a specific instance creation event that each other participant would listen to.
+One apporach worth considering is to have the intiator emit a specific instance creation event that each other participant would listen to.
 Then, a trigger could be implemented, that calls the \texttt{createInstance} method as soon as the event is received.
 
 During evaluation, we saw that the instantiation costs are very high, have a potential to hit the gas limit in larger choreographies and also have to be paid by the initiator.
