@@ -268,7 +268,7 @@ If this check was also successful, an event is emitted to the blockchain.
 This will be detected by the trigger of $B$ and passed to the process engine.
 Thus, a message was sent from $A$ to $B$ via the blockchain and an audit trail was created.
 An example can be seen in the sequence diagram in Figure \ref{fig:event_sending}.
-
+% TODO explain how payload could look like
 
 \section{Implementation}
 
@@ -395,6 +395,8 @@ The implementations can be found in our repository at \url{https://github.com/p-
 % TODO update if repository changes
 % TODO overfull hbox
 
+
+% TODO include screenshot
 \subsubsection{Armadillo}
 
 As a way of joining process execution with our blockchain architecture, we developed a single page web application in JavaScript and HTML, using the Vue.js framework\footnote{\url{https://vuejs.org}}.
@@ -409,7 +411,7 @@ A screencast of the full choreography can be found in the respository under \url
 We developed a small command line application for managing users and roles via the access contract.
 The application is written in JavaScript in the node.js framework\footnote{\url{https://nodejs.org/}}.
 Internally, calls functions on access contracts utilizing the Web3 Ethereum JavaScript API\textsuperscript{\ref{web3}}.
-We decide to build the command line functionality with the help of the Vorpal framework\footnote{\url{http://vorpal.js.org/}}.
+We decided to build the command line functionality with the help of the Vorpal framework\footnote{\url{http://vorpal.js.org/}}.
 The README in our repository describes how to use the application.
 
 \section{Evaluation}
