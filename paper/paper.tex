@@ -135,9 +135,13 @@ The use in cryptocurrency has laid the foundation for a number of decentralized 
 Ethereum \cite{wood2014ethereum} is a cryptocurrency that also builds on blockchain technologies and allows users to execute code in the form of \emph{smart contracts}.
 Smart contracts are Turing complete code artifacts, that can be deployed on the blockchain and have an interface that is callable by users.
 They can receive and send money, store information locally and emit events on the blockchain ledger.
+These events contain pieces of information that are permanently stored publicly on the blockchain.
+External programs can watch, and react to, these events.
 When calling functions on a smart contract, users have to supply \emph{gas}, a unit that powers smart contract computations.
 Contracts deplete gas for each operation and return excess gas back to the user.
 This ensures that contracts are not running for an unlimited amount of time and that computations on the blockchain are expensive in order to avoid unnecessary operations being performed on-chain.
+Because of the gas limit and high price, the computational power of smart contracts is very limited.
+Smart contracts can also not communicate with anything outside the blockchain.
 %TODO short text on the paper which shows smart contract examples
 %TODO short text on solidity
 
