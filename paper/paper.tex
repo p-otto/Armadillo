@@ -48,7 +48,7 @@ In BPM, Process models are used to document how these goals can be reached, visu
 By sharing process models with their employees, organizations can ensure a common understanding of the work that needs to be done.
 
 % What is BPMN?
-Business Process Model and Notation (BPMN) is a standard notation for process models \cite{omg2014bpmn}.
+Business Process Model and Notation (BPMN) is a standard notation for process models~\cite{omg2014bpmn}.
 It provides building blocks for the modeling of complex intra- and inter-business processes.
 As BPM is not limited internal procedures, but also considers communication with external partners, BPMN can be used to model the message exchange needed for sucessful cooperation.
 
@@ -64,15 +64,15 @@ A Blockchain is a decentralized information storage network.
 Information is stored in blocks, which are chained together via cryptograhic means.
 In this network, many participants can agree on a public common state of information without trusting each other.
 Blockchain technology is commonly used to realize virtual currencies, also called cryptocurrencies.
-Ethereum \cite{wood2014ethereum} is one implementation of the Blockchain concept which also realizes a feature called smart contracts.
+Ethereum~\cite{wood2014ethereum} is one implementation of the Blockchain concept which also realizes a feature called smart contracts.
 Smart contracts are small programs that are executed by the nodes in the Blockchain network.
 They have very limited processing power, but they enable the execution of code which has a commonly known state.
 
 %What problems are there with BPMN that can be solved with Blockchain?
 Blockchain features can be used to facilitate trusted communication between untrusted parties in Business Process Management.
-% What approaches exist currently (Caterpillar \cite{lopez2017caterpillar}, Untrusted paper \cite{weber2016untrusted})
+% What approaches exist currently (Caterpillar~\cite{lopez2017caterpillar}, Untrusted paper~\cite{weber2016untrusted})
 Existing approaches aim to bring BPM functionality to the Ethereum Blockchain utilizing smart contracts.
-Weber et al. \cite{weber2016untrusted}, e.g., realize process orchestrations on the Blockchain using a smart contract as the mediator for messages and execution state.
+Weber et al.~\cite{weber2016untrusted}, e.g., realize process orchestrations on the Blockchain using a smart contract as the mediator for messages and execution state.
 % What is our general Idea?
 We expand on the work of Weber et al. and implement process choreographies, where instead of one central mediator, each party provides their own smart contracts.
 Communication then happens directly between the partner's contracts instead of going through a central instance.
@@ -95,7 +95,7 @@ Managing interactions between process participants is a core feature of BPM
 Business processes with multiple participants can be modeled in BPMN using collaboration models.
 Such models include the businesses' \emph{public processes}, i.e., the BPMN tasks and events describing the sending and receiving of messages, as well as the message flow between the participants.
 While not directly part of the interaction, they can also depict \emph{private processes}, i.e., tasks and control flows that are internally executed before or after sending or receiving a message.
-An example can be seen in Figure \ref{collaborationexample}. % TODO reference example here
+An example can be seen in Figure \ref{fig:collaboration}.
 
 The execution of a collaboration model can be implemented either as an \emph{orchestration}, or as a \emph{choreography}.
 In a process orchestration, the execution is controlled by a central instance.
@@ -112,7 +112,7 @@ A blockchain is a distributed ledger that allows users to find a consensus in de
 Information is stored in a linked list of blocks and shared between all participants, i.e., all nodes in a decentralized computer network.
 By only allowing new blocks to be appended to the list, a non-rewritable history is created, that at the same time represents the "truth", the common state all nodes in the network agree on.
 There are multiple approaches of determining who is allowed to append a new block, altering the state.
-The most common one, currently employed for example by Bitcoin \cite{nakamoto2008bitcoin} and Ethereum \cite{wood2014ethereum}, is called \emph{proof of work}:
+The most common one, currently employed for example by Bitcoin~\cite{nakamoto2008bitcoin} and Ethereum~\cite{wood2014ethereum}, is called \emph{proof of work}:
 Each new block has to contain a signature that verifies the block order.
 The signature is created using data from the preceding block and is by design mathematically hard to calculate, but easy to verify.
 On the one hand, this results in a race between so called \emph{mining} nodes who try and calculate such a signature, as the first valid signature verifies the new block's position and stores it's data on the ledger.
@@ -121,9 +121,9 @@ On the other hand, other nodes can easily verify the signature and come to a con
 If the same block is signed at the same time, a fork of the blockchain is created, where two versions of the blockchain exist at the same time.
 Consensus is then reached when new blocks are appended, propagating the longest blockchain within the network until it is accepted by all parties.
 
-Blockchain technology is mainly used for cryptocurrencies, most notably Bitcoin \cite{nakamoto2008bitcoin}.
+Blockchain technology is mainly used for cryptocurrencies, most notably Bitcoin~\cite{nakamoto2008bitcoin}.
 In more recent developments however, they are used as a foundation for a number of other decentralized applications.
-Ethereum \cite{wood2014ethereum} is a platform that uses a blockchain as the underlying system, but further allows users write and execute code in the form of \emph{smart contracts}.
+Ethereum~\cite{wood2014ethereum} is a platform that uses a blockchain as the underlying system, but further allows users write and execute code in the form of \emph{smart contracts}.
 Smart contracts are Turing complete code artifacts that can be deployed on the blockchain and are accessible by accounts in the Ethereum platform.
 When called by a user account or another contract, they can perform calculations, send or receive money, or store information on the blockchain ledger either directly or in the form of \emph{events}.
 Events are publicly visible and can be watched by off-chain applications, allowing external programs to react to blockchain state changes.
@@ -138,60 +138,52 @@ Because of the gas limit and high execution cost, the computational power of sma
 Smart contracts are executed in the \emph{Ethereum virtual machine (EVM)}.
 As such, they contain byte code that is interpreted by the VM.
 When developing smart contracts, there are multiple languages that compile to EVM bytecode, the most prominent one currently being \emph{Solidity}\footnote{\url{https://github.com/ethereum/solidity}}, which we also chose to implement our protoype.
-Xu et al. present patterns and examples for Solidity programming in \cite{xu2018pattern}, which we used as orientation during development.
+Xu et al. present patterns and examples for Solidity programming in~\cite{xu2018pattern}, which we used as orientation during development.
 
-
-% TODO search for more papers, such as Optimized execution of business processes on blockchain
 \subsection{Prior Work on Business Processes on the Blockchain}
-In \cite{weber2016untrusted}, a first approach of monitoring and coordinating business process interactions across organizations on the blockchain was presented.
+In~\cite{weber2016untrusted}, a first approach of monitoring and coordinating business process interactions across organizations on the blockchain was presented.
 Using a smart contract as a central \emph{monitor} or \emph{mediator} of the communication, a form of inter-process orchestration is implemented.
-They describe a contract architecture, where a factory contract is responsible for deploying instance contracts for each process instance.
-They also introduce the concept of \emph{triggers}, applications that listen to events on the blockchain and trigger external API calls.
-In order to achieve BPMN-to-Solidity compilation, they describe translation rules to transform BPMN elements to Solidity code.
+The mediator is also responsible for role management, i.e., participants can register users to certain roles with the mediator, who verifies these roles at runtime.
+The architecture features factory contracts, which are responsible for deploying instance contracts for each process instance.
+For integrating blockchain and BPM applications, the concept of \emph{triggers} is introduced: Applications that watch events on the blockchain and trigger external API calls.
 
-One of the main ways our solution differs from the solution of Weber et al. \cite{weber2016untrusted} is in the way we implement collaboration models.
-Weber et al. implement choreographies by means of a central mediator/monitor contract, where every step in the process is managed by this central contract.
-The contract also holds an internal state of the process.
-As explained above, this means they realize the collaboration model with an orchestration.
-Thus, our goal was to implement the collaboration models as choreographies.
-Therefore we developed a solution, which models each pool seperately as their own entity, including having their own contracts.
-This decreases the amount of trust needed between the communication partners.
-By giving every pool their own set of contracts, we can make sure that every pool has control over the part of the process that is most relevant to them.
+We built our implementation based on these concepts.
+However, our solution differs from the solution in~\cite{weber2016untrusted} in the way we realize the execution of collaboration models.
+As stated before, Weber et al. employ the central mediator contract, managing execution steps and internal state of the collaboration, achieving the orchestration of a business process collaboration.
+Our goal on the other hand was to implement the collaboration as a choreography, where each participant is represented by their own contracts, and is able to verify the integrity of their interaction partners.
+Thus, a central mediator is no longer needed, also resolving the question of who is responsible for the development, deployment and maintenance of the mediator contract.
 
-%TODO highlight lack of access right explanation and problem of central contract?
+In order to achieve BPMN-to-Solidity compilation,~\cite{weber2016untrusted} also describes translation rules to transform BPMN elements to Solidity code.
+In~\cite{banuelos2017optimized}, these translation rules are further optimized to reduce Ethereum transaction costs and runtime. %TODO is this correct?
 
-%we build on:
-%factories \& instances
-%registering users to roles
-%triggers
-%the model they used (originally from Fdhila et al)
+We have not made an automated translation our primary goal.
+Instead, we focussed on designing an architecture that allows for the above mentioned choreography implementation.
+However, we believe that an at least semi-automatic translation process can be derived from our results.
 
-%we don\'t:
-%do bpmn solidity translation
-%use one central contract instance
-
-%summarize Caterpillar
-%acknowledge their Work
-%display the shortcomings
-
-Caterpillar~\cite{lopez2017caterpillar} is an implementation of a process engine using smart contracts, handling the most common BPMN elements.
+Caterpillar~\cite{lopez2017caterpillar} is an open source implementation of a process engine using smart contracts, handling the most common BPMN elements.
+Building on the BPMN-to-Solidity compilation from~\cite{weber2016untrusted}, it integrates translation, deployment and execution of BPMN models in the form of smart contracts directly on the Ethereum Blockchain.
 It also allows a translation of BPMN Models to smart contracts, which can be deployed and executed directly on the Ethereum Blockchain.
+Processes can be started and executed via a user interface, which encapsulates the calls the generated Solidity code in the background.
 
-
-
-\cite{lopez2017caterpillar} presents an open-source implementation of an Ethereum-based Business Process Management System.
-It implements BPMN-to-Solidity compilation and thereby tracks the state of process executions on the blockchain.
-Processes can be started and executed via a user interface, which calls the generated Solidity code in the background.
-
-%describes components and architecture of engine
-%automatic bpmn solidity translation
-%no choreographies / lanes supported, all tasks / transitions are managed on-chain through process %contract
+Our approach is different in that we do not try to use the Ethereum platform as a process engine, but rather use it only for message passing, and integrate it with an off-chain process engine.
+Caterpillar also currently does not support the execution of process interactions.
 
 \subsection{Use Case}
 
-% TODO include example here (collab model from weber paper)
+Since we build on a lot of the work in~\cite{weber2016untrusted}, we decided to also continue with the example collaboration\footnote{A supply chain scenario reported originally in~\cite{fdhila2015collaborative}, which was simplified in~\cite{weber2016untrusted}.} used there.
+Because we implemented contracts for each participant, we needed to expand the collapsed pool for the \emph{Bulk Buyer}, and add tasks and events for the corresponding public process.
+We added a new lane to the \emph{Manufacturer's} process for demonstration of the role management we implemented.
+The result is depicted in Figure \ref{fig:collaboration}.
+
+When we present the implementation, the tasks that are modeled as BPMN message sends in the collaboration model will instead be modeled as \emph{BPMN service tasks} in the separate processes.
+This decision is based on the notion that in our implementation, all sends are a call to the Ethereum platform, which acts as the external service and takes over the actual messaging.
+This implementation detail is not relevant in the collaboration view, though, where we are concerned with the interactions.
+
 \begin{figure}
-	\label{collaborationexample}
+	\centering
+	\includegraphics[width=\textwidth]{fig/collaboration.eps}
+	\caption{Supply chain scenario from~\cite{weber2016untrusted} (modified).}
+	\label{fig:collaboration}
 \end{figure}
 
 \section{Solution Approach} \label{solutionapproach}
@@ -217,8 +209,7 @@ We assume that all participating organizations use a process engine to execute t
 When a throw event is triggered within a process engine, the process engine calls the \emph{throw event function} on an instance contract and the corresponding \emph{catch event function} is called on the instance contract of the organization responsible for catching the event.
 Thus, all communication between organizations is recorded on the blockchain.
 
-%TODO reference "trigger" from Untrusted paper
-Each organization uses a \emph{trigger} that continuously listens to catch events.
+Each organization deploys a \emph{trigger} application that continuously listens to catch events (as described in \cite{weber2016untrusted}).
 If a catch event is observed, this information is relayed to the process engine to handle the event.
 The usage of the blockchain to monitor the choreography is encapsulated in the process engine and is therefore hidden from the users.
 
@@ -305,7 +296,7 @@ The implemented contracts can be found in our repository at \url{https://github.
 
 For taking part in the process collaboration, each company needs to deploy a factory contract that is responsible for creating instance contracts.
 To this end, the factory contract source code needs to contain the definition of the company's instance contract.
-This closely follows the factory contract pattern used in \cite{weber2016untrusted}, and described as Pattern 14 in \cite{xu2018pattern}.
+This closely follows the factory contract pattern used in~\cite{weber2016untrusted}, and described as Pattern 14 in~\cite{xu2018pattern}.
 
 In our implementation, a company's factory contract also knows the address of the company's access contract for convenience.
 Additionally, it stores the addresses of created instances, mapped by a \emph{choreography instance ID}, i.e., an ID that is shared between all choreography participants for each instance of the shared choreography.
@@ -353,7 +344,7 @@ A few more implementation details are worth noting:
 Verification is implemented on sender-side and on receiver side.
 Each send function has a guard checking the caller in the company's own access contract.
 Each receive function has a guard checking a) that the caller is a contract instance that is part of the choreography instance (via the partner factory contract), and b) checking the account behind the request in the partner's access contract.
-Guarding functions against unwanted access was described in pattern 13, Embedded Permission, in \cite{xu2018pattern}.
+Guarding functions against unwanted access was described in pattern 13, Embedded Permission, in~\cite{xu2018pattern}.
 
 Having achieved a traceable communication on the blockchain using contract function calls, we still want to access messages in off-chain applications, e.g., triggering process events in a process engine on message receive.
 To this end, smart contracts need to implement events that are emitted to the blockchain whenever a receive function is executed.
@@ -366,7 +357,7 @@ By passing the factory contract address, potential remaining funds are transferr
 \subsubsection{Access Contract}
 
 Each company deploys an access contract that holds information about the roles and permissions of the company's employees.
-Having permission data encapsuled in a separate access contract follows pattern 12, the Data Contract pattern, from \cite{xu2018pattern}.
+Having permission data encapsuled in a separate access contract follows pattern 12, the Data Contract pattern, from~\cite{xu2018pattern}.
 It allows decoupling the roles and permissions from the actual contract instances, allowing for a simple modification at runtime.
 Access contracts can be deployed per process, or even once per company as a single source of truth for all processes.
 
@@ -404,7 +395,7 @@ The third mapping assigns such an access bitmask to each user.
 Storing large amounts data on the blockchain is expensive by design.
 As the mappings grow in size with each user, role and task that is part of some process in the company, our implementation is probably not suited for real-world application.
 Finding optimized, less costly (both in computation cost and storage cost) approaches is part of future work.
-One other approach we thought of is based on Pattern 5 of \cite{xu2018pattern} - depicting real world permissions as tokens, and "paying" with these tokens on function call to verify one's role.
+One other approach we thought of is based on Pattern 5 of~\cite{xu2018pattern} - depicting real world permissions as tokens, and "paying" with these tokens on function call to verify one's role.
 
 \subsection{Tools}
 
@@ -431,7 +422,7 @@ We developed a small command line application for managing users and roles via t
 The application is written in JavaScript in the node.js framework\footnote{\url{https://nodejs.org/}}.
 Internally, calls functions on access contracts utilizing the Web3 Ethereum JavaScript API\textsuperscript{\ref{web3}}.
 We decided to build the command line functionality with the help of the Vorpal framework\footnote{\url{http://vorpal.js.org/}}.
-The README in our repository describes how to use the application.
+The \texttt{README} in our repository describes how to use the application.
 
 \section{Evaluation} \label{evaluation}
 
@@ -460,6 +451,7 @@ As the owner can give and remove access rights freely, another layer of off-chai
 %Setup difficulty
 
 \section{Future Work} \label{futurework}
+% TODO merge duplicated content
 
 We researched a system prototype for handling process choreographies on the blockchain.
 While we were able to execute an example choreography using our implementation, a few aspects are left for future work.
@@ -493,12 +485,12 @@ Given such a template, one could work on a contract generation tool that takes a
 
 Currently all contracts are written manually.
 Since the contracts all share the same patterns,  this is a prime candidate for automation.
-A possible implementation could use a rule-based approach for translating the choreography model, similar to \cite{lopez2017caterpillar}.
+A possible implementation could use a rule-based approach for translating the choreography model, similar to~\cite{lopez2017caterpillar}.
 This would then automatically generate Solidity code for the access and factory contracts.
 
 \subsubsection{Process Engine Integration}
 
-In related work \cite{lopez2017caterpillar}, process logic was executed on the blockchain.
+In related work~\cite{lopez2017caterpillar}, process logic was executed on the blockchain.
 As we decided for a hybrid approach, using a process engine for execution and the Ethereum blockchain for traceable message passing, we implemented a mock process engine in our application.
 Now, it certainly makes sense to integrate the system with a productive process engine implementation, e.g., the Camunda BPMN Workflow Engine\footnote{\url{https://camunda.com/products/bpmn-engine}} for further evaluation.
 
