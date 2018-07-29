@@ -41,21 +41,6 @@
 \end{abstract}
 %
 \section{Introduction}
-% TODO: rewrite introduction
-
-% Establish common ground with reader Worth readers time? Give some results
-
-% Write it once at the start, then rewrite at the end
-% use it to guide paper
-
-% Important -> this structure will be expected
-
-% Context (Topic / Terminology)
-% Problem & Relevance (Problem - Costs / Current state - Gain)
-% Related Work (Existing solutions / Shortcomings)
-% Goals / Claims (Contribution, Sketch Results)
-% Paper structure (The remainder of this paper is structured as follows ...)
-
 % BPM
 Business Process Management (BPM) allows organizations to identify, structure and understand the tasks and processes they employ to achieve their business goals.
 %Process Models
@@ -100,60 +85,61 @@ In Section \ref{evaluation} we evaluate our solution.
 Finally, Section \ref{futurework} will present future work and Section \ref{conclusion} will conclude the paper.
 
 \section{Preliminary} \label{preliminary}
-% TODO include example here (collab model from weber paper)
+
 In the following section we present concepts and technologies that are related to our work.
 
-\subsection{Orchestrations and Choreographies}
+\subsection{Process Interaction}
 
-% TODO improve wording
-% TODO reference Weskes book or smth
-Buisiness Processes with multiple participants are modeled using collaboration models, an example can be seen in Figure X. % TODO reference example here
-These collaboration models can be implemented in two variants: As orchestrations, or as choreographies.
-Orchestrations view the Process from a central perspective, most commonly either the central pool which the collaboration focuses on, or the process initiator.
-The main pool inhibits the role of a mediator or manager, dictating and guiding the execution.
-Thus the process has a clear, well-defined order in which tasks have to be executed.
-This also means, that the process always has a clear state of execution.
+Managing interactions between process participants is a core feature of BPM
+\cite{Weske2012}. % TODO improve with book
+Business processes with multiple participants can be modeled in BPMN using collaboration models.
+Such models include the businesses' \emph{public processes}, i.e., the BPMN tasks and events describing the sending and receiving of messages, as well as the message flow between the participants.
+While not directly part of the interaction, they can also depict \emph{private processes}, i.e., tasks and control flows that are internally executed before or after sending or receiving a message.
+An example can be seen in Figure \ref{collaborationexample}. % TODO reference example here
 
-In a choreography, the participants are much more independent.
-Each participant is its own seperate entity in the implemenation, leading to asynchronous execution and communication.
-Thus, there is also no clear order or state, because the participants are acting and communicating independent of others.
-
-One of the main ways our solution differs from the solution of Weber et al.~\cite{weber2016untrusted} is in the way we implement collaboration models.
-Weber et al. implement choreographies by means of a central mediator/monitor contract, where every step in the process is managed by this central contract.
-The contract also holds an internal state of the process.
-As explained above, this means they realize the collaboration model with an orchestration.
-Thus, our goal was to implement the collaboration models as choreographies.
-Therefore we developed a solution, which models each pool seperately as their own entity, including having their own contracts.
-This decreases the amount of trust needed between the communication partners.
-By giving every pool their own set of contracts, we can make sure that every pool has control over the part of the process that is most relevant to them.
-
-% TODO write about public and private processes
+The execution of a collaboration model can be implemented either as an \emph{orchestration}, or as a \emph{choreography}.
+In a process orchestration, the execution is controlled by a central instance.
+Adopting the role of a mediator or manager, this central instance dictates and guides the execution.
+Thus, the execution has a well-defined order of tasks and a clear execution state.
+In a choreography, on the other hand, the participants are acting more independently.
+Communication and execution is not handled by a central instance, but rather by each participant on their own.
+Messages are passed asynchronously without a controlling channel.
+As a result, there is no clear execution state, because each participant drives their own execution.
 
 \subsection{Blockchain}
-A blockchain is a distributed ledger that allows users to find a concensus in decentralized applications.
-It works by splitting information into blocks that are connected as a linked list.
-%TODO proof of work is only one possibility
-%TODO explain more in depth?
-Each block has to be signed in a way that is mathematically hard to calculate, but easy to verify.
-Therefore users can verify if their local blockchain is valid.
-If the same block is signed at the same time, a fork of the blockchain can happen, i.e. two versions of the same blockchain exist at the same time.
-A concensus is reached by propagating the longest blockchain within the network until it is accepted by all parties of the network.
 
-%TODO reference original blockchain paper
-Blockchain technology is used in cryptocurrencies, most notably Bitcoin \cite{nakamoto2008bitcoin}.
-The use in cryptocurrency has laid the foundation for a number of decentralized application besides financial ones.
-Ethereum \cite{wood2014ethereum} is a cryptocurrency that also builds on blockchain technologies and allows users to execute code in the form of \emph{smart contracts}.
-Smart contracts are Turing complete code artifacts, that can be deployed on the blockchain and have an interface that is callable by users.
-They can receive and send money, store information locally and emit events on the blockchain ledger.
-These events contain pieces of information that are permanently stored publicly on the blockchain.
-External programs can watch, and react to, these events.
+A blockchain is a distributed ledger that allows users to find a consensus in decentralized applications.
+Information is stored in a linked list of blocks and shared between all participants, i.e., all nodes in a decentralized computer network.
+By only allowing new blocks to be appended to the list, a non-rewritable history is created, that at the same time represents the "truth", the common state all nodes in the network agree on.
+There are multiple approaches of determining who is allowed to append a new block, altering the state.
+The most common one, currently employed for example by Bitcoin \cite{nakamoto2008bitcoin} and Ethereum \cite{wood2014ethereum}, is called \emph{proof of work}:
+Each new block has to contain a signature that verifies the block order.
+The signature is created using data from the preceding block and is by design mathematically hard to calculate, but easy to verify.
+On the one hand, this results in a race between so called \emph{mining} nodes who try and calculate such a signature, as the first valid signature verifies the new block's position and stores it's data on the ledger.
+Mining nodes get rewarded for finding such signatures, creating an incentive for continuous appending of new blocks and keeping the blockchain alive.
+On the other hand, other nodes can easily verify the signature and come to a consensus regarding the latest state.
+If the same block is signed at the same time, a fork of the blockchain is created, where two versions of the blockchain exist at the same time.
+Consensus is then reached when new blocks are appended, propagating the longest blockchain within the network until it is accepted by all parties.
+
+Blockchain technology is mainly used for cryptocurrencies, most notably Bitcoin \cite{nakamoto2008bitcoin}.
+In more recent developments however, they are used as a foundation for a number of other decentralized applications.
+Ethereum \cite{wood2014ethereum} is a platform that uses a blockchain as the underlying system, but further allows users write and execute code in the form of \emph{smart contracts}.
+Smart contracts are Turing complete code artifacts that can be deployed on the blockchain and are accessible by accounts in the Ethereum platform.
+When called by a user account or another contract, they can perform calculations, send or receive money, or store information on the blockchain ledger either directly or in the form of \emph{events}.
+Events are publicly visible and can be watched by off-chain applications, allowing external programs to react to blockchain state changes.
+This would otherwise not be possible, ss smart contracts can not communicate with anything outside the blockchain.
+
 When calling functions on a smart contract, users have to supply \emph{gas}, a unit that powers smart contract computations.
 Contracts deplete gas for each operation and return excess gas back to the user.
-This ensures that contracts are not running for an unlimited amount of time and that computations on the blockchain are expensive in order to avoid unnecessary operations being performed on-chain.
-Because of the gas limit and high price, the computational power of smart contracts is very limited.
-Smart contracts can also not communicate with anything outside the blockchain.
-%TODO short text on the paper which shows smart contract examples
-%TODO short text on solidity
+This ensures that contracts are not running for an unlimited amount of time, avoiding a dead lock of the platform.
+Computations on the blockchain are expensive in order to avoid unnecessary operations, as all operations have to be performed by each node in the network.
+Because of the gas limit and high execution cost, the computational power of smart contracts is limited.
+
+Smart contracts are executed in the \emph{Ethereum virtual machine (EVM)}.
+As such, they contain byte code that is interpreted by the VM.
+When developing smart contracts, there are multiple languages that compile to EVM bytecode, the most prominent one currently being \emph{Solidity}\footnote{\url{https://github.com/ethereum/solidity}}, which we also chose to implement our protoype.
+Xu et al. present patterns and examples for Solidity programming in \cite{xu2018pattern}, which we used as orientation during development.
+
 
 % TODO search for more papers, such as Optimized execution of business processes on blockchain
 \subsection{Prior Work on Business Processes on the Blockchain}
@@ -162,6 +148,16 @@ Using a smart contract as a central \emph{monitor} or \emph{mediator} of the com
 They describe a contract architecture, where a factory contract is responsible for deploying instance contracts for each process instance.
 They also introduce the concept of \emph{triggers}, applications that listen to events on the blockchain and trigger external API calls.
 In order to achieve BPMN-to-Solidity compilation, they describe translation rules to transform BPMN elements to Solidity code.
+
+One of the main ways our solution differs from the solution of Weber et al. \cite{weber2016untrusted} is in the way we implement collaboration models.
+Weber et al. implement choreographies by means of a central mediator/monitor contract, where every step in the process is managed by this central contract.
+The contract also holds an internal state of the process.
+As explained above, this means they realize the collaboration model with an orchestration.
+Thus, our goal was to implement the collaboration models as choreographies.
+Therefore we developed a solution, which models each pool seperately as their own entity, including having their own contracts.
+This decreases the amount of trust needed between the communication partners.
+By giving every pool their own set of contracts, we can make sure that every pool has control over the part of the process that is most relevant to them.
+
 %TODO highlight lack of access right explanation and problem of central contract?
 
 %we build on:
@@ -190,6 +186,13 @@ Processes can be started and executed via a user interface, which calls the gene
 %describes components and architecture of engine
 %automatic bpmn solidity translation
 %no choreographies / lanes supported, all tasks / transitions are managed on-chain through process %contract
+
+\subsection{Use Case}
+
+% TODO include example here (collab model from weber paper)
+\begin{figure}
+	\label{collaborationexample}
+\end{figure}
 
 \section{Solution Approach} \label{solutionapproach}
 We propose a system design, that allows choreographies to be executed publicly on the blockchain.
@@ -305,7 +308,7 @@ To this end, the factory contract source code needs to contain the definition of
 This closely follows the factory contract pattern used in \cite{weber2016untrusted}, and described as Pattern 14 in \cite{xu2018pattern}.
 
 In our implementation, a company's factory contract also knows the address of the company's access contract for convenience.
-Additionally, it stores the addresses of created instances, mapped by a \textit{choreography instance ID}, i.e., an ID that is shared between all choreography participants for each instance of the shared choreography.
+Additionally, it stores the addresses of created instances, mapped by a \emph{choreography instance ID}, i.e., an ID that is shared between all choreography participants for each instance of the shared choreography.
 
 To allow interaction between companies via the blockchain, two participants need to exchange the addresses of their factory contracts when there is a direct interaction between them.
 
@@ -321,7 +324,7 @@ A factory contract thus has the resulting interface:
 Internally, there are a few implementation details worth mentioning.
 Regarding storage, private fields are necessary holding the factory contract addresses, the access contract address as well as the instance address mapping.
 To avoid communication errors at runtime, it should not be possible to call \texttt{createInstance} before all required factory addresses are set.
-Finally, there is one minor implementation difference depending on whether a participant is the \textit{choreography initiator} -- the participant to manually start the choreography instance by sending a request -- or instead is starting its instance as a response to another participant's request: % TODO arrgh bessere formulierung
+Finally, there is one minor implementation difference depending on whether a participant is the \emph{choreography initiator} -- the participant to manually start the choreography instance by sending a request -- or instead is starting its instance as a response to another participant's request: % TODO arrgh bessere formulierung
 The initiator needs to generate the choreography instance ID inside of its \texttt{createInstance} function, and pass it to all its interaction partners.
 Every other participant needs to have a parameter for the ID in their \texttt{createInstance} function.
 
@@ -418,7 +421,7 @@ The implementations can be found in our repository at \url{https://github.com/p-
 As a way of joining process execution with our blockchain architecture, we developed a single page web application in JavaScript and HTML, using the Vue.js framework\footnote{\url{https://vuejs.org}}.
 With the help of the Web3 Ethereum JavaScript API\footnote{\label{web3}\url{https://github.com/ethereum/web3.js/}}, we can trigger contract functions based on user actions in the applications user interface.
 Armadillo also implements the upload and rendering of BPMN diagrams using the bpmn.js toolkit\footnote{\url{https://bpmn.io/toolkit/bpmn-js/}}.
-Building upon the BPMN viewer provided in the toolkit, we implemented the handling of user clicks on \textit{BPMN Service Tasks}, which allowed us to use the viewer as a process engine mock.
+Building upon the BPMN viewer provided in the toolkit, we implemented the handling of user clicks on \emph{BPMN Service Tasks}, which allowed us to use the viewer as a process engine mock.
 A screencast of the full choreography can be found in the respository under \url{https://github.com/p-otto/ProcessesMeetBlockchain2018/blob/master/presentation/armadillo-screencast.mp4}.
 % TODO repo, hbox etc.
 
@@ -433,8 +436,8 @@ The README in our repository describes how to use the application.
 \section{Evaluation} \label{evaluation}
 
 When evaluating blockchain implementations, the underlying system comes with new aspects that need to be considered.
-First, computation and data storage on the blockchain needs to be paid for in \textit{transaction fees}.
-In Ethereum, the unit \textit{gas} was introduced as a way of having consistent fee pricing in spite of fluctuating Ether prices.
+First, computation and data storage on the blockchain needs to be paid for in \emph{transaction fees}.
+In Ethereum, the unit \emph{gas} was introduced as a way of having consistent fee pricing in spite of fluctuating Ether prices.
 
 We measured the gas used for each transaction that is executed by the Armadillo tool, and we summed up the gas usage for the different kinds of contracts in the companies in the following table:
 
@@ -445,12 +448,12 @@ We measured the gas used for each transaction that is executed by the Armadillo 
 
 Most of the transactions have proven to come with reasonable gas costs.
 However, the instantiation cost that is currently paid by the initiator appears to be problematic.
-As the first instantiation transitively triggers all the other participant's instantiations, this can become quite costly, and might even surpass the \textit{gas limit}, the maximum amount of gas that can be spent per transaction.
+As the first instantiation transitively triggers all the other participant's instantiations, this can become quite costly, and might even surpass the \emph{gas limit}, the maximum amount of gas that can be spent per transaction.
 Even if that is not the case, a high gas cost is still a problem, since transactions with high gas costs are less likely to be included in a block by miners, possibly leading to long waiting times. % TODO explain?
 
 Second, security is one of the main reasons to opt for blockchain systems.
 In our case, we put effort into making the message exchange secure by adding multiple steps of access verification using the access contracts.
-Access contracts themselves, however, only implement access verification by comparing the sender address with the address the contract was deployed with (the \textit{owner} address).
+Access contracts themselves, however, only implement access verification by comparing the sender address with the address the contract was deployed with (the \emph{owner} address).
 As the owner can give and remove access rights freely, another layer of off-chain security might make sense here to restrict the owner account from unwanted access.
 
 %Time for one instance
@@ -508,7 +511,7 @@ Having a permanent ledger as the underlying data structure storing messages, fau
 Building on the findings of this paper, improvements regarding runtime and execution costs open up a wide area of possible future work on the topic.
 
 Currently, blockchain technology is most widely used to handle monetary transactions.
-Instead of shifting assets between partners, however, we are using the blockchain to shift \textit{responsibilities}.
+Instead of shifting assets between partners, however, we are using the blockchain to shift \emph{responsibilities}.
 Given the similar nature of the two, we speculate that this topic is of future relevance.
 %
 % ---- Bibliography ----
