@@ -251,6 +251,8 @@ Lastly, the addresses of the factory contracts of all communication partners nee
 Figure \ref{fig:initialization} shows this setup sequence.
 
 \subsection{Interaction Setup}
+
+%TODO add emit event in the diagram
 \begin{figure}
 	\centering
 	\includegraphics[width=\textwidth]{fig/instance_creation.eps}
@@ -258,13 +260,12 @@ Figure \ref{fig:initialization} shows this setup sequence.
 	\label{fig:instance_creation}
 \end{figure}
 
-In order to create a new process instance, the organization that initiates the instance by triggering the first throw event has to explicitly create an instance contract by calling the factory contract.
-To create an instance contract, the factory contract may need to initialize other instance contracts by calling other factory contracts.
+In order to create a new process instance, the party initiating the choreography has to explicitly create an instance contract by calling the factory contract.
+The factory contract in turn may need to initialize other instance contracts by calling other factory contracts.
 When all partner instance, factory and access contracts are known, the instance contract can be created and its address is returned to the user and an event is emitted to the blockchain.
 This process is visualized in Figure \ref{fig:instance_creation}.
 
-The recursive initialization ensures that all instance contracts that are part of the process instance will be created by one function call.
-%TODO add emit event in the diagram
+The recursive initialization ensures that all contracts that are part of the process instance will be created by one function call.
 All other organizations can detect the created instances by watching the factory contract, using a trigger.
 
 \subsection{Sending Messages}
