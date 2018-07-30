@@ -1,10 +1,10 @@
 # Untrusted B2B Collaboration using the Blockchain
 
-<center>
 Jonas Beyer, Philipp Otto, Sören Tietböhl<br>
 Hasso-Plattner-Institut, Potsdam, Germany<br>
-{jonas.beyer,philipp.otto2,soeren.tietboehl}@student.hpi.de
-</center>
+`{jonas.beyer,philipp.otto2,soeren.tietboehl}@student.hpi.de`<br>
+
+## Information
 
 This repository contains source code and a screencast for our submission for the course "Processes meet Blockchain", which was supervised by Stephan Haarman and Prof. Matthias Weske.
 
