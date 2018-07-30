@@ -10,7 +10,7 @@ paper/*.blg
 paper/*.log
 paper/*.pdf
 paper/*.out
-paper/fig/*.pdf
+paper/fig/*converted-to.pdf
 paper/__latexindent_temp.tex
 paper/*.fdb_latexmk
 paper/*.fls
