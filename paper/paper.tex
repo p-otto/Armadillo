@@ -223,6 +223,7 @@ The usage of the blockchain to monitor the choreography is encapsulated in the p
 The structure of components for one organization can be seen in Figure \ref{fig:system_diagram}.
 
 \subsection{Contract Structure}
+
 To realize the system, we use three kinds of smart contracts.
 Firstly, each organization deploys one \emph{instance contract} per process instance.
 It represents a public process of the organization and is called during the process execution whenever a catch or throw event is reached in the process instance.
@@ -236,19 +237,10 @@ Either there is one access contract per process or access contracts are shared o
 
 \subsection{Per-Company Setup}
 
-%TODO add a step in the diagram where other factory contracts are set
-\begin{figure}
-	\centering
-	\includegraphics[width=0.45\textwidth]{fig/initialization.eps}
-	\caption{A sequence diagram describing the initialization process for an organization.}
-	\label{fig:initialization}
-\end{figure}
-
 Each organization needs to perform certain setup steps before the process execution.
 The factory and access contracts corresponding to the process need to be deployed.
 Additionally, the user-to-role and and task-to-role mappings have to be updated in the access contract (\texttt{giveRights} and \texttt{assignRole}, respectively), to allow verification of users during the process execution.
 Lastly, the addresses of the factory contracts of all communication partners need to be linked in the own factory contract.
-Figure \ref{fig:initialization} shows this setup sequence.
 
 \subsection{Interaction Setup}
 
@@ -256,7 +248,7 @@ Figure \ref{fig:initialization} shows this setup sequence.
 \begin{figure}
 	\centering
 	\includegraphics[width=\textwidth]{fig/instance_creation.eps}
-	\caption{A sequence diagram describing the process of creating a new process instance.}
+	\caption{Example sequence diagram describing the creation of a new process instance in our choreography example.}
 	\label{fig:instance_creation}
 \end{figure}
 
