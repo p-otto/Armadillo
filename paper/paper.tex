@@ -444,7 +444,10 @@ We measured the gas used for each transaction that is executed by the Armadillo 
 		\hline \textbf{Sum}             & 5,022,517        & 438,591           & \textbf{5,461,108} \\ \hline
 	\end{tabular}
 \end{table}
-Because of highly fluctuating exchange rates of USD to ether and ether to gas, the total gas cost varies as well. At the time of writing the total cas cost amounted to \$2.50 according to \url{ethgasstation.info}. 
+
+Because of fluctuating exchange rates of USD to Ether and Ether to gas, the total gas cost varies.
+At the time of writing the total cas cost amounted to \$2.50 according to \url{https://ethgasstation.info}, based on a gas exchange rate of 1 gas = 1 Gwei.
+
 Most of the transactions have proven to come with reasonable gas costs.
 However, the instantiation cost that is currently paid by the initiator appears to be problematic.
 As the first instantiation transitively triggers all the other participant's instantiations, this can become quite costly, and might even surpass the \emph{block gas limit}, the maximum amount of gas that can be spent per new block, depending on the number of participants involved.
