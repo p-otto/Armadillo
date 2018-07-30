@@ -10,6 +10,10 @@
 % to display URLs in blue roman font according to Springer's eBook style:
 \renewcommand\UrlFont{\color{blue}\rmfamily}
 
+% tablespacing
+\renewcommand{\arraystretch}{1.5}
+\setlength\tabcolsep{0.2cm}
+
 \input{solidity-highlighting.tex}
 
 \lstset{basicstyle=\small\ttfamily}
@@ -424,31 +428,37 @@ Internally, calls functions on access contracts utilizing the Web3 Ethereum Java
 We decided to build the command line functionality with the help of the Vorpal framework\footnote{\url{http://vorpal.js.org/}}.
 The \texttt{README} in our repository describes how to use the application.
 
-\section{Evaluation} \label{evaluation}
+\section{Discussion} \label{evaluation}
 
 When evaluating blockchain implementations, the underlying system comes with new aspects that need to be considered.
 First, computation and data storage on the blockchain needs to be paid for in \emph{transaction fees}.
 In Ethereum, the unit \emph{gas} was introduced as a way of having consistent fee pricing in spite of fluctuating Ether prices.
 
-We measured the gas used for each transaction that is executed by the Armadillo tool, and we summed up the gas usage for the different kinds of contracts in the companies in the following table:
+We measured the gas used for each transaction that is executed by the Armadillo tool, and we summed up the gas usage for the different kinds of contracts in the companies in Table \ref{gasusage}:
 
-\begin{tabular}{l|l|l|l}
-	% TODO
-	a & b & c & d
-\end{tabular}
+\begin{table}
+	\centering
+	\caption{Gas used by contracts in the example choreography.} \label{gasusage}
+	\begin{tabular}{|l | c | c | c|}
+		\hline                          & \textbf{Factory} & \textbf{Instance} & \textbf{Sum}       \\
+		\hline \textbf{Bulk Buyer}      & 4,590,569        & 59,396            & 4,649,965          \\
+		\hline \textbf{Manufacturer}    & 129,588          & 124,316           & 253,904            \\
+		\hline \textbf{Middleman}       & 129,586          & 111,189           & 240,775            \\
+		\hline \textbf{Supplier}        & 86,398           & 61,745            & 148,143            \\
+		\hline \textbf{Special Carrier} & 86,376           & 81,945            & 168,321            \\
+		\hline \textbf{Sum}             & 5,022,517        & 438,591           & \textbf{5,461,108} \\ \hline
+	\end{tabular}
+\end{table}
 
 Most of the transactions have proven to come with reasonable gas costs.
 However, the instantiation cost that is currently paid by the initiator appears to be problematic.
-As the first instantiation transitively triggers all the other participant's instantiations, this can become quite costly, and might even surpass the \emph{gas limit}, the maximum amount of gas that can be spent per transaction.
-Even if that is not the case, a high gas cost is still a problem, since transactions with high gas costs are less likely to be included in a block by miners, possibly leading to long waiting times. % TODO explain?
+As the first instantiation transitively triggers all the other participant's instantiations, this can become quite costly, and might even surpass the \emph{block gas limit}, the maximum amount of gas that can be spent per new block.
+%Even if that is not the case, a high gas cost is still a problem, since in Ethereum, by design, transactions with high gas costs are less likely to be included in a block by miners, possibly leading to long waiting times. % TODO why again?
 
 Second, security is one of the main reasons to opt for blockchain systems.
 In our case, we put effort into making the message exchange secure by adding multiple steps of access verification using the access contracts.
 Access contracts themselves, however, only implement access verification by comparing the sender address with the address the contract was deployed with (the \emph{owner} address).
 As the owner can give and remove access rights freely, another layer of off-chain security might make sense here to restrict the owner account from unwanted access.
-
-%Time for one instance
-%Setup difficulty
 
 \section{Future Work} \label{futurework}
 
