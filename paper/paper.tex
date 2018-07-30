@@ -142,11 +142,11 @@ Xu et al. present patterns and examples for Solidity programming in~\cite{xu2018
 In~\cite{weber2016untrusted}, a first approach of monitoring and coordinating business process interactions across organizations on the blockchain was presented.
 Using a smart contract as a central \emph{monitor} or \emph{mediator} of the communication, a form of inter-process orchestration is implemented.
 The mediator is also responsible for role management, i.e., participants can register users to certain roles with the mediator, who verifies these roles at runtime.
-The architecture features factory contracts, which are responsible for deploying instance contracts for each process instance.
+The architecture features \emph{factory contracts}, which are responsible for deploying instance contracts for each process instance.
 For integrating blockchain and BPM applications, the concept of \emph{triggers} is introduced: Applications that watch events on the blockchain and trigger external API calls.
 
 We built our implementation based on these concepts.
-However, our solution differs from the solution in~\cite{weber2016untrusted} in the way we realize the execution of collaboration models.
+However, our solution differs from~\cite{weber2016untrusted} in the way we realize the execution of collaboration models.
 As stated before, Weber et al. employ the central mediator contract, managing execution steps and internal state of the collaboration, achieving the orchestration of a business process collaboration.
 Our goal on the other hand was to implement the collaboration as a choreography, where each participant is represented by their own contracts, and is able to verify the integrity of their interaction partners.
 Thus, a central mediator is no longer needed, also resolving the question of who is responsible for the development, deployment and maintenance of the mediator contract.
@@ -155,27 +155,25 @@ In order to achieve BPMN-to-Solidity compilation,~\cite{weber2016untrusted} also
 Further work~\cite{banuelos2017optimized} tries to optimize the translation process, in turn reducing Ethereum execution costs by reducing required space and operations.
 
 We have not made an automated translation our primary goal.
-Instead, we focussed on designing an architecture that allows for the above mentioned choreography implementation.
 However, we believe that an at least semi-automatic translation process can be derived from our results.
 
-Caterpillar~\cite{lopez2017caterpillar} is an open source implementation of a process engine using smart contracts, handling the most common BPMN elements.
-Building on the BPMN-to-Solidity compilation from~\cite{weber2016untrusted}, it integrates translation, deployment and execution of BPMN models in the form of smart contracts directly on the Ethereum Blockchain.
-It also allows a translation of BPMN Models to smart contracts, which can be deployed and executed directly on the Ethereum Blockchain.
-Processes can be started and executed via a user interface, which encapsulates the calls the generated Solidity code in the background.
+Caterpillar~\cite{lopez2017caterpillar} is an open source implementation of a process engine using smart contractsf.
+Building on the BPMN-to-Solidity compilation from~\cite{weber2016untrusted}, it integrates translation, deployment and execution of BPMN models directly on the Ethereum Blockchain.
+Processes can be started and executed via a user interface, which encapsulates the calls to the generated Solidity code in the background.
 
 Our approach is different in that we do not try to use the Ethereum platform as a process engine, but rather use it only for message passing, and integrate it with an off-chain process engine.
-Caterpillar also currently does not support the execution of process interactions.
+Caterpillar also currently does not support the execution of process interactions, which we aim to achieve.
 
 \subsection{Use Case}
 
 Since we build on a lot of the work in~\cite{weber2016untrusted}, we decided to also continue with the example collaboration\footnote{A supply chain scenario reported originally in~\cite{fdhila2015collaborative}, which was simplified in~\cite{weber2016untrusted}.} used there.
 Because we implemented contracts for each participant, we needed to expand the collapsed pool for the \emph{Bulk Buyer}, and add tasks and events for the corresponding public process.
-We added a new lane to the \emph{Manufacturer's} process for demonstration of the role management we implemented.
+Additionally, we added a new lane to the \emph{Manufacturer's} process for demonstration of the role management we implemented.
 The result is depicted in Figure \ref{fig:collaboration}.
 
-When we present the implementation, the tasks that are modeled as BPMN message sends in the collaboration model will instead be modeled as \emph{BPMN service tasks} in the separate processes.
-This decision is based on the notion that in our implementation, all sends are a call to the Ethereum platform, which acts as the external service and takes over the actual messaging.
-This implementation detail is not relevant in the collaboration view, though, where we are concerned with the interactions.
+% When we present the implementation, the tasks that are modeled as BPMN message sends in the collaboration model will instead be modeled as \emph{BPMN service tasks} in the separate processes.
+% This decision is based on the notion that in our implementation, all sends are a call to the Ethereum platform, which acts as the external service and takes over the actual messaging.
+% This implementation detail is not relevant in the collaboration view, though, where we are concerned with the interactions.
 
 \begin{figure}
 	\centering
@@ -210,11 +208,12 @@ Since all computation done by smart contracts comes with gas costs, we want to k
 	\label{fig:system_diagram}
 \end{figure}
 
-Every organization provides an interface of their public process in an \emph{instance contract}.
-Additionally, \emph{factory contracts} manage these instance contracts and \emph{access contracts} are used for rights management.
-The contract structure will be described in detail in the following sections.
+Every organization provides an interface to their public process in an \emph{instance contract}.
+Additionally, \emph{factory contracts} manage these instance contracts and \emph{access contracts} are used for user rights management.
+% The contract structure will be described in detail in the following sections.
 We assume that all participating organizations use a process engine to execute their private processes.
-When a throw event is triggered within a process engine, the process engine calls the \emph{throw event function} on an instance contract, which in turn automatically calls the corresponding \emph{catch event function} on the instance contract of the organization responsible for catching the event.
+
+When a throw event is reached within a process engine, the process engine calls the \emph{throw event function} on the company's instance contract, which in turn automatically calls the corresponding \emph{catch event function} on the instance contract of the receiver.
 Thus, all communication between organizations is recorded on the blockchain.
 
 Each organization deploys a \emph{trigger} application that continuously listens to catch events (as described in~\cite{weber2016untrusted}).
@@ -225,18 +224,19 @@ The structure of components for one organization can be seen in Figure \ref{fig:
 
 \subsection{Contract Structure}
 To realize the system, we use three kinds of smart contracts.
-Firstly, each organization uses one \emph{instance contract} per process instance.
-It represents the public process of the organization for the corresponding process.
-It is called during the process execution when a catch or throw event is reached in the process instance.
-When this happens, it emits an event on the blockchain to document this fact.
+Firstly, each organization deploys one \emph{instance contract} per process instance.
+It represents a public process of the organization and is called during the process execution whenever a catch or throw event is reached in the process instance.
+In the case of catch events, an Ethereum event is logged to the blockchain for documentation.
 
-Secondly, each organization uses one \emph{factory contract} per process.
+Secondly, each organization deploys one \emph{factory contract} per process.
 It is responsible for creating instance contracts and saving a mapping from instance IDs to the corresponding contracts.
 
-Thirdly, each organization uses \emph{access contracts} to manage which users can trigger events on the instance contracts.
+Thirdly, each organization deploys \emph{access contracts} to manage which users can trigger events on the instance contracts.
 Either there is one access contract per process or access contracts are shared over multiple processes depending on the use case.
 
 \subsection{Per-Company Setup}
+
+%TODO add a step in the diagram where other factory contracts are set
 \begin{figure}
 	\centering
 	\includegraphics[width=0.45\textwidth]{fig/initialization.eps}
@@ -244,11 +244,11 @@ Either there is one access contract per process or access contracts are shared o
 	\label{fig:initialization}
 \end{figure}
 
-%TODO add a step where other factory contracts are set
-Each organization needs to perform some setup before they can take part in a process execution.
-An access contract and a factory contract for a process need to be deployed, if it has not been done yet.
-Additionally, the user-to-role and and task-to-role mappings have to be updated (via the \emph{giveRights} and \emph{assignRole} functions, respectively), to allow verification of users during the process execution.
-A diagram of this process can be seen in Figure \ref{fig:initialization}.
+Each organization needs to perform certain setup steps before the process execution.
+The factory and access contracts corresponding to the process need to be deployed.
+Additionally, the user-to-role and and task-to-role mappings have to be updated in the access contract (\texttt{giveRights} and \texttt{assignRole}, respectively), to allow verification of users during the process execution.
+Lastly, the addresses of the factory contracts of all communication partners need to be linked in the own factory contract.
+Figure \ref{fig:initialization} shows this setup sequence.
 
 \subsection{Interaction Setup}
 \begin{figure}
