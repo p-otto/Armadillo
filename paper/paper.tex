@@ -92,20 +92,24 @@ Finally, Section \ref{futurework} will present future work and Section \ref{conc
 
 In the following section we present concepts and technologies that are related to our work.
 
-\subsection{Process Interaction}
+\subsection{Business Process Collaboration}
 
-Managing interactions between process participants is a core feature of BPM
-\cite{Weske2012}. % TODO improve with book
-Business processes with multiple participants can be modeled in BPMN using collaboration models.
-Such models include the businesses' \emph{public processes}, i.e., the BPMN tasks and events describing the sending and receiving of messages, as well as the message flow between the participants.
+When businesses work together to reach a common goal, their processes also need to comply with each other.
+Such business-to-business collaborations can also be modeled in BPMN.
+Collaboration models include the businesses' \emph{public processes} (or \emph{behavioral interfaces}~\cite{Weske2012}), i.e., the BPMN tasks and events describing the sending and receiving of messages, as well as the message flow between the participants.
 While not directly part of the interaction, they can also depict \emph{private processes}, i.e., tasks and control flows that are internally executed before or after sending or receiving a message.
 An example can be seen in Figure \ref{fig:collaboration}.
 
-The execution of a collaboration model can be implemented either as an \emph{orchestration}, or as a \emph{choreography}.
+Process interoperability needs to be ensured when it comes to executing a collaboration model.
+To this end, there are two different implementation approaches:
+One option is to treat the collaboration like a local, internal process, employing a \emph{process orchestration}.
 In a process orchestration, the execution is controlled by a central instance.
 Adopting the role of a mediator or manager, this central instance dictates and guides the execution.
 Thus, the execution has a well-defined order of tasks and a clear execution state.
-In a choreography, on the other hand, the participants are acting more independently.
+
+Another option is to have the participants act more independently.
+In \cite{Weske2012}, Weske describes \emph{process choreographies}, which define and ensure a set of collaboration rules to ensure interoperabiltiy.
+A choreography clarifies the dependencies between the participant's processes and the messages they need to exchange for a successful collaboration.
 Communication and execution is not handled by a central instance, but rather by each participant on their own.
 Messages are passed asynchronously without a controlling channel.
 As a result, there is no clear execution state, because each participant drives their own execution.
@@ -213,7 +217,7 @@ We assume that all participating organizations use a process engine to execute t
 When a throw event is triggered within a process engine, the process engine calls the \emph{throw event function} on an instance contract and the corresponding \emph{catch event function} is called on the instance contract of the organization responsible for catching the event.
 Thus, all communication between organizations is recorded on the blockchain.
 
-Each organization deploys a \emph{trigger} application that continuously listens to catch events (as described in \cite{weber2016untrusted}).
+Each organization deploys a \emph{trigger} application that continuously listens to catch events (as described in~\cite{weber2016untrusted}).
 If a catch event is observed, this information is relayed to the process engine to handle the event.
 The usage of the blockchain to monitor the choreography is encapsulated in the process engine and is therefore hidden from the users.
 
