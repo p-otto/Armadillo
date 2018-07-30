@@ -199,7 +199,22 @@ We propose a system design, that allows choreographies to be executed publicly o
 In the following section, we describe our approach and its architecture.
 
 \subsection{Requirements}
-% refer to presentation here
+
+First, we want to give an overview of the functional and non-functional requirements, that the system has to fulfill.
+
+The systems purpose is to facilitate trusted communication and collaboration between untrusting partners.
+For this, it has to be possible to send messages between partners.
+To ensure security and trust in the system, both partners need a way to verify the authenticity of a message.
+This means that the system has to keep track of users and permissions.
+To keep this maintainable, we will need a user-to-role and role-to-permission mapping.
+This mapping should be flexible, i.e. creatable and modifyable at runtime.
+Of course it also has to be queryable, so that the communicating partners can use it to check the authenticity of messages.
+
+In order to make this system feasible in a production environment, we also require it to be reusable, measurable and cheap.
+This implies keeping the amount of contracts, memory consumption and message calls low.
+Measurability is required for evaluation and monitoring.
+Because all computation done by smart contracts requires a certain amount of gas (and thus money), we want to keep the cost of our implementation as low as possible.
+
 % TODO Vielleicht könnt ihr ganz am Anfang einen Überblick geben was das System erfüllen muss, wie das geschieht erklärt ihr dann in den  Unterkapiteln
 
 \subsection{System Overview}
