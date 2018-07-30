@@ -1,49 +1,19 @@
-# Notes & Ideas
+# Untrusted B2B Collaboration using the Blockchain
 
-## On-Chain Access Rights
+<center>
+Jonas Beyer, Philipp Otto, Sören Tietböhl<br>
+Hasso-Plattner-Institut, Potsdam, Germany<br>
+{jonas.beyer,philipp.otto2,soeren.tietboehl}@student.hpi.de
+</center>
 
-### Requirements
+This repository contains source code and a screencast for our submission for the course "Processes meet Blockchain", which was supervised by Stephan Haarman and Prof. Matthias Weske.
 
-#### Functional
+See the README.md in the subfolders `armadillo` and `eth_admin` for more information.
 
-To enable the management of users with specific access rights, we need to introduce two mappings: a __user-to-role mapping__, making it possible to group users with similar functions, and a __role-to-function mapping__, for giving groups specific rights to execute specific functions. It should be possible to __create and modify__ these mappings, and to __query__ the mapped values for a given entity. Only users with __admin privileges__ should be able to create and modify these mappings.
-
-Depending on the application, the role-to-function mapping should be __generated automatically__. In a BPM engine, for example, it should be possible to generate the mapping from a BPMN model containing lanes with specific tasks.
-The user-to-role-mapping should be __modifyable at run time__, i.e. by an admin user adding another user to a specific role.
-
-It should be possible to have access rights management for processes shared between multiple organizations (multiple pools), i.e., enabling trusted access rights management between untrusted partners.
-
-The implementation should be __benchmarkable__ in terms of transaction and execution costs in ether, as well as number of needed transactions.
-
-#### Non-Functional
-
-The solution should be __modular__ and __reusable__, so that other contracts can call it without modification.  
-It should be __cheap__ in terms of execution and transaction costs.  
-It should be __secure__ regarding the modification of user rights.
-If possible, it should be __anonymous__, so that the user rights data is not visible to anyone in the network.
-
-### Approaches
-
-#### Address-to-Bitmask Mapping
-
-Hold a `mapping` from account address to access rights bitmask.
-There can be several roles:
-
-- one super-admin creating the contract
-- admins that can see and change access rights of other users
-- users that have access rights
-
-A bitmask of three bits describes what rights are given to an account:
-the first bit is for superadmin, the second for admin, the third for user.
-This of course can be extended for different subcategories of users, e.g. different roles in a process.
-
-Example: bitmask `001` describes that an account has normal user rights
-
-This contract can then be called by other contracts prior to executing their scripts, in order to check if the sender has the needed access rights.
-
-See `bitmask.sol` files for implementation.
-
-#### Colored Coins / Tokens
-
-
-#### Hierarchical Wallets
+## Abstract
+Lack of trust between communication partners is one of the major issues companies face when implementing business processes in a cross-organizational setting.
+Blockchain is an emerging technology that enables decentralization and distribution of state without the need for a trusted central instance.
+As a result, it is possible to form consensus in the communication between otherwise untrusting parties.
+In this paper we introduce Armadillo, an open-source prototype implementation for realizing business process choreographies using the Ethereum blockchain.
+We present a smart contract system for inter-process communication, as well as a user interface for connecting business processes and smart contracts.
+While our solution is not production-ready in terms of transaction costs, it describes a basis for untrusted messaging via the blockchain without a central controlling party.
