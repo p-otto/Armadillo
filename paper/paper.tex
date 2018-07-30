@@ -38,7 +38,7 @@
 	Blockchain is an emerging technology that enables decentralization and distribution of state without the need for a trusted central instance.
 	As a result, it is possible to form consensus in the communication between otherwise untrusting parties.
 	In this paper we introduce Armadillo, an open-source prototype implementation for realizing business process choreographies using the Ethereum blockchain.
-	We present smart contract system for inter-process communication, as well as a user interface for connecting business processes and smart contracts.
+	We present a smart contract system for inter-process communication, as well as a user interface for connecting business processes and smart contracts.
 	While our solution is not production-ready in terms of transaction costs, it describes a basis for untrusted messaging via the blockchain without a central controlling party.
 
 	\keywords{Business Processes \and BPMN \and Choreographies \and Blockchain \and Ethereum \and Smart Contracts}
@@ -48,44 +48,40 @@
 % BPM
 Business Process Management (BPM) allows organizations to identify, structure and understand the tasks and processes they employ to achieve their business goals.
 %Process Models
-In BPM, Process models are used to document how these goals can be reached, visually describing the participants, activity flow and data objects involved.
-By sharing process models with their employees, organizations can ensure a common understanding of the work that needs to be done.
+In BPM, process models are used to document how these goals can be reached, visually describing the participants, activity flow and data objects involved.
 
 % What is BPMN?
-Business Process Model and Notation (BPMN) is a standard notation for process models~\cite{omg2014bpmn}.
-It provides building blocks for the modeling of complex intra- and inter-business processes.
-As BPM is not limited internal procedures, but also considers communication with external partners, BPMN can be used to model the message exchange needed for sucessful cooperation.
+Business Process Model and Notation (BPMN) is a notation standard for such process models~\cite{omg2014bpmn}.
+It provides building blocks for the modeling of not only internal procedures, but also the message exchange needed for successful communication with external partners.
 
 % Trust
 The basis for inter-process communication is that all involved parties trust each other.
-Companies can enter contracts to safeguard themselves against possibly malicious partners, but it can still lead a lot of overhead to claim their rights in case of a contract infringement.
-Further problems arise when multiple parties are involved in a process:
-The more partners there are, the more difficult it becomes to track faults and misunderstandings in the communication.
+Agreements and contracts can help clarifying the requirements and expectations between partners.
+As soon as multiple parties are involved in the handling of a process, though, it becomes difficult to track faults and misunderstandings in the communication.
 
 % What is Blockchain?
 With the help of the emerging Blockchain technology, these problems can be resolved.
-A Blockchain is a decentralized information storage network.
-Information is stored in blocks, which are chained together via cryptograhic means.
-In this network, many participants can agree on a public common state of information without trusting each other.
+A Blockchain network is a network of computation nodes sharing a decentralized information storage structure, a \emph{ledger}.
+Inside this ledger, information is stored in blocks, which are chained together via cryptograhic means.
+Nodes in the network can agree on a public common state of information without trusting each other.
 Blockchain technology is commonly used to realize virtual currencies, also called cryptocurrencies.
 Ethereum~\cite{wood2014ethereum} is one implementation of the Blockchain concept which also realizes a feature called smart contracts.
-Smart contracts are small programs that are executed by the nodes in the Blockchain network.
-They have very limited processing power, but they enable the execution of code which has a commonly known state.
+Smart contracts are small programs with limited processing power that are executed by the nodes in the Blockchain network.
 
 %What problems are there with BPMN that can be solved with Blockchain?
 Blockchain features can be used to facilitate trusted communication between untrusted parties in Business Process Management.
 % What approaches exist currently (Caterpillar~\cite{lopez2017caterpillar}, Untrusted paper~\cite{weber2016untrusted})
-Existing approaches aim to bring BPM functionality to the Ethereum Blockchain utilizing smart contracts.
-Weber et al.~\cite{weber2016untrusted}, e.g., realize process orchestrations on the Blockchain using a smart contract as the mediator for messages and execution state.
+Approaches exist that aim to bring BPM functionality to the Ethereum Blockchain utilizing smart contracts.
+Weber et al.~\cite{weber2016untrusted} realize process orchestrations on the Blockchain using a smart contract as the mediator for messages and execution state.
 % What is our general Idea?
 We expand on the work of Weber et al. and implement process choreographies, where instead of one central mediator, each party provides their own smart contracts.
-Communication then happens directly between the partner's contracts instead of going through a central instance.
+Communication then happens directly between the partner's contracts instead of passing through a central instance.
 
 % Structure
 The rest of this paper is structured as follows: In Section \ref{preliminary} we will discuss concepts and technologies required for our work, and introduce our use case.
 In Section \ref{solutionapproach} we will present the solution requirements and concepts.
 Section \ref{implementation} describes our contract and tool implementations.
-In Section \ref{evaluation} we evaluate our solution.
+In Section \ref{evaluation} we discuss our solution.
 Finally, Section \ref{futurework} will present future work and Section \ref{conclusion} will conclude the paper.
 
 \section{Preliminary} \label{preliminary}
@@ -277,7 +273,7 @@ This process is visualized in Figure \ref{fig:instance_creation}.
 
 The recursive initialization ensures that all instance contracts that are part of the process instance will be created by one function call.
 %TODO add emit event in the diagram
-%TODO better formulation
+%TODO rephrasing
 The organizations that did not start the instance creation can detect the new process instance by using their trigger to watch the factory contract.
 
 \subsection{Sending Messages}
@@ -309,8 +305,7 @@ Afterwards, we will shortly describe the tools we built for interacting with the
 
 In the following, we will formally describe our contract implementations.
 The implemented contracts can be found in our repository at \url{https://github.com/p-otto/ProcessesMeetBlockchain2018/tree/master/armadillo/resources}.
-% TODO repo ist noch private
-% TODO update if repository changes
+% TODO repo & hbox
 
 \subsubsection{Process Contracts}
 
@@ -421,10 +416,7 @@ One other approach we thought of is based on pattern 5 of~\cite{xu2018pattern} -
 
 In the following, we will briefly present the tools we implemented integrate process management with our blockchain approach.
 The implementations can be found in our repository at \url{https://github.com/p-otto/ProcessesMeetBlockchain2018/}, in the \texttt{armadillo} and \texttt{eth\_admin} folders, respectively.
-% TODO repo ist noch private
-% TODO update if repository changes
-% TODO overfull hbox
-
+% TODO repo & hbox
 
 \subsubsection{Armadillo}
 
