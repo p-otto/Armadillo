@@ -317,13 +317,13 @@ A factory contract thus has the resulting interface:
 	\item Setter methods for the factory contract addresses of interaction partners
 	\item A \texttt{createInstance} function
 	\item A \texttt{getAccessAddress} function
-	\item A \texttt{isInstance} function, checking if a given address belongs to an instance created by this factory, for a given choreography instance ID % TODO rephrase?
+	\item A \texttt{isInstance} function used to verify whether an address points to an instance contract created by this factory (for a given choreography ID)
 \end{itemize}
 
 Internally, there are a few implementation details worth mentioning.
 Regarding storage, private fields are necessary holding the factory contract addresses, the access contract address as well as the instance address mapping.
 To avoid communication errors at runtime, it should not be possible to call \texttt{createInstance} before all required factory addresses are set.
-Finally, there is one minor implementation difference depending on whether a participant is the \emph{choreography initiator} -- the participant to manually start the choreography instance by sending a request -- or instead is starting its instance as a response to another participant's request: % TODO arrgh bessere formulierung
+Finally, there is one minor implementation difference depending on whether a participant is the \emph{choreography initiator} (the participant to manually start the choreography instance by sending a request):
 The initiator needs to generate the choreography instance ID inside of its \texttt{createInstance} function, and pass it to all its interaction partners.
 Every other participant needs to have a parameter for the ID in their \texttt{createInstance} function.
 
