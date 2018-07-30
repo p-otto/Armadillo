@@ -404,7 +404,7 @@ The implementation can be found at \url{https://github.com/p-otto/Armadillo}, in
 
 \begin{figure}
 	\centering
-\includegraphics[width=\textwidth]{fig/Armadillo.png}
+\includegraphics[width=0.8\textwidth]{fig/Armadillo.png}
 \caption{Screenshot of the Armadillo web application.}
 \label{fig:armadillo}
 \end{figure}
@@ -412,7 +412,7 @@ The implementation can be found at \url{https://github.com/p-otto/Armadillo}, in
 As a way of joining process execution with our blockchain architecture, we developed a single page web application (see Figure \ref{fig:armadillo}) in JavaScript and HTML, using the Vue.js framework\footnote{\url{https://vuejs.org}}.
 With the help of the Web3 Ethereum JavaScript API\footnote{\label{web3}\url{https://github.com/ethereum/web3.js/}}, we can trigger contract functions based on user actions in the applications user interface.
 Armadillo also implements the upload and rendering of BPMN diagrams using the bpmn.js toolkit\footnote{\url{https://bpmn.io/toolkit/bpmn-js/}}.
-Building upon the BPMN viewer provided in the toolkit, we implemented the handling of user clicks on \emph{BPMN Service Tasks}, which allowed us to use the viewer as a process engine mock.
+Building upon the BPMN viewer provided in the toolkit, we implemented the handling of user clicks on BPMN \emph{Service Tasks}, which allowed us to use the viewer as a process engine mock.
 A screencast of the full choreography can be found in the respository under \url{https://github.com/p-otto/Armadillo/blob/master/armadillo-screencast.mp4}.
 
 \subsubsection{Eth\_Admin}
@@ -495,7 +495,6 @@ Now, it certainly makes sense to integrate the system with a productive process 
 In this paper, we presented a system architecture and prototypical implementation for connecting process execution with blockchain technology.
 While keeping the process execution off-chain, we developed an approach of inter-process communication using the Ethereum blockchain as a messaging channel.
 Having a permanent ledger as the underlying data structure storing messages, faults and misunderstandings can be traced back to their origin and responsibilities are disclosed.
-
 Building on the findings of this paper, improvements regarding runtime and execution costs open up a wide area of possible future work on the topic.
 
 Currently, blockchain technology is most widely used to handle monetary transactions.
