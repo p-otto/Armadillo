@@ -86,15 +86,13 @@ Finally, Section \ref{futurework} will present future work and Section \ref{conc
 
 \section{Preliminary} \label{preliminary}
 
-In the following section we present concepts and technologies that are related to our work.
-
 \subsection{Business Process Collaboration}
 
 When businesses work together to reach a common goal, their processes also need to comply with each other.
 Such business-to-business collaborations can also be modeled in BPMN.
-Collaboration models include the businesses' \emph{public processes} (or \emph{behavioral interfaces}~\cite{Weske2012}), i.e., the BPMN tasks and events describing the sending and receiving of messages, as well as the message flow between the participants.
+Collaboration models include the businesses' \emph{public processes} (or \emph{behavioral interfaces}~\cite{Weske2012}), i.e., the BPMN tasks, events and message flows describing the message exchanges between participants.
 While not directly part of the interaction, they can also depict \emph{private processes}, i.e., tasks and control flows that are internally executed before or after sending or receiving a message.
-An example can be seen in Figure \ref{fig:collaboration}.
+An example collaboration model can be seen in Figure \ref{fig:collaboration}.
 
 Process interoperability needs to be ensured when it comes to executing a collaboration model.
 To this end, there are two different implementation approaches:
@@ -122,22 +120,18 @@ The signature is created using data from the preceding block and is by design ma
 On the one hand, this results in a race between so called \emph{mining} nodes who try and calculate such a signature, as the first valid signature verifies the new block's position and stores it's data on the ledger.
 Mining nodes get rewarded for finding such signatures, creating an incentive for continuous appending of new blocks and keeping the blockchain alive.
 On the other hand, other nodes can easily verify the signature and come to a consensus regarding the latest state.
-If the same block is signed at the same time, a fork of the blockchain is created, where two versions of the blockchain exist at the same time.
-Consensus is then reached when new blocks are appended, propagating the longest blockchain within the network until it is accepted by all parties.
 
 Blockchain technology is mainly used for cryptocurrencies, most notably Bitcoin~\cite{nakamoto2008bitcoin}.
-In more recent developments however, they are used as a foundation for a number of other decentralized applications.
+In more recent developments however, it is a foundation for a number of other decentralized applications.
 Ethereum~\cite{wood2014ethereum} is a platform that uses a blockchain as the underlying system, but further allows users write and execute code in the form of \emph{smart contracts}.
 Smart contracts are Turing complete code artifacts that can be deployed on the blockchain and are accessible by accounts in the Ethereum platform.
 When called by a user account or another contract, they can perform calculations, send or receive money, or store information on the blockchain ledger either directly or in the form of \emph{events}.
 Events are publicly visible and can be watched by off-chain applications, allowing external programs to react to blockchain state changes.
-This would otherwise not be possible, ss smart contracts can not communicate with anything outside the blockchain.
+This would otherwise not be possible, as smart contracts can not communicate with anything outside the blockchain.
 
 When calling functions on a smart contract, users have to supply \emph{gas}, a unit that powers smart contract computations.
-Contracts deplete gas for each operation and return excess gas back to the user.
-This ensures that contracts are not running for an unlimited amount of time, avoiding a dead lock of the platform.
-Computations on the blockchain are expensive in order to avoid unnecessary operations, as all operations have to be performed by each node in the network.
-Because of the gas limit and high execution cost, the computational power of smart contracts is limited.
+Contracts deplete gas for each operation.
+This ensures a) that contracts are not running for an unlimited amount of time, avoiding a dead lock of the platform, and b) that computation work is kept small, as all operations have to be performed by each node in the network.
 
 Smart contracts are executed in the \emph{Ethereum virtual machine (EVM)}.
 As such, they contain byte code that is interpreted by the VM.
