@@ -410,10 +410,16 @@ The implementations can be found in our repository at \url{https://github.com/p-
 % TODO overfull hbox
 
 
-% TODO include screenshot
 \subsubsection{Armadillo}
 
-As a way of joining process execution with our blockchain architecture, we developed a single page web application in JavaScript and HTML, using the Vue.js framework\footnote{\url{https://vuejs.org}}.
+\begin{figure}
+	\centering
+\includegraphics[width=0.9\textwidth]{fig/Armadillo.png}
+\caption{Screenshot of the Armadillo web application.}
+\label{fig:armadillo}
+\end{figure}
+
+As a way of joining process execution with our blockchain architecture, we developed a single page web application (see Figure \ref{fig:armadillo}) in JavaScript and HTML, using the Vue.js framework\footnote{\url{https://vuejs.org}}.
 With the help of the Web3 Ethereum JavaScript API\footnote{\label{web3}\url{https://github.com/ethereum/web3.js/}}, we can trigger contract functions based on user actions in the applications user interface.
 Armadillo also implements the upload and rendering of BPMN diagrams using the bpmn.js toolkit\footnote{\url{https://bpmn.io/toolkit/bpmn-js/}}.
 Building upon the BPMN viewer provided in the toolkit, we implemented the handling of user clicks on \emph{BPMN Service Tasks}, which allowed us to use the viewer as a process engine mock.
@@ -449,7 +455,7 @@ We measured the gas used for each transaction that is executed by the Armadillo 
 		\hline \textbf{Sum}             & 5,022,517        & 438,591           & \textbf{5,461,108} \\ \hline
 	\end{tabular}
 \end{table}
-
+% TODO add exchange rates and $ price? or propmt users to look it up themselves because of changing gas price?
 Most of the transactions have proven to come with reasonable gas costs.
 However, the instantiation cost that is currently paid by the initiator appears to be problematic.
 As the first instantiation transitively triggers all the other participant's instantiations, this can become quite costly, and might even surpass the \emph{block gas limit}, the maximum amount of gas that can be spent per new block.
