@@ -41,7 +41,7 @@
 	We present a smart contract system for inter-process communication, as well as a user interface for connecting business processes and smart contracts.
 	While our solution is not production-ready in terms of transaction costs, it describes a basis for untrusted messaging via the blockchain without a central controlling party.
 
-	\keywords{Business Processes \and BPMN \and Choreographies \and Blockchain \and Ethereum \and Smart Contracts}
+	\keywords{Business Processes \and Choreographies \and Blockchain \and Smart Contracts}
 \end{abstract}
 %
 \section{Introduction}
@@ -258,7 +258,7 @@ When all partner instance, factory and access contracts are known, the instance 
 This process is visualized in Figure \ref{fig:instance_creation}.
 
 The recursive initialization ensures that all contracts that are part of the process instance will be created by one function call.
-All other organizations can detect the created instances by watching the factory contract, using a trigger.
+All other organizations can detect the created instances by watching their factory contract, using a trigger.
 
 \subsection{Sending Messages}
 \begin{figure}
@@ -288,8 +288,7 @@ Afterwards, we will shortly describe the tools we built for interacting with the
 \subsection{Contracts}
 
 In the following, we will formally describe our contract implementations.
-The implemented contracts can be found in our repository at \url{https://github.com/p-otto/ProcessesMeetBlockchain2018/tree/master/armadillo/resources}.
-% TODO repo & hbox
+The specific implemented contracts can be found in our repository in the folder\\\url{https://github.com/p-otto/Armadillo/tree/master/armadillo/resources}.
 
 \subsubsection{Process Contracts}
 
@@ -399,7 +398,7 @@ One other approach we thought of is based on pattern 5 of~\cite{xu2018pattern} -
 \subsection{Tools}
 
 In the following, we will briefly present the tools we implemented integrate process management with our blockchain approach.
-The implementation can be found at \url{https://github.com/p-otto/armadillo}, in the \texttt{armadillo} and \texttt{eth\_admin} folders, respectively.
+The implementation can be found at \url{https://github.com/p-otto/Armadillo}, in the folders \texttt{armadillo} and \texttt{eth\_admin}, respectively.
 
 \subsubsection{Armadillo}
 
@@ -414,8 +413,7 @@ As a way of joining process execution with our blockchain architecture, we devel
 With the help of the Web3 Ethereum JavaScript API\footnote{\label{web3}\url{https://github.com/ethereum/web3.js/}}, we can trigger contract functions based on user actions in the applications user interface.
 Armadillo also implements the upload and rendering of BPMN diagrams using the bpmn.js toolkit\footnote{\url{https://bpmn.io/toolkit/bpmn-js/}}.
 Building upon the BPMN viewer provided in the toolkit, we implemented the handling of user clicks on \emph{BPMN Service Tasks}, which allowed us to use the viewer as a process engine mock.
-A screencast of the full choreography can be found in the respository under \url{https://github.com/p-otto/armadillo/blob/master/presentation/armadillo-screencast.mp4}.
-% TODO repo, hbox etc.
+A screencast of the full choreography can be found in the respository under \url{https://github.com/p-otto/Armadillo/blob/master/armadillo-screencast.mp4}.
 
 \subsubsection{Eth\_Admin}
 
