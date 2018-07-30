@@ -451,42 +451,33 @@ As the owner can give and remove access rights freely, another layer of off-chai
 %Setup difficulty
 
 \section{Future Work} \label{futurework}
-% TODO merge duplicated content
 
 We researched a system prototype for handling process choreographies on the blockchain.
 While we were able to execute an example choreography using our implementation, a few aspects are left for future work.
 
 \subsubsection{Instantiation Costs}
 
-In the evaluation, we realized that the instantiation cost currently is too high for our system to be used in a productive environment.
+During evaluation, we saw that the instantiation costs are very high, have a potential to hit the gas limit in larger choreographies and also have to be paid by the initiator.
+These problems need to be addressed before our solution is feasible for production use.
 Further research thus could be invested into a more decentralized instantiation, where each participant pays for its own instance contract creation.
 One apporach worth considering is to have the intiator emit a specific instance creation event that each other participant would listen to.
-Then, a trigger could be implemented, that calls the \texttt{createInstance} method as soon as the event is received.
-
-During evaluation, we saw that the instantiation costs are very high, have a potential to hit the gas limit in larger choreographies and also have to be paid by the initiator.
-These problems need to be addressed before our solution is viable for production use.
-One possbile way to distribute the costs among the participants makes use of triggers on the factory contracts.
-Instead of creating all instance contracts transitively, the factory contract would have a method for accepting requests for instantiation.
-The process engine could then react to such a call via a trigger, and call the instantiation method.
+The process engine could then react to such an event with the help of a trigger, and call the \texttt{createInstance} method.
 Then the other factory would have to be notified that the instantiation was successful.
 
 \subsubsection{Access Contract}
 
-As stated earlier, there possibly are better ways of implementing a role-based access control inside a smart contract.
-We decided for a simple mapping-based approach, which requires a relatively large amount of memory.
+As stated earlier, there probably are better ways of implementing role-based access control in a smart contract.
+We decided for a simple mapping-based approach, which requires large amounts of memory.
 Finding approaches that are more suited for blockchain architectures is one direction in which further research could go.
 
 \subsubsection{Process Contract Generation}
 
 Our contract implementations are the result of manual, iterative development.
-Having reached the final iteration, we realized that most of the implementation could probably be generated, i.e., from a choreography diagram (or at least from the participant's public processes).
+Having reached the final iteration, we realized that the contracts share common patterns.
+Most of the implementation could probably be generated, i.e., from a choreography diagram (or at least from the participant's public processes).
 The next step would be to define a template for the factory contract source code, to determine which parts are easily generated, and which parts might need manual adjustments, e.g., depending on whether the participant is the initiator or not.
 Given such a template, one could work on a contract generation tool that takes a diagram as input and produces factory contract code.
-
-Currently all contracts are written manually.
-Since the contracts all share the same patterns,  this is a prime candidate for automation.
 A possible implementation could use a rule-based approach for translating the choreography model, similar to~\cite{lopez2017caterpillar}.
-This would then automatically generate Solidity code for the access and factory contracts.
 
 \subsubsection{Process Engine Integration}
 
