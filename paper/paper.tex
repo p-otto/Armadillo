@@ -265,8 +265,7 @@ This process is visualized in Figure \ref{fig:instance_creation}.
 
 The recursive initialization ensures that all instance contracts that are part of the process instance will be created by one function call.
 %TODO add emit event in the diagram
-%TODO rephrasing
-The organizations that did not start the instance creation can detect the new process instance by using their trigger to watch the factory contract.
+All other organizations can detect the created instances by watching the factory contract, using a trigger.
 
 \subsection{Sending Messages}
 \begin{figure}
@@ -455,7 +454,7 @@ We measured the gas used for each transaction that is executed by the Armadillo 
 		\hline \textbf{Sum}             & 5,022,517        & 438,591           & \textbf{5,461,108} \\ \hline
 	\end{tabular}
 \end{table}
-% TODO add exchange rates and $ price? or propmt users to look it up themselves because of changing gas price?
+Because of highly fluctuating exchange rates of USD to ether and ether to gas, the total gas cost varies as well. At the time of writing the total cas cost amounted to \$2.50 according to \url{ethgasstation.info}. 
 Most of the transactions have proven to come with reasonable gas costs.
 However, the instantiation cost that is currently paid by the initiator appears to be problematic.
 As the first instantiation transitively triggers all the other participant's instantiations, this can become quite costly, and might even surpass the \emph{block gas limit}, the maximum amount of gas that can be spent per new block, depending on the number of participants involved.
