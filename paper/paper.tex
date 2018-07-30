@@ -214,7 +214,7 @@ Every organization provides an interface of their public process in an \emph{ins
 Additionally, \emph{factory contracts} manage these instance contracts and \emph{access contracts} are used for rights management.
 The contract structure will be described in detail in the following sections.
 We assume that all participating organizations use a process engine to execute their private processes.
-When a throw event is triggered within a process engine, the process engine calls the \emph{throw event function} on an instance contract and the corresponding \emph{catch event function} is called on the instance contract of the organization responsible for catching the event.
+When a throw event is triggered within a process engine, the process engine calls the \emph{throw event function} on an instance contract, which in turn automatically calls the corresponding \emph{catch event function} on the instance contract of the organization responsible for catching the event.
 Thus, all communication between organizations is recorded on the blockchain.
 
 Each organization deploys a \emph{trigger} application that continuously listens to catch events (as described in~\cite{weber2016untrusted}).
@@ -247,7 +247,7 @@ Either there is one access contract per process or access contracts are shared o
 %TODO add a step where other factory contracts are set
 Each organization needs to perform some setup before they can take part in a process execution.
 An access contract and a factory contract for a process need to be deployed, if it has not been done yet.
-Additionally, the user-to-role and and task-to-role mappings have to be updated (via the \emph{giveRights} and \emph{assignRole} functions), to allow verification of users during the process execution.
+Additionally, the user-to-role and and task-to-role mappings have to be updated (via the \emph{giveRights} and \emph{assignRole} functions, respectively), to allow verification of users during the process execution.
 A diagram of this process can be seen in Figure \ref{fig:initialization}.
 
 \subsection{Interaction Setup}
@@ -304,7 +304,7 @@ The implemented contracts can be found in our repository at \url{https://github.
 
 For taking part in the process collaboration, each company needs to deploy a factory contract that is responsible for creating instance contracts.
 To this end, the factory contract source code needs to contain the definition of the company's instance contract.
-This closely follows the factory contract pattern used in~\cite{weber2016untrusted}, and described as Pattern 14 in~\cite{xu2018pattern}.
+This closely follows the factory contract pattern used in~\cite{weber2016untrusted}, and described as pattern 14 in~\cite{xu2018pattern}.
 
 In our implementation, a company's factory contract also knows the address of the company's access contract for convenience.
 Additionally, it stores the addresses of created instances, mapped by a \emph{choreography instance ID}, i.e., an ID that is shared between all choreography participants for each instance of the shared choreography.
@@ -403,7 +403,7 @@ The third mapping assigns such an access bitmask to each user.
 Storing large amounts data on the blockchain is expensive by design.
 As the mappings grow in size with each user, role and task that is part of some process in the company, our implementation is probably not suited for real-world application.
 Finding optimized, less costly (both in computation cost and storage cost) approaches is part of future work.
-One other approach we thought of is based on Pattern 5 of~\cite{xu2018pattern} - depicting real world permissions as tokens, and "paying" with these tokens on function call to verify one's role.
+One other approach we thought of is based on pattern 5 of~\cite{xu2018pattern} - depicting real world permissions as tokens, and "paying" with these tokens on function call to verify one's role.
 
 \subsection{Tools}
 
@@ -462,7 +462,7 @@ We measured the gas used for each transaction that is executed by the Armadillo 
 % TODO add exchange rates and $ price? or propmt users to look it up themselves because of changing gas price?
 Most of the transactions have proven to come with reasonable gas costs.
 However, the instantiation cost that is currently paid by the initiator appears to be problematic.
-As the first instantiation transitively triggers all the other participant's instantiations, this can become quite costly, and might even surpass the \emph{block gas limit}, the maximum amount of gas that can be spent per new block.
+As the first instantiation transitively triggers all the other participant's instantiations, this can become quite costly, and might even surpass the \emph{block gas limit}, the maximum amount of gas that can be spent per new block, depending on the number of participants involved.
 %Even if that is not the case, a high gas cost is still a problem, since in Ethereum, by design, transactions with high gas costs are less likely to be included in a block by miners, possibly leading to long waiting times. % TODO why again?
 
 Second, security is one of the main reasons to opt for blockchain systems.
