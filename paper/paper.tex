@@ -290,14 +290,14 @@ For taking part in the process collaboration, each company needs to deploy a fac
 To this end, the factory contract source code needs to contain the definition of the company's instance contract.
 This closely follows the factory contract pattern used in~\cite{weber2016untrusted}, which is also described as pattern 14 in~\cite{xu2018pattern}.
 
-In our implementation, a companys factory contract also knows the address of the companys access contract for convenience.
+In our implementation, a company's factory contract also knows the address of the company's access contract for convenience.
 Additionally, it stores the addresses of created instances, mapped by a \emph{choreography instance ID}, i.e. an ID that is shared between all choreography participants for each instance of the shared choreography.
 
 To allow interaction between companies via the blockchain, two participants need to exchange the addresses of their factory contracts when there is a direct interaction between them.
 
 A factory contract thus has the resulting interface:
 \begin{itemize}
-	\item A \texttt{constructor} where the address of the companys access contract is passed
+	\item A \texttt{constructor} where the address of the company's access contract is passed
 	\item Setter methods for the factory contract addresses of interaction partners
 	\item A \texttt{createInstance} function
 	\item A \texttt{getAccessAddress} function
@@ -311,14 +311,14 @@ The initiator needs to generate the choreography instance ID inside of its \text
 Every other participant needs to have a parameter for the ID in their \texttt{createInstance} function.
 
 Communication between smart contracts happens in the form of function calls.
-To allow the factory and instance contracts to call functions on their interaction partners contracts, the partners function interface needs to be known, i.e. it needs to be declared in the factory contract source code.
+To allow the factory and instance contracts to call functions on their interaction partner's contracts, the partner's function interface needs to be known, i.e. it needs to be declared in the factory contract source code.
 %- the access contract (same for every participant)
 %- remote factory contracts (if receiving messages from remote, for verification)
 %- remote instance contracts (if sending messages to remote instance)
 
 The instance contract definition is also part of the factory contract source code.
 The factory contract creates an instance by calling its constructor and passing all addresses that are required for the inter-process communication .
-Instance contracts provide functions for each sending action, i.e. send tasks or events in the companys process, which can be called by the process engine.
+Instance contracts provide functions for each sending action, i.e. send tasks or events in the company's process, which can be called by the process engine.
 For each receiving action (task or event), a function needs to be present that can be called from other instance contracts.
 When company $A$ triggers a sending function on their instance contract, it in turn calls a corresponding receive function on the instance contract of company $B$.
 
@@ -327,13 +327,13 @@ Instance contracts need to store:
 	\item The choreography instance ID for verifying incoming messages
 	\item The addresses of the factory and access contracts of partners for verifying incoming messages
 	\item The addresses of the instance contracts of partners for sending messages
-	\item The address of the companys own access contract, for verifying local function calls
-	\item The address of the companys own factory contract, for returning any remaining funds upon \texttt{selfdestruct}
+	\item The address of the company's own access contract, for verifying local function calls
+	\item The address of the company's own factory contract, for returning any remaining funds upon \texttt{selfdestruct}
 \end{itemize}
 
 Verification is implemented on sender side and on receiver side.
-Each send function has a guard checking the caller in the companys own access contract.
-Each receive function has a guard checking a) that the caller is a contract instance that is part of the choreography instance (via the partner factory contract), and b) checking the account behind the request in the partners access contract.
+Each send function has a guard checking the caller in the company's own access contract.
+Each receive function has a guard checking a) that the caller is a contract instance that is part of the choreography instance (via the partner factory contract), and b) checking the account behind the request in the partner's access contract.
 Guarding functions against unwanted access was described in pattern 13, Embedded Permission, in~\cite{xu2018pattern}.
 
 Having achieved a traceable communication on the blockchain using contract function calls, we still want to access messages in off-chain applications, e.g. triggering process events in a process engine on message receive.
@@ -346,7 +346,7 @@ By passing the factory contract address, potential remaining funds are transferr
 
 \subsubsection{Access Contract}
 
-Each company deploys an access contract that holds information about the roles and permissions of the companys employees.
+Each company deploys an access contract that holds information about the roles and permissions of the company's employees.
 Having permission data encapsuled in a separate access contract follows pattern 12, the Data Contract pattern, from~\cite{xu2018pattern}.
 It allows decoupling the roles and permissions from the actual contract instances, allowing for a simple modification at runtime.
 Access contracts can be deployed per process, or even once per company as a single source of truth for all processes.
@@ -477,7 +477,7 @@ An alternative approach for access control can be implemented based on pattern 5
 Our contract implementations are the result of manual, iterative development.
 Having reached the final iteration, we realized that the contracts share common patterns.
 
-Most of the implementation can be generated, e.g. from a choreography diagram (or at least from the participants public processes).
+Most of the implementation can be generated, e.g. from a choreography diagram (or at least from the participant's public processes).
 The next step is to define a template for the factory contract source code, to determine which parts are easily generated, and which parts might need manual adjustments.
 Given such a template, one can work on a contract generation tool that takes a diagram as input and produces factory contract code.
 A possible implementation could use a rule-based approach for translating the choreography model, similar to~\cite{lopez2017caterpillar}.
