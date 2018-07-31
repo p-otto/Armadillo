@@ -186,7 +186,7 @@ The result is depicted in Figure \ref{fig:collaboration}.
 
 \subsection{Requirements}
 
-Before presenting the system, want to give an overview of the functional and non-functional requirements it has to fulfill.
+Before presenting the system, we want to give an overview of the functional and non-functional requirements it has to fulfill.
 
 The system's purpose is to facilitate trusted communication and collaboration between untrusting partners.
 Therefore, it must be possible to send messages between partners.
@@ -226,8 +226,8 @@ The structure of components for one organization can be seen in Figure \ref{fig:
 
 To realize the system, we use three kinds of smart contracts.
 Firstly, each organization deploys one \emph{instance contract} per process instance.
-It represents a public process of the organization and is called during the process execution whenever a catch or throw event is reached in the process instance.
-In the case of catch events, an Ethereum event is logged to the blockchain for documentation.
+It represents the public process of the organization and is called during process execution whenever a catch or throw event is reached in the execution of a process instance.
+In the case of catch events, an Ethereum event is logged to the blockchain to document the process event.
 
 Secondly, each organization deploys one \emph{factory contract} per process.
 It is responsible for creating instance contracts and saving a mapping from instance IDs to the corresponding contracts.
@@ -239,8 +239,8 @@ Either there is one access contract per process or access contracts are shared o
 
 Each organization needs to perform certain setup steps before the process execution.
 The factory and access contracts corresponding to the process need to be deployed.
-Additionally, the user-to-role and and task-to-role mappings have to be updated in the access contract (\texttt{giveRights} and \texttt{assignRole}, respectively), to allow verification of users during the process execution.
-Lastly, the addresses of the factory contracts of all communication partners need to be linked in the own factory contract.
+Additionally, the user-to-role and and role-to-permission mappings have to be updated in the access contract (\texttt{giveRights} and \texttt{assignRole}, respectively), to allow verification of users during the process execution.
+Lastly, the addresses of the factory contracts of all communication partners need to be linked in the factory contract.
 
 \subsection{Interaction Setup}
 
@@ -252,13 +252,13 @@ Lastly, the addresses of the factory contracts of all communication partners nee
 	\label{fig:instance_creation}
 \end{figure}
 
-In order to create a new process instance, the party initiating the choreography has to explicitly create an instance contract by calling the factory contract.
-The factory contract in turn may need to initialize other instance contracts by calling other factory contracts.
-When all partner instance, factory and access contracts are known, the instance contract can be created and its address is returned to the user and an event is emitted to the blockchain.
+In order to create a new process instance, the party initiating the choreography has to explicitly call \texttt{createInstance} on their factory contract.
+The factory contract in turn may need to initialize other instance contracts by calling their corresponding factory contracts.
+When all partner instance, factory and access contracts are known, the instance contract can be created, its address is returned to the user and an event is emitted to the blockchain.
 This process is visualized in Figure \ref{fig:instance_creation}.
 
-The recursive initialization ensures that all contracts that are part of the process instance will be created by one function call.
-All other organizations can detect the created instances by watching their factory contract, using a trigger.
+The recursive initialization ensures that all instance contracts that are part of the process instance will be created by one function call.
+The organizations which do not initiate the choreography can detect the newly created instance contracts by watching their factory contracts using a trigger.
 
 \subsection{Sending Messages}
 \begin{figure}
@@ -272,11 +272,11 @@ All other organizations can detect the created instances by watching their facto
 When a throw event is triggered in the process engine of organization $A$, the process engine of $A$ calls the corresponding \emph{throw event function} on the instance contract of organization $A$.
 In the instance contract of $A$ an authorization is performed by looking up the sender address in the access contract of $A$.
 If this check is successful, the \emph{catch event function} is called on the partner instance contract of $B$.
-In the instance contract of $B$ there is another authorization against the access contract of $A$.
-This ensures that both sides can be confident, that the throw event was triggered by an authorized person who belongs to organization $A$.
-If this check was also successful, an event is emitted to the blockchain.
-This will be detected by the trigger of $B$ and passed to the process engine.
-Thus, a message was sent from $A$ to $B$ via the blockchain and an audit trail was created.
+In this instance contract there is another authorization against the access contract of $A$.
+This ensures that both sides can be confident that the message was sent by a person who is authorized by organization $A$.
+If both checks are successful, an event is emitted to the blockchain.
+This event will be detected by the trigger of $B$ and passed to their process engine.
+Thus, a message was sent from $A$ to $B$ using the blockchain as a ledger and an audit trail was created.
 An example can be seen in the sequence diagram in Figure \ref{fig:event_sending}.
 % TODO explain how payload could look like
 
