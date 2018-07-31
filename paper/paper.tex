@@ -39,7 +39,7 @@
 	As a result, it is possible to form consensus in the communication between otherwise untrusting parties.
 	In this paper we introduce Armadillo, an open-source prototype implementation for realizing business process choreographies using the Ethereum blockchain.
 	We present a smart contract system for inter-process communication, as well as a user interface for connecting business processes and smart contracts.
-	While our solution is not production-ready in terms of transaction costs, it describes a basis for untrusted messaging via the blockchain without a central controlling party.
+	Our solution describes a basis for untrusted messaging via the blockchain without a central controlling party.
 
 	\keywords{Business Processes \and Choreographies \and Blockchain \and Smart Contracts}
 \end{abstract}
@@ -56,14 +56,14 @@ It provides building blocks for the modeling of not only internal procedures, bu
 
 % Trust
 The basis for inter-process communication is that all involved parties trust each other.
-Agreements and contracts can help clarifying the requirements and expectations between partners.
+Agreements and contracts can help clarify the requirements and expectations between partners.
 As soon as multiple parties are involved in the handling of a process, though, it becomes difficult to track faults and misunderstandings in the communication.
 
 % What is Blockchain?
 With the help of the emerging Blockchain technology, these problems can be resolved.
 A Blockchain network is a network of computation nodes sharing a decentralized information storage structure, a \emph{ledger}.
 Inside this ledger, information is stored in blocks, which are chained together via cryptograhic means.
-Nodes in the network can agree on a public common state of information without trusting each other.
+This allows nodes in the network to agree on a public common state of information without trusting each other.
 Blockchain technology is commonly used to realize virtual currencies, also called cryptocurrencies.
 Ethereum~\cite{wood2014ethereum} is one implementation of the Blockchain concept which also realizes a feature called smart contracts.
 Smart contracts are small programs with limited processing power that are executed by the nodes in the Blockchain network.
@@ -90,15 +90,15 @@ Finally, Section \ref{futurework} will present future work and Section \ref{conc
 
 When businesses work together to reach a common goal, their processes also need to comply with each other.
 Such business-to-business collaborations can also be modeled in BPMN.
-Collaboration models include the businesses' \emph{public processes} (or \emph{behavioral interfaces}~\cite{Weske2012}), i.e., the BPMN tasks, events and message flows describing the message exchanges between participants.
-While not directly part of the interaction, they can also depict \emph{private processes}, i.e., tasks and control flows that are internally executed before or after sending or receiving a message.
+Collaboration models include the businesses' \emph{public processes} (or \emph{behavioral interfaces}~\cite{Weske2012}), i.e. the BPMN tasks, events and message flows describing the message exchanges between participants.
+While not directly part of the interaction, they can also depict \emph{private processes}, i.e. tasks and control flows that are internally executed before or after sending or receiving a message.
 An example collaboration model can be seen in Figure \ref{fig:collaboration}.
 
 Process interoperability needs to be ensured when it comes to executing a collaboration model.
 To this end, there are two different implementation approaches:
 One option is to treat the collaboration like a local, internal process, employing a \emph{process orchestration}.
-In a process orchestration, the execution is controlled by a central instance.
-Adopting the role of a mediator or manager, this central instance dictates and guides the execution.
+In a process orchestration, the execution is controlled by a central authority.
+Adopting the role of a mediator or manager, this central authority dictates and guides the execution.
 Thus, the execution has a well-defined order of tasks and a clear execution state.
 
 Another option is to have the participants act more independently.
@@ -111,37 +111,37 @@ As a result, there is no clear execution state, because each participant drives 
 \subsection{Blockchain}
 
 A blockchain is a distributed ledger that allows users to find a consensus in decentralized applications.
-Information is stored in a linked list of blocks and shared between all participants, i.e., all nodes in a decentralized computer network.
+Information is stored in a linked list of blocks and shared between all participants, i.e. all nodes in a decentralized computer network.
 By only allowing new blocks to be appended to the list, a non-rewritable history is created, that at the same time represents the "truth", the common state all nodes in the network agree on.
 There are multiple approaches of determining who is allowed to append a new block, altering the state.
-The most common one, currently employed for example by Bitcoin~\cite{nakamoto2008bitcoin} and Ethereum~\cite{wood2014ethereum}, is called \emph{proof of work}:
+The most common one, currently employed by Bitcoin~\cite{nakamoto2008bitcoin} and Ethereum~\cite{wood2014ethereum}, is called \emph{proof of work}:
 Each new block has to contain a signature that verifies the block order.
 The signature is created using data from the preceding block and is by design mathematically hard to calculate, but easy to verify.
-On the one hand, this results in a race between so called \emph{mining} nodes who try and calculate such a signature, as the first valid signature verifies the new block's position and stores it's data on the ledger.
+On the one hand, this results in a race between so called \emph{mining} nodes who try and calculate such a signature, as the first valid signature verifies the new blocks position and stores its data on the ledger.
 Mining nodes get rewarded for finding such signatures, creating an incentive for continuous appending of new blocks and keeping the blockchain alive.
 On the other hand, other nodes can easily verify the signature and come to a consensus regarding the latest state.
 
 Blockchain technology is mainly used for cryptocurrencies, most notably Bitcoin~\cite{nakamoto2008bitcoin}.
 In more recent developments however, it is a foundation for a number of other decentralized applications.
-Ethereum~\cite{wood2014ethereum} is a platform that uses a blockchain as the underlying system, but further allows users write and execute code in the form of \emph{smart contracts}.
+Ethereum~\cite{wood2014ethereum} is a platform that uses a blockchain as the underlying system, and additionally allows users to write and execute code in the form of \emph{smart contracts}.
 Smart contracts are Turing complete code artifacts that can be deployed on the blockchain and are accessible by accounts in the Ethereum platform.
 When called by a user account or another contract, they can perform calculations, send or receive money, or store information on the blockchain ledger either directly or in the form of \emph{events}.
 Events are publicly visible and can be watched by off-chain applications, allowing external programs to react to blockchain state changes.
-This would otherwise not be possible, as smart contracts can not communicate with anything outside the blockchain.
+This would otherwise not be possible, since smart contracts can not communicate with any external APIs.
 
 When calling functions on a smart contract, users have to supply \emph{gas}, a unit that powers smart contract computations.
 Contracts deplete gas for each operation.
-This ensures a) that contracts are not running for an unlimited amount of time, avoiding a dead lock of the platform, and b) that computation work is kept small, as all operations have to be performed by each node in the network.
+This ensures a) that contracts are not running for an unlimited amount of time, avoiding a dead lock of the platform, and b) that computations are kept small. This is important, because all operations have to be performed by each node in the network.
 
 Smart contracts are executed in the \emph{Ethereum virtual machine (EVM)}.
-As such, they contain byte code that is interpreted by the VM.
+As such, they contain byte code that is interpreted by the EVM.
 When developing smart contracts, there are multiple languages that compile to EVM bytecode, the most prominent one currently being \emph{Solidity}\footnote{\url{https://github.com/ethereum/solidity}}, which we also chose to implement our protoype.
-Xu et al. present patterns and examples for Solidity programming in~\cite{xu2018pattern}, which we used as orientation during development.
+Xu et al. present patterns and examples for Solidity programming in~\cite{xu2018pattern}, which we used as an orientation during development.
 
 \subsection{Prior Work on Business Processes on the Blockchain}
 In~\cite{weber2016untrusted}, a first approach of monitoring and coordinating business process interactions across organizations on the blockchain was presented.
 Using a smart contract as a central \emph{monitor} or \emph{mediator} of the communication, a form of inter-process orchestration is implemented.
-The mediator is also responsible for role management, i.e., participants can register users to certain roles with the mediator, who verifies these roles at runtime.
+The mediator is also responsible for role management, i.e. participants can register users to certain roles with the mediator, who verifies these roles at runtime.
 The architecture features \emph{factory contracts}, which are responsible for deploying instance contracts for each process instance.
 For integrating blockchain and BPM applications, the concept of \emph{triggers} is introduced: Applications that watch events on the blockchain and trigger external API calls.
 
@@ -152,12 +152,9 @@ Our goal on the other hand was to implement the collaboration as a choreography,
 Thus, a central mediator is no longer needed, also resolving the question of who is responsible for the development, deployment and maintenance of the mediator contract.
 
 In order to achieve BPMN-to-Solidity compilation,~\cite{weber2016untrusted} also describes translation rules to transform BPMN elements to Solidity code.
-Further work~\cite{banuelos2017optimized} tries to optimize the translation process, in turn reducing Ethereum execution costs by reducing required space and operations.
+Further work~\cite{banuelos2017optimized} optimizes the translation process, in turn reducing Ethereum execution costs by reducing required space and operations.
 
-We have not made an automated translation our primary goal.
-However, we believe that an at least semi-automatic translation process can be derived from our results.
-
-Caterpillar~\cite{lopez2017caterpillar} is an open source implementation of a process engine using smart contractsf.
+Caterpillar~\cite{lopez2017caterpillar} is an open source implementation of a process engine using smart contracts.
 Building on the BPMN-to-Solidity compilation from~\cite{weber2016untrusted}, it integrates translation, deployment and execution of BPMN models directly on the Ethereum Blockchain.
 Processes can be started and executed via a user interface, which encapsulates the calls to the generated Solidity code in the background.
 
@@ -188,10 +185,10 @@ The result is depicted in Figure \ref{fig:collaboration}.
 
 Before presenting the system, we want to give an overview of the functional and non-functional requirements it has to fulfill.
 
-The system's purpose is to facilitate trusted communication and collaboration between untrusting partners.
+The systems purpose is to facilitate trusted communication and collaboration between untrusting partners.
 Therefore, it must be possible to send messages between partners.
 To ensure security and trust in the system, both partners need a way to verify the authenticity of a message.
-Verification is only possible if the system keeps track of users and permissions, i.e., implements a form of role-based access control with a user-to-role and role-to-permission mapping.
+Verification is only possible if the system keeps track of users and permissions, i.e. if it implements a form of role-based access control with a user-to-role and role-to-permission mapping.
 User and permission data has to be accessible at runtime, so that the communicating partners can use it to check the authenticity of messages.
 It should also be possible to modify this data at runtime, to accomodate for changes in the company structure.
 
@@ -220,8 +217,6 @@ Each organization deploys a \emph{trigger} application that continuously listens
 If a catch event is observed, this information is relayed to the process engine to handle the event.
 The usage of the blockchain to monitor the choreography is encapsulated in the process engine and is therefore hidden from the users.
 
-The structure of components for one organization can be seen in Figure \ref{fig:system_diagram}.
-
 \subsection{Contract Structure}
 
 To realize the system, we use three kinds of smart contracts.
@@ -239,16 +234,15 @@ Either there is one access contract per process or access contracts are shared o
 
 Each organization needs to perform certain setup steps before the process execution.
 The factory and access contracts corresponding to the process need to be deployed.
-Additionally, the user-to-role and and role-to-permission mappings have to be updated in the access contract (\texttt{giveRights} and \texttt{assignRole}, respectively), to allow verification of users during the process execution.
+Additionally, the user-to-role and and role-to-permission mappings have to be updated in the access contract to allow verification of users during the process execution.
 Lastly, the addresses of the factory contracts of all communication partners need to be linked in the factory contract.
 
 \subsection{Interaction Setup}
 
-%TODO add emit event in the diagram
 \begin{figure}
 	\centering
-	\includegraphics[width=\textwidth]{fig/instance_creation.eps}
-	\caption{Example sequence diagram describing the creation of a new process instance in our choreography example.}
+	\includegraphics[width=0.8\textwidth]{fig/instance_creation.pdf}
+	\caption{Example sequence diagram describing the creation of an instance contract of the bulk buyer, cf. Figure \ref{fig:collaboration}.}
 	\label{fig:instance_creation}
 \end{figure}
 
@@ -263,8 +257,8 @@ The organizations which do not initiate the choreography can detect the newly cr
 \subsection{Sending Messages}
 \begin{figure}
 	\centering
-	\includegraphics[width=\textwidth]{fig/event_sending.eps}
-	\caption{A sequence diagram describing the process of sending a message to a collaboration partner.}
+	\includegraphics[width=\textwidth]{fig/event_sending.pdf}
+	\caption{A sequence diagram describing the process of sending a message to a collaboration partner, in this instance the message \emph{request details} that is sent by the special carrier to the supplier in Figure \ref{fig:collaboration}.}
 	\label{fig:event_sending}
 \end{figure}
 
@@ -294,38 +288,37 @@ The specific implemented contracts can be found in our repository in the folder\
 
 For taking part in the process collaboration, each company needs to deploy a factory contract that is responsible for creating instance contracts.
 To this end, the factory contract source code needs to contain the definition of the company's instance contract.
-This closely follows the factory contract pattern used in~\cite{weber2016untrusted}, and described as pattern 14 in~\cite{xu2018pattern}.
+This closely follows the factory contract pattern used in~\cite{weber2016untrusted}, which is also described as pattern 14 in~\cite{xu2018pattern}.
 
-In our implementation, a company's factory contract also knows the address of the company's access contract for convenience.
-Additionally, it stores the addresses of created instances, mapped by a \emph{choreography instance ID}, i.e., an ID that is shared between all choreography participants for each instance of the shared choreography.
+In our implementation, a companys factory contract also knows the address of the companys access contract for convenience.
+Additionally, it stores the addresses of created instances, mapped by a \emph{choreography instance ID}, i.e. an ID that is shared between all choreography participants for each instance of the shared choreography.
 
 To allow interaction between companies via the blockchain, two participants need to exchange the addresses of their factory contracts when there is a direct interaction between them.
 
 A factory contract thus has the resulting interface:
 \begin{itemize}
-	\item A \texttt{constructor} where the address of the company's access contract is passed
+	\item A \texttt{constructor} where the address of the companys access contract is passed
 	\item Setter methods for the factory contract addresses of interaction partners
 	\item A \texttt{createInstance} function
 	\item A \texttt{getAccessAddress} function
 	\item A \texttt{isInstance} function used to verify whether an address points to an instance contract created by this factory (for a given choreography ID)
 \end{itemize}
 
-Internally, there are a few implementation details worth mentioning.
-Regarding storage, private fields are necessary holding the factory contract addresses, the access contract address as well as the instance address mapping.
+Regarding storage, private fields are necessary for holding the factory contract addresses, the access contract address as well as the instance address mapping.
 To avoid communication errors at runtime, it should not be possible to call \texttt{createInstance} before all required factory addresses are set.
 Finally, there is one minor implementation difference depending on whether a participant is the \emph{choreography initiator} (the participant to manually start the choreography instance by sending a request):
 The initiator needs to generate the choreography instance ID inside of its \texttt{createInstance} function, and pass it to all its interaction partners.
 Every other participant needs to have a parameter for the ID in their \texttt{createInstance} function.
 
 Communication between smart contracts happens in the form of function calls.
-To allow the factory and instance contracts to call functions on their interaction partner's contracts, the partner's function interface needs to be known, i.e., it needs to be declared in the factory contract source code.
+To allow the factory and instance contracts to call functions on their interaction partners contracts, the partners function interface needs to be known, i.e. it needs to be declared in the factory contract source code.
 %- the access contract (same for every participant)
 %- remote factory contracts (if receiving messages from remote, for verification)
 %- remote instance contracts (if sending messages to remote instance)
 
 The instance contract definition is also part of the factory contract source code.
-The factory contract creates an instance by calling its constructor and passing all for the inter-process communication required addresses.
-Instance contracts provide functions for each sending action, i.e., send tasks or events in the company's process, which can be called by the process engine.
+The factory contract creates an instance by calling its constructor and passing all addresses that are required for the inter-process communication .
+Instance contracts provide functions for each sending action, i.e. send tasks or events in the companys process, which can be called by the process engine.
 For each receiving action (task or event), a function needs to be present that can be called from other instance contracts.
 When company $A$ triggers a sending function on their instance contract, it in turn calls a corresponding receive function on the instance contract of company $B$.
 
@@ -334,27 +327,26 @@ Instance contracts need to store:
 	\item The choreography instance ID for verifying incoming messages
 	\item The addresses of the factory and access contracts of partners for verifying incoming messages
 	\item The addresses of the instance contracts of partners for sending messages
-	\item The address of the company's own access contract, for verifying local function calls
-	\item The address of the company's own factory contract, for returning any remaining funds upon \texttt{selfdestruct}
+	\item The address of the companys own access contract, for verifying local function calls
+	\item The address of the companys own factory contract, for returning any remaining funds upon \texttt{selfdestruct}
 \end{itemize}
 
-A few more implementation details are worth noting:
-Verification is implemented on sender-side and on receiver side.
-Each send function has a guard checking the caller in the company's own access contract.
-Each receive function has a guard checking a) that the caller is a contract instance that is part of the choreography instance (via the partner factory contract), and b) checking the account behind the request in the partner's access contract.
+Verification is implemented on sender side and on receiver side.
+Each send function has a guard checking the caller in the companys own access contract.
+Each receive function has a guard checking a) that the caller is a contract instance that is part of the choreography instance (via the partner factory contract), and b) checking the account behind the request in the partners access contract.
 Guarding functions against unwanted access was described in pattern 13, Embedded Permission, in~\cite{xu2018pattern}.
 
-Having achieved a traceable communication on the blockchain using contract function calls, we still want to access messages in off-chain applications, e.g., triggering process events in a process engine on message receive.
-To this end, smart contracts need to implement events that are emitted to the blockchain whenever a receive function is executed.
-Blockchain events can then be watched, and reacted upon, by off-chain components.
+Having achieved a traceable communication on the blockchain using contract function calls, we still want to access messages in off-chain applications, e.g. triggering process events in a process engine on message receive.
+To this end, smart contracts need to implement blockchain events that are emitted to the blockchain ledger whenever a receive function is executed.
+These events can then be watched, and reacted upon, by off-chain components.
 
-In our current implementation, the end of a process instance is marked by the instance contract selfdestructing.
+In our current implementation, the end of a process instance is marked by the instance contract self-destructing.
 At the end of the execution of the last send or receive function in the process, the solidity builtin \texttt{selfdestruct} is called.
 By passing the factory contract address, potential remaining funds are transferred to the factory contract.
 
 \subsubsection{Access Contract}
 
-Each company deploys an access contract that holds information about the roles and permissions of the company's employees.
+Each company deploys an access contract that holds information about the roles and permissions of the companys employees.
 Having permission data encapsuled in a separate access contract follows pattern 12, the Data Contract pattern, from~\cite{xu2018pattern}.
 It allows decoupling the roles and permissions from the actual contract instances, allowing for a simple modification at runtime.
 Access contracts can be deployed per process, or even once per company as a single source of truth for all processes.
@@ -372,7 +364,7 @@ Verifying a users permission to execute a certain task can be achieved by callin
 \newline
 
 Given this interface, there are multiple possible implementation approaches for access contracts.
-As it was our main focus to develop a running prototype, and not to provide an optimized, production-ready system, we decided on a simple mapping-based implementation:
+We decided on a simple mapping-based implementation:
 \begin{lstlisting}[
   caption=Mappings in our access contract implementation,
   language=Solidity
@@ -387,39 +379,34 @@ contract Access {
 }
 \end{lstlisting}
 The first mapping stores the tasks that can be executed by a specific role (cf. pools and lanes, and their contained tasks, in BPMN diagrams).
-The second mapping assigns each role an index in the access bitmask, i.e., if the bit at the given index is set, the user holds the corresponding role.
+The second mapping assigns each role an index in the access bitmask, i.e. if the bit at the given index is set, the user holds the corresponding role.
 The third mapping assigns such an access bitmask to each user.
-
-Storing large amounts data on the blockchain is expensive by design.
-As the mappings grow in size with each user, role and task that is part of some process in the company, our implementation is probably not suited for real-world application.
-Finding optimized, less costly (both in computation cost and storage cost) approaches is part of future work.
-One other approach we thought of is based on pattern 5 of~\cite{xu2018pattern} - depicting real world permissions as tokens, and "paying" with these tokens on function call to verify one's role.
 
 \subsection{Tools}
 
-In the following, we will briefly present the tools we implemented integrate process management with our blockchain approach.
+In the following, we will briefly present the tools we implemented to evaluate our approach.
 The implementation can be found at \url{https://github.com/p-otto/Armadillo}, in the folders \texttt{armadillo} and \texttt{eth\_admin}, respectively.
 
 \subsubsection{Armadillo}
 
 \begin{figure}
 	\centering
-\includegraphics[width=0.8\textwidth]{fig/Armadillo.png}
+\includegraphics[width=0.9\textwidth]{fig/Armadillo.png}
 \caption{Screenshot of the Armadillo web application.}
 \label{fig:armadillo}
 \end{figure}
 
 As a way of joining process execution with our blockchain architecture, we developed a single page web application (see Figure \ref{fig:armadillo}) in JavaScript and HTML, using the Vue.js framework\footnote{\url{https://vuejs.org}}.
 With the help of the Web3 Ethereum JavaScript API\footnote{\label{web3}\url{https://github.com/ethereum/web3.js/}}, we can trigger contract functions based on user actions in the applications user interface.
-Armadillo also implements the upload and rendering of BPMN diagrams using the bpmn.js toolkit\footnote{\url{https://bpmn.io/toolkit/bpmn-js/}}.
-Building upon the BPMN viewer provided in the toolkit, we implemented the handling of user clicks on BPMN \emph{Service Tasks}, which allowed us to use the viewer as a process engine mock.
-A screencast of the full choreography can be found in the respository under \url{https://github.com/p-otto/Armadillo/blob/master/armadillo-screencast.mp4}.
+Armadillo also implements uploading and rendering BPMN diagrams using the bpmn.js toolkit\footnote{\url{https://bpmn.io/toolkit/bpmn-js/}}.
+Building upon the BPMN viewer provided in the toolkit, we implemented handling of user clicks on BPMN \emph{Service Tasks}, which allowed us to use the viewer as a placeholder for a process engine .
+A screencast of the full choreography can be found in our repository: \url{https://github.com/p-otto/Armadillo/blob/master/armadillo-screencast.mp4}.
 
 \subsubsection{Eth\_Admin}
 
 We developed a small command line application for managing users and roles via the access contract.
-The application is written in JavaScript in the node.js framework\footnote{\url{https://nodejs.org/}}.
-Internally, calls functions on access contracts utilizing the Web3 Ethereum JavaScript API\textsuperscript{\ref{web3}}.
+The application is written in JavaScript using the node.js framework\footnote{\url{https://nodejs.org/}}.
+Internally, it calls functions on access contracts utilizing the Web3 Ethereum JavaScript API\textsuperscript{\ref{web3}}.
 We decided to build the command line functionality with the help of the Vorpal framework\footnote{\url{http://vorpal.js.org/}}.
 The \texttt{README} in our repository describes how to use the application.
 
@@ -427,9 +414,12 @@ The \texttt{README} in our repository describes how to use the application.
 
 When evaluating blockchain implementations, the underlying system comes with new aspects that need to be considered.
 First, computation and data storage on the blockchain needs to be paid for in \emph{transaction fees}.
-In Ethereum, the unit \emph{gas} was introduced as a way of having consistent fee pricing in spite of fluctuating Ether prices.
+In Ethereum, transaction fees are paid for in \emph{gas}.
+It is a unit that is used up by any instruction a contract executes.
+Users can set gas prices for transactions, which affect how likely it is that the transaction gets executed by miners.
+Therefore, higher gas prices lead to faster execution of transactions.
 
-We measured the gas used for each transaction that is executed by the Armadillo tool, and we summed up the gas usage for the different kinds of contracts in the companies in Table \ref{gasusage}:
+We measured the gas usage for each transaction that is executed by the Armadillo tool, and we summed it up for the different kinds of contracts in the companies in Table \ref{gasusage}:
 
 \begin{table}
 	\centering
@@ -453,7 +443,7 @@ However, the instantiation cost that is currently paid by the initiator appears 
 As the first instantiation transitively triggers all the other participant's instantiations, this can become quite costly, and might even surpass the \emph{block gas limit}, the maximum amount of gas that can be spent per new block, depending on the number of participants involved.
 %Even if that is not the case, a high gas cost is still a problem, since in Ethereum, by design, transactions with high gas costs are less likely to be included in a block by miners, possibly leading to long waiting times. % TODO why again?
 
-Second, security is one of the main reasons to opt for blockchain systems.
+Security is one of the main reasons to use blockchain systems.
 In our case, we put effort into making the message exchange secure by adding multiple steps of access verification using the access contracts.
 Access contracts themselves, however, only implement access verification by comparing the sender address with the address the contract was deployed with (the \emph{owner} address).
 As the owner can give and remove access rights freely, another layer of off-chain security might make sense here to restrict the owner account from unwanted access.
@@ -465,44 +455,49 @@ While we were able to execute an example choreography using our implementation, 
 
 \subsubsection{Instantiation Costs}
 
-During evaluation, we saw that the instantiation costs are very high, have a potential to hit the gas limit in larger choreographies and also have to be paid by the initiator.
+During evaluation, we saw that the instantiation costs are very high, have a potential to hit the gas limit in larger choreographies and also have to be paid fully by the initiator.
 These problems need to be addressed before our solution is feasible for production use.
+
 Further research thus could be invested into a more decentralized instantiation, where each participant pays for its own instance contract creation.
-One apporach worth considering is to have the intiator emit a specific instance creation event that each other participant would listen to.
-The process engine could then react to such an event with the help of a trigger, and call the \texttt{createInstance} method.
-Then the other factory would have to be notified that the instantiation was successful.
+We propose to have the initiator emit a specific instance creation event that all other participants would listen to.
+The process engine then reacts to such an event with the help of a trigger, and calls the \texttt{createInstance} method.
+Then the other factory is notified that the instantiation was successful.
 
 \subsubsection{Access Contract}
 
-As stated earlier, there probably are better ways of implementing role-based access control in a smart contract.
-We decided for a simple mapping-based approach, which requires large amounts of memory.
-Finding approaches that are more suited for blockchain architectures is one direction in which further research could go.
+To implement access right management, we decided for a simple mapping-based approach, which requires large amounts of memory.
+Storing large amounts data on the blockchain is expensive by design.
+As the mappings grow in size with each user, role and task, costs rise.
+Finding optimized and cheaper (both in computation cost and storage cost) approaches is part of future work.
+
+An alternative approach for access control can be implemented based on pattern 5 of~\cite{xu2018pattern} - depicting real world permissions as tokens, and "paying" with these tokens on function call to verify ones role.
 
 \subsubsection{Process Contract Generation}
 
 Our contract implementations are the result of manual, iterative development.
 Having reached the final iteration, we realized that the contracts share common patterns.
-Most of the implementation could probably be generated, i.e., from a choreography diagram (or at least from the participant's public processes).
-The next step would be to define a template for the factory contract source code, to determine which parts are easily generated, and which parts might need manual adjustments, e.g., depending on whether the participant is the initiator or not.
-Given such a template, one could work on a contract generation tool that takes a diagram as input and produces factory contract code.
+
+Most of the implementation can be generated, e.g. from a choreography diagram (or at least from the participants public processes).
+The next step is to define a template for the factory contract source code, to determine which parts are easily generated, and which parts might need manual adjustments.
+Given such a template, one can work on a contract generation tool that takes a diagram as input and produces factory contract code.
 A possible implementation could use a rule-based approach for translating the choreography model, similar to~\cite{lopez2017caterpillar}.
 
 \subsubsection{Process Engine Integration}
 
 In related work~\cite{lopez2017caterpillar}, process logic was executed on the blockchain.
-As we decided for a hybrid approach, using a process engine for execution and the Ethereum blockchain for traceable message passing, we implemented a mock process engine in our application.
-Now, it certainly makes sense to integrate the system with a productive process engine implementation, e.g., the Camunda BPMN Workflow Engine\footnote{\url{https://camunda.com/products/bpmn-engine}} for further evaluation.
+As we decided for a hybrid approach, using a process engine for execution and the Ethereum blockchain for traceable message passing, we implemented a placeholder process engine in our application.
+
+The next step is to integrate the system with a productive process engine implementation, e.g. the Camunda BPMN Workflow Engine\footnote{\url{https://camunda.com/products/bpmn-engine}}, for further evaluation.
 
 \section{Conclusion} \label{conclusion}
 
+Currently, blockchain technology is most widely used to handle monetary transactions.
+Instead of shifting assets between partners, however, we are using the blockchain to shift \emph{responsibilities}.
 In this paper, we presented a system architecture and prototypical implementation for connecting process execution with blockchain technology.
 While keeping the process execution off-chain, we developed an approach of inter-process communication using the Ethereum blockchain as a messaging channel.
 Having a permanent ledger as the underlying data structure storing messages, faults and misunderstandings can be traced back to their origin and responsibilities are disclosed.
 Building on the findings of this paper, improvements regarding runtime and execution costs open up a wide area of possible future work on the topic.
 
-Currently, blockchain technology is most widely used to handle monetary transactions.
-Instead of shifting assets between partners, however, we are using the blockchain to shift \emph{responsibilities}.
-Given the similar nature of the two, we speculate that this topic is of future relevance.
 %
 % ---- Bibliography ----
 %
