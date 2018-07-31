@@ -35,7 +35,7 @@
 %
 \begin{abstract}
 	Lack of trust between communication partners is one of the major issues companies face when implementing business processes in a cross-organizational setting.
-	Blockchain is an emerging technology that enables decentralization and distribution of state without the need for a trusted central instance.
+	Blockchain is an emerging technology that enables decentralization and distribution of state without the need for a trusted central authority.
 	As a result, it is possible to form consensus in the communication between otherwise untrusting parties.
 	In this paper we introduce Armadillo, an open-source prototype implementation for realizing business process choreographies using the Ethereum blockchain.
 	We present a smart contract system for inter-process communication, as well as a user interface for connecting business processes and smart contracts.
@@ -60,27 +60,27 @@ Agreements and contracts can help clarify the requirements and expectations betw
 As soon as multiple parties are involved in the handling of a process, though, it becomes difficult to track faults and misunderstandings in the communication.
 
 % What is Blockchain?
-With the help of the emerging Blockchain technology, these problems can be resolved.
-A Blockchain network is a network of computation nodes sharing a decentralized information storage structure, a \emph{ledger}.
+With the help of the emerging blockchain technology, these problems can be resolved.
+A blockchain network is a network of computation nodes sharing a decentralized information storage structure, a \emph{ledger}.
 Inside this ledger, information is stored in blocks, which are chained together via cryptograhic means.
 This allows nodes in the network to agree on a public common state of information without trusting each other.
 Blockchain technology is commonly used to realize virtual currencies, also called cryptocurrencies.
-Ethereum~\cite{wood2014ethereum} is one implementation of the Blockchain concept which also realizes a feature called smart contracts.
-Smart contracts are small programs with limited processing power that are executed by the nodes in the Blockchain network.
+Ethereum~\cite{wood2014ethereum} is one implementation of the blockchain concept which also realizes a feature called smart contracts.
+Smart contracts are small programs with limited processing power that are executed by the nodes in the blockchain network.
 
 %What problems are there with BPMN that can be solved with Blockchain?
 Blockchain features can be used to facilitate trusted communication between untrusted parties in Business Process Management.
 % What approaches exist currently (Caterpillar~\cite{lopez2017caterpillar}, Untrusted paper~\cite{weber2016untrusted})
-Approaches exist that aim to bring BPM functionality to the Ethereum Blockchain utilizing smart contracts.
-Weber et al.~\cite{weber2016untrusted} realize process orchestrations on the Blockchain using a smart contract as the mediator for messages and execution state.
+Approaches exist that aim to bring BPM functionality to the Ethereum blockchain utilizing smart contracts.
+Weber et al.~\cite{weber2016untrusted} realize process orchestrations on the blockchain using a smart contract as the mediator for messages and execution state.
 % What is our general Idea?
 We expand on the work of Weber et al. and implement process choreographies, where instead of one central mediator, each party provides their own smart contracts.
-Communication then happens directly between the partner's contracts instead of passing through a central instance.
+Communication then happens directly between the partners' contracts instead of passing through a central instance.
 
 % Structure
 The rest of this paper is structured as follows: In Section \ref{preliminary} we will discuss concepts and technologies required for our work, and introduce our use case.
 In Section \ref{solutionapproach} we will present the solution requirements and concepts.
-Section \ref{implementation} describes our contract and tool implementations.
+Section \ref{implementation} describes our smart contract and tool implementations.
 In Section \ref{evaluation} we discuss our solution.
 Finally, Section \ref{futurework} will present future work and Section \ref{conclusion} will conclude the paper.
 
@@ -139,7 +139,7 @@ When developing smart contracts, there are multiple languages that compile to EV
 Xu et al. present patterns and examples for Solidity programming in~\cite{xu2018pattern}, which we used as an orientation during development.
 
 \subsection{Prior Work on Business Processes on the Blockchain}
-In~\cite{weber2016untrusted}, a first approach of monitoring and coordinating business process interactions across organizations on the blockchain was presented.
+In~\cite{weber2016untrusted}, a first approach of monitoring and coordinating business process interactions across organizations on the blockchain is presented.
 Using a smart contract as a central \emph{monitor} or \emph{mediator} of the communication, a form of inter-process orchestration is implemented.
 The mediator is also responsible for role management, i.e. participants can register users to certain roles with the mediator, who verifies these roles at runtime.
 The architecture features \emph{factory contracts}, which are responsible for deploying instance contracts for each process instance.
@@ -155,7 +155,7 @@ In order to achieve BPMN-to-Solidity compilation,~\cite{weber2016untrusted} also
 Further work~\cite{banuelos2017optimized} optimizes the translation process, in turn reducing Ethereum execution costs by reducing required space and operations.
 
 Caterpillar~\cite{lopez2017caterpillar} is an open source implementation of a process engine using smart contracts.
-Building on the BPMN-to-Solidity compilation from~\cite{weber2016untrusted}, it integrates translation, deployment and execution of BPMN models directly on the Ethereum Blockchain.
+Building on the BPMN-to-Solidity compilation from~\cite{weber2016untrusted}, it integrates translation, deployment and execution of BPMN models directly on the Ethereum blockchain.
 Processes can be started and executed via a user interface, which encapsulates the calls to the generated Solidity code in the background.
 
 Our approach is different in that we do not try to use the Ethereum platform as a process engine, but rather use it only for message passing, and integrate it with an off-chain process engine.
